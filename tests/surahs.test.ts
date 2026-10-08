@@ -3,13 +3,13 @@ import { bismillah, getAdjacentSurahs, surahs, toBanglaDigits } from '@/lib/sura
 
 /** Ayah counts from the standard Hafs numbering. */
 const AYAH_COUNTS: Record<number, number> = {
-  1: 7, 36: 83, 55: 78, 96: 19, 97: 5, 98: 8, 99: 8, 100: 11, 101: 11, 102: 8, 103: 3, 104: 9,
+  1: 7, 18: 110, 36: 83, 55: 78, 67: 30, 96: 19, 97: 5, 98: 8, 99: 8, 100: 11, 101: 11, 102: 8, 103: 3, 104: 9,
   105: 5, 106: 4, 107: 7, 108: 3, 109: 6, 110: 3, 111: 5, 112: 4, 113: 5, 114: 6,
 }
 
 describe('Surah data', () => {
-  it('contains Al-Fatihah, Ya-Sin, Ar-Rahman and surahs 96 to 114 in order', () => {
-    expect(surahs.map((surah) => surah.id)).toEqual([1, 36, 55, ...Array.from({ length: 19 }, (_, index) => 96 + index)])
+  it('contains Al-Fatihah, Al-Kahf, Ya-Sin, Ar-Rahman, Al-Mulk and surahs 96 to 114 in order', () => {
+    expect(surahs.map((surah) => surah.id)).toEqual([1, 18, 36, 55, 67, ...Array.from({ length: 19 }, (_, index) => 96 + index)])
   })
 
   it('has the correct number of ayahs, numbered from 1', () => {
@@ -47,10 +47,13 @@ describe('Surah data', () => {
 
 describe('Surah helpers', () => {
   it('links neighbours across gaps in Qur’an order', () => {
-    expect(getAdjacentSurahs(1).next?.id).toBe(36)
+    expect(getAdjacentSurahs(1).next?.id).toBe(18)
+    expect(getAdjacentSurahs(18).next?.id).toBe(36)
+    expect(getAdjacentSurahs(36).previous?.id).toBe(18)
     expect(getAdjacentSurahs(36).next?.id).toBe(55)
-    expect(getAdjacentSurahs(55).next?.id).toBe(96)
-    expect(getAdjacentSurahs(96).previous?.id).toBe(55)
+    expect(getAdjacentSurahs(55).next?.id).toBe(67)
+    expect(getAdjacentSurahs(67).next?.id).toBe(96)
+    expect(getAdjacentSurahs(96).previous?.id).toBe(67)
     expect(getAdjacentSurahs(114).next).toBeUndefined()
   })
 

@@ -22,11 +22,13 @@ const target = path.join(root, 'data', 'surahs.ts')
 const DIGITALKHATT_COMMIT = '4213fab9892774f74f7164c70a70dd84a14f0215'
 const INDOPAK_URL = `https://raw.githubusercontent.com/DigitalKhatt/digitalkhatt.org/${DIGITALKHATT_COMMIT}/ClientApp/src/app/services/quran_text_indopak_15.ts`
 
-/** Al-Fatihah, Ya-Sin, Ar-Rahman and the last 19 surahs (Al-Alaq to An-Nas). */
+/** Al-Fatihah, Al-Kahf, Ya-Sin, Ar-Rahman, Al-Mulk and the last 19 surahs (Al-Alaq to An-Nas). */
 const SURAHS = [
   { id: 1, transliteration: 'Al-Fatihah', banglaName: 'আল-ফাতিহা', banglaMeaning: 'সূচনা' },
+  { id: 18, transliteration: 'Al-Kahf', banglaName: 'আল-কাহফ', banglaMeaning: 'গুহা' },
   { id: 36, transliteration: 'Ya-Sin', banglaName: 'ইয়াসীন', banglaMeaning: 'ইয়া ও সীন বর্ণ' },
   { id: 55, transliteration: 'Ar-Rahman', banglaName: 'আর-রহমান', banglaMeaning: 'পরম করুণাময়' },
+  { id: 67, transliteration: 'Al-Mulk', banglaName: 'আল-মুলক', banglaMeaning: 'সার্বভৌমত্ব' },
   { id: 96, transliteration: 'Al-Alaq', banglaName: 'আল-আলাক', banglaMeaning: 'জমাট রক্ত' },
   { id: 97, transliteration: 'Al-Qadr', banglaName: 'আল-কদর', banglaMeaning: 'মহিমান্বিত রাত' },
   { id: 98, transliteration: 'Al-Bayyinah', banglaName: 'আল-বাইয়্যিনাহ', banglaMeaning: 'সুস্পষ্ট প্রমাণ' },
@@ -105,7 +107,7 @@ for (const meta of SURAHS) {
 const header = `import type { Surah } from '@/lib/types'
 
 /**
- * Surahs for reading, in Qur'an order: Al-Fatihah, Ya-Sin, Ar-Rahman and the last 19
+ * Surahs for reading, in Qur'an order: Al-Fatihah, Al-Kahf, Ya-Sin, Ar-Rahman, Al-Mulk and the last 19
  * surahs (Al-Alaq to An-Nas).
  *
  * Arabic: IndoPak script from DigitalKhatt, one continuous string per surah

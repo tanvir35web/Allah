@@ -18,7 +18,7 @@ export function MoreMenu() {
   const { favorites } = useAppData()
   const reviewQueue = useReviewQueue()
   const items: MenuItem[] = [
-    { href: '/surahs/', label: 'Surahs', description: '22 surahs with Arabic and Bangla meaning', icon: BookOpenText },
+    { href: '/surahs/', label: 'Surahs', description: '24 surahs with Arabic and Bangla meaning', icon: BookOpenText },
     { href: '/favorites/', label: 'Favorites', description: 'Names you have saved', icon: Star, badge: favorites.length || undefined },
     { href: '/review/', label: 'Review', description: 'Keep learned Names fresh', icon: RotateCcw, badge: reviewQueue.length || undefined },
     { href: '/settings/', label: 'Settings', description: 'Theme, language and data', icon: Settings },
