@@ -4,7 +4,6 @@ import localFont from 'next/font/local'
 import type { ReactNode } from 'react'
 import { BottomNav } from '@/components/navigation/bottom-nav'
 import { AppDataProvider } from '@/components/providers/app-data-provider'
-import { OfflineIndicator } from '@/components/pwa/offline-indicator'
 import { ServiceWorkerRegistrar } from '@/components/pwa/service-worker-registrar'
 import { SPLASH_SCREENS } from '@/lib/pwa'
 import { THEME_COLORS, themeInitScript } from '@/lib/theme'
@@ -107,7 +106,6 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         </a>
         <AppDataProvider>
           {children}
-          <OfflineIndicator />
           <BottomNav />
         </AppDataProvider>
         <ServiceWorkerRegistrar />

@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { ArabicText } from '@/components/common/localized-text'
 import { PageShell } from '@/components/layout/page-shell'
 import { MoreMenu } from '@/components/navigation/more-menu'
+import { ConnectionStatus } from '@/components/pwa/connection-status'
 
 export const metadata: Metadata = { title: 'More' }
 
@@ -9,6 +10,7 @@ export default function MorePage() {
   return (
     <PageShell title="More">
       <MoreMenu />
+      <ConnectionStatus />
       <figure className="mt-10 px-4 text-center">
         <blockquote>
           <ArabicText className="block text-2xl leading-[1.9]">وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَىٰ فَادْعُوهُ بِهَا</ArabicText>
