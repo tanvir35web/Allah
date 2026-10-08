@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronRight, Info, RotateCcw, Settings, Star, type LucideIcon } from 'lucide-react'
+import { BookOpenText, ChevronRight, Info, RotateCcw, Settings, Star, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useAppData } from '@/components/providers/app-data-provider'
 import { Card } from '@/components/ui/card'
@@ -18,6 +18,7 @@ export function MoreMenu() {
   const { favorites } = useAppData()
   const reviewQueue = useReviewQueue()
   const items: MenuItem[] = [
+    { href: '/surahs/', label: 'Surahs', description: '22 surahs with Arabic and Bangla meaning', icon: BookOpenText },
     { href: '/favorites/', label: 'Favorites', description: 'Names you have saved', icon: Star, badge: favorites.length || undefined },
     { href: '/review/', label: 'Review', description: 'Keep learned Names fresh', icon: RotateCcw, badge: reviewQueue.length || undefined },
     { href: '/settings/', label: 'Settings', description: 'Theme, language and data', icon: Settings },

@@ -1,14 +1,16 @@
-import { dayNumber, type DateKey } from '@/lib/date'
 import type { AllahName } from '@/lib/types'
 
-/** Deterministic index for a local date: same day → same index, no network needed. */
-export function calculateDayIndex(date: DateKey, total: number): number {
-  if (total <= 0) return 0
-  return ((dayNumber(date) % total) + total) % total
-}
-
-export function getDailyName(names: readonly AllahName[], date: DateKey): AllahName {
-  const name = names[calculateDayIndex(date, names.length)]
+/**
+ * A random Name for the home card, never the one shown last (`previousId`)
+ * so every page load shows something new. `random` returns [0, 1).
+ */
+export function pickRandomName(
+  names: readonly AllahName[],
+  previousId?: number,
+  random: () => number = Math.random,
+): AllahName {
+  const pool = names.length > 1 ? names.filter((name) => name.id !== previousId) : names
+  const name = pool[Math.floor(random() * pool.length)]
   if (!name) throw new Error('Names data is empty')
   return name
 }

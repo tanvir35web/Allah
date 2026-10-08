@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, Check, RotateCcw, Sparkles, Star } from 'lucide-react'
+import { ArrowRight, BookOpenText, Check, ChevronRight, RotateCcw, Sparkles, Star } from 'lucide-react'
 import Link from 'next/link'
 import { ArabicText } from '@/components/common/localized-text'
 import { LoadingState } from '@/components/common/loading-state'
@@ -19,6 +19,7 @@ import {
   useStreak,
   useTodayActivity,
 } from '@/hooks/use-derived-data'
+import { surahs } from '@/lib/surahs'
 import { pluralize } from '@/lib/utils'
 import { DailyNameCard } from './daily-name-card'
 import { Onboarding } from './onboarding'
@@ -158,6 +159,21 @@ function QuickActions() {
           </Link>
         ))}
       </div>
+      <Link
+        href="/surahs/"
+        className="flex min-h-16 items-center gap-4 rounded-3xl border border-border bg-card p-4 transition-transform active:scale-[0.98]"
+      >
+        <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary-soft text-primary">
+          <BookOpenText className="size-5" aria-hidden />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block font-semibold">Surahs</span>
+          <span className="block text-xs text-muted-foreground">
+            {pluralize(surahs.length, 'surah')} with Arabic and Bangla meaning
+          </span>
+        </span>
+        <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
+      </Link>
     </section>
   )
 }

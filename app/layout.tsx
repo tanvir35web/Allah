@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Amiri, Hind_Siliguri, Plus_Jakarta_Sans } from 'next/font/google'
+import localFont from 'next/font/local'
 import type { ReactNode } from 'react'
 import { BottomNav } from '@/components/navigation/bottom-nav'
 import { AppDataProvider } from '@/components/providers/app-data-provider'
@@ -17,6 +18,13 @@ const hindSiliguri = Hind_Siliguri({
   weight: ['400', '600'],
   variable: '--font-hind-siliguri',
   display: 'swap',
+})
+// DigitalKhatt IndoPak (SIL OFL 1.1, see app/fonts/), for the surah reader.
+const indopak = localFont({
+  src: './fonts/digitalkhatt-indopak.woff2',
+  variable: '--font-indopak',
+  display: 'swap',
+  preload: false,
 })
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
@@ -84,7 +92,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       lang="en"
       dir="ltr"
       suppressHydrationWarning
-      className={`${jakarta.variable} ${amiri.variable} ${hindSiliguri.variable}`}
+      className={`${jakarta.variable} ${amiri.variable} ${hindSiliguri.variable} ${indopak.variable}`}
     >
       <head>
         {/* Applies the saved theme before first paint to avoid a flash. */}

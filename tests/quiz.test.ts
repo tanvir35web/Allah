@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { allahNames, getNameById } from '@/data/allah-names'
-import { calculateDayIndex, getDailyName } from '@/lib/daily-name'
+import { pickRandomName } from '@/lib/daily-name'
 import {
   answerQuestion,
   createQuestion,
@@ -96,14 +96,20 @@ describe('answers and scoring', () => {
 })
 
 describe('daily name', () => {
-  it('is stable for a date and changes the next day', () => {
-    expect(getDailyName(allahNames, '2026-10-07')).toBe(getDailyName(allahNames, '2026-10-07'))
-    expect(getDailyName(allahNames, '2026-10-07')).not.toBe(getDailyName(allahNames, '2026-10-08'))
+  it('picks by the random value', () => {
+    expect(pickRandomName(allahNames, undefined, () => 0)).toBe(allahNames[0])
+    expect(pickRandomName(allahNames, undefined, () => 0.999)).toBe(allahNames[98])
   })
 
-  it('cycles through all 99 names', () => {
-    const indexes = new Set(Array.from({ length: 99 }, (_, day) => calculateDayIndex(`2026-01-01`, 99) + day).map((i) => i % 99))
-    expect(indexes.size).toBe(99)
-    expect(calculateDayIndex('1970-01-01', 99)).toBe(0)
+  it('never repeats the previous Name', () => {
+    const first = allahNames[0]!
+    for (const value of [0, 0.5, 0.999]) {
+      expect(pickRandomName(allahNames, first.id, () => value).id).not.toBe(first.id)
+    }
+  })
+
+  it('can reach every Name', () => {
+    const ids = new Set(Array.from({ length: 99 }, (_, i) => pickRandomName(allahNames, undefined, () => (i + 0.5) / 99).id))
+    expect(ids.size).toBe(99)
   })
 })

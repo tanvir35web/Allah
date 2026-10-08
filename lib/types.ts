@@ -95,3 +95,27 @@ export const DEFAULT_SETTINGS: AppSettings = {
   reminderTime: '20:00',
   onboardingComplete: false,
 }
+
+export interface Ayah {
+  /** Ayah number within the surah. */
+  number: number
+  bangla: string
+}
+
+export interface Surah {
+  /** Surah number in the Qur'an, 1–114. */
+  id: number
+  arabicName: string
+  transliteration: string
+  banglaName: string
+  englishMeaning: string
+  banglaMeaning: string
+  revelation: 'meccan' | 'medinan'
+  /**
+   * Whole surah in IndoPak script, with ayah-end numbers, waqf signs and ruku
+   * marks embedded. Excludes the Bismillah heading (except in Al-Fatihah).
+   */
+  arabic: string
+  /** Bangla meaning, ayah by ayah. */
+  ayahs: Ayah[]
+}
