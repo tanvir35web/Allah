@@ -35,10 +35,22 @@ interface ProgressRingProps {
   size?: number
   stroke?: number
   label: string
+  /** What screen readers say for the value, e.g. "2 of 3 Names learned today". */
+  valueText?: string
+  tone?: 'primary' | 'success'
   children?: React.ReactNode
 }
 
-export function ProgressRing({ value, max, size = 72, stroke = 6, label, children }: ProgressRingProps) {
+export function ProgressRing({
+  value,
+  max,
+  size = 72,
+  stroke = 6,
+  label,
+  valueText,
+  tone = 'primary',
+  children,
+}: ProgressRingProps) {
   const radius = (size - stroke) / 2
   const circumference = 2 * Math.PI * radius
   const ratio = max > 0 ? Math.min(1, value / max) : 0
@@ -49,6 +61,7 @@ export function ProgressRing({ value, max, size = 72, stroke = 6, label, childre
       aria-valuemin={0}
       aria-valuemax={max}
       aria-valuenow={value}
+      aria-valuetext={valueText}
       className="relative grid shrink-0 place-items-center"
       style={{ width: size, height: size }}
     >
@@ -63,7 +76,7 @@ export function ProgressRing({ value, max, size = 72, stroke = 6, label, childre
           strokeLinecap="round"
           strokeDasharray={circumference}
           strokeDashoffset={circumference * (1 - ratio)}
-          className="stroke-primary transition-[stroke-dashoffset] duration-700 ease-out"
+          className={cn('transition-[stroke-dashoffset,stroke] duration-700 ease-out', tone === 'success' ? 'stroke-success' : 'stroke-primary')}
         />
       </svg>
       <div className="absolute inset-0 grid place-items-center">{children}</div>

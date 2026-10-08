@@ -109,36 +109,56 @@ function TodayCard() {
   const learnedToday = todayActivity?.learnedNames.length ?? 0
   const goal = settings.dailyGoal
   const goalMet = learnedToday >= goal
+  const remaining = goal - learnedToday
+  const summary = `${learnedToday} of ${pluralize(goal, 'Name')} learned today`
 
   return (
     <section aria-labelledby="today-title">
       <SectionHeader id="today-title" title="Today" />
       <Card className="p-5">
-        <div className="flex items-center gap-4">
-          <ProgressRing value={Math.min(learnedToday, goal)} max={goal} label="Today’s goal">
+        <div className="flex items-center gap-5">
+          {/* Status is given by the ring, the check icon and the title, never by colour alone. */}
+          <ProgressRing
+            value={Math.min(learnedToday, goal)}
+            max={goal}
+            size={88}
+            stroke={9}
+            label="Daily goal"
+            valueText={goalMet ? `Goal reached, ${summary}` : summary}
+            tone={goalMet ? 'success' : 'primary'}
+          >
             {goalMet ? (
-              <Check className="size-6 text-primary" strokeWidth={2.5} aria-hidden />
+              <Check className="size-9 text-success" strokeWidth={2.75} aria-hidden />
             ) : (
-              <span className="text-sm font-semibold tabular-nums">
-                {learnedToday}/{goal}
+              <span className="text-[1.75rem] leading-none font-bold tabular-nums" aria-hidden>
+                {learnedToday}
+                <span className="text-[0.9375rem] font-semibold text-muted-foreground">/{goal}</span>
               </span>
             )}
           </ProgressRing>
           <div className="min-w-0 flex-1">
-            <p className="text-[1.0625rem] font-semibold">{goalMet ? 'Goal reached' : 'Daily goal'}</p>
-            <p className="text-[0.9375rem] text-muted-foreground">
-              {pluralize(learnedToday, 'Name')} of {goal} learned today
+            <p className="text-[0.8125rem] font-semibold tracking-wide text-muted-foreground uppercase">Daily Goal</p>
+            <p className="mt-0.5 text-[1.375rem] leading-tight font-bold tracking-tight">
+              {goalMet ? 'Goal Reached' : `${pluralize(remaining, 'Name')} to Go`}
+            </p>
+            <p className="mt-1 text-[0.9375rem] text-muted-foreground">
+              {goalMet ? `${pluralize(learnedToday, 'Name')} learned today. Alhamdulillah.` : summary}
             </p>
           </div>
         </div>
         {next ? (
-          <ButtonLink href="/learn/" size="lg" className="mt-5 w-full rounded-xl">
-            Continue Learning
+          <ButtonLink
+            href="/learn/"
+            size="lg"
+            variant={goalMet ? 'secondary' : 'primary'}
+            className="mt-5 w-full rounded-xl"
+          >
+            {goalMet ? 'Keep Learning' : 'Continue Learning'}
             <span className="truncate font-normal opacity-80">· {next.transliteration}</span>
           </ButtonLink>
         ) : (
           <ButtonLink href="/review/" size="lg" variant="secondary" className="mt-5 w-full rounded-xl">
-            All 99 learned — keep reviewing
+            All 99 Learned · Review
           </ButtonLink>
         )}
       </Card>

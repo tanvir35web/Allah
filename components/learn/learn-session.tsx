@@ -1,172 +1,373 @@
 'use client'
 
-import { ArrowRight, BookmarkPlus, Check, PartyPopper, SkipForward } from 'lucide-react'
+import { Check, CircleCheck, CircleX, PartyPopper } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { EmptyState } from '@/components/common/empty-state'
 import { LoadingState } from '@/components/common/loading-state'
 import { ArabicText, BanglaText } from '@/components/common/localized-text'
 import { StatusBadge } from '@/components/names/status-badge'
 import { useAppData } from '@/components/providers/app-data-provider'
+import { QuizOption, type OptionState } from '@/components/quiz/quiz-option'
 import { Button, ButtonLink } from '@/components/ui/button'
-import { getStatus, nextNameToLearn } from '@/lib/progress'
+import { Card } from '@/components/ui/card'
+import { useTodayActivity } from '@/hooks/use-derived-data'
+import {
+  countOutcomes,
+  learnSessionSize,
+  planLearnSession,
+  recallQuestionType,
+  type LearnOutcome,
+} from '@/lib/learn-session'
+import { getStatus } from '@/lib/progress'
+import { createQuestion, optionFor, type QuizQuestion } from '@/lib/quiz'
 import { allahNames, getNameById } from '@/lib/storage/names'
+import type { AllahName, ContentLanguage } from '@/lib/types'
 import { cn, formatNumber, pluralize } from '@/lib/utils'
 
-const STEPS = ['Arabic', 'Pronunciation', 'Meaning', 'Reflection'] as const
-const LAST_STEP = STEPS.length - 1
+const LETTERS = ['A', 'B', 'C', 'D']
+
+const OUTCOME_LABELS: Record<LearnOutcome, string> = {
+  learned: 'Learned',
+  missed: 'Needs practice',
+  skipped: 'Skipped',
+}
 
 /**
- * Guided, one-Name-at-a-time learning: reveal the Arabic, then its
- * pronunciation, meaning and a short explanation, then mark it.
+ * A learn session: the Names left for today's goal, in 1 → 99 order (or the
+ * one Name asked for with `?id=`). Each Name is shown in full on one screen,
+ * then a four-choice recall check decides whether it counts as learned.
+ * A missed Name stays "learning", so it leads the next session and comes up
+ * in review. The session ends with a summary.
  */
 export function LearnSession() {
-  const { ready, progress } = useAppData()
+  const { ready, progress, settings } = useAppData()
+  const todayActivity = useTodayActivity()
+  const router = useRouter()
   const searchParams = useSearchParams()
   const requestedId = Number(searchParams.get('id'))
   const requested = Number.isInteger(requestedId) ? getNameById(requestedId) : undefined
+  const [round, setRound] = useState(0)
 
-  // The starting Name is chosen once, when data is ready.
-  const [currentId, setCurrentId] = useState<number | null>(null)
-  const [learnedCount, setLearnedCount] = useState(0)
-  const startId = requested?.id ?? (ready ? (nextNameToLearn(allahNames, progress)?.id ?? 0) : null)
-  const activeId = currentId ?? startId
+  if (!ready) return <LoadingState rows={2} label="Preparing your session" />
 
-  if (!ready || activeId === null) return <LoadingState rows={2} label="Preparing your next Name" />
-  if (activeId === 0) return <AllLearned />
+  // Only the first value reaches the session: it keeps its own list from then on.
+  const ids = requested
+    ? [requested.id]
+    : planLearnSession(
+        allahNames,
+        progress,
+        learnSessionSize(settings.dailyGoal, todayActivity?.learnedNames.length ?? 0),
+      )
+  if (ids.length === 0) return <AllLearned />
 
   return (
-    <>
-      <LearnCard
-        key={activeId}
-        nameId={activeId}
-        onLearned={() => setLearnedCount((count) => count + 1)}
-        onNext={(id) => {
-          setCurrentId(id)
-          window.scrollTo({ top: 0 })
-        }}
-      />
-      {learnedCount > 0 ? (
-        <p className="mt-3 text-center text-xs text-muted-foreground" role="status">
-          {pluralize(learnedCount, 'Name')} learned this session
-        </p>
-      ) : null}
-    </>
+    <Session
+      key={`${requested?.id ?? 'goal'}-${round}`}
+      initialIds={ids}
+      onRestart={() => {
+        // After a single requested Name, carry on with the normal goal session.
+        if (requested) router.replace('/learn/')
+        else setRound((value) => value + 1)
+        window.scrollTo({ top: 0 })
+      }}
+    />
   )
 }
 
-interface LearnCardProps {
-  nameId: number
-  onNext: (id: number) => void
-  onLearned: () => void
-}
+function Session({ initialIds, onRestart }: { initialIds: number[]; onRestart: () => void }) {
+  const { progress, settings, setStatus, recordReview } = useAppData()
+  const [ids] = useState(initialIds)
+  const [outcomes, setOutcomes] = useState<LearnOutcome[]>([])
+  const [question, setQuestion] = useState<QuizQuestion | null>(null)
+  const [selectedId, setSelectedId] = useState<number | null>(null)
 
-function LearnCard({ nameId, onNext, onLearned }: LearnCardProps) {
-  const router = useRouter()
-  const { progress, settings, setStatus } = useAppData()
-  const [step, setStep] = useState(0)
-  const [remembered, setRemembered] = useState(false)
-  const name = getNameById(nameId)
-  if (!name) return null
+  const index = outcomes.length
+  const name = getNameById(ids[index] ?? 0)
+  if (!name) return <Summary ids={ids} outcomes={outcomes} onRestart={onRestart} />
 
-  const status = getStatus(progress, name.id)
-  const showEn = settings.language !== 'bn'
-  const showBn = settings.language !== 'en'
-
-  const advance = (markLearned: boolean) => {
-    // The current Name is always excluded, so its pending status doesn't matter.
-    const next = nextNameToLearn(allahNames, progress, name.id)
-    if (markLearned && status !== 'learned') {
-      onLearned()
-      void setStatus(name.id, 'learned')
-    }
-    if (next) onNext(next.id)
-    else router.push('/progress/')
+  const finish = (outcome: LearnOutcome) => {
+    setOutcomes((current) => [...current, outcome])
+    setQuestion(null)
+    setSelectedId(null)
+    window.scrollTo({ top: 0 })
   }
 
-  const rememberThis = () => {
-    setRemembered(true)
-    if (status === 'not_started') void setStatus(name.id, 'learning')
+  const startCheck = () => {
+    setQuestion(createQuestion(recallQuestionType(settings.language), name, allahNames))
+    window.scrollTo({ top: 0 })
+  }
+
+  const answer = (nameId: number) => {
+    setSelectedId(nameId)
+    const status = getStatus(progress, name.id)
+    if (nameId === name.id) {
+      if (status !== 'learned') void setStatus(name.id, 'learned')
+    } else if (status === 'learned') {
+      // Already learned before: bring it back into review sooner.
+      void recordReview(name.id, false)
+    } else {
+      void setStatus(name.id, 'learning')
+    }
   }
 
   return (
-    <div className="flex min-h-[calc(100dvh-14rem)] flex-col">
-      <ol className="mb-5 grid grid-cols-4 gap-2" aria-label="Learning steps">
-        {STEPS.map((label, index) => (
-          <li key={label}>
-            <span
+    <div className="space-y-5">
+      <SessionProgress total={ids.length} outcomes={outcomes} />
+      {question ? (
+        <RecallCheck
+          key={question.id}
+          question={question}
+          name={name}
+          selectedId={selectedId}
+          isLast={index === ids.length - 1}
+          onSelect={answer}
+          onContinue={() => finish(selectedId === name.id ? 'learned' : 'missed')}
+        />
+      ) : (
+        <Study
+          name={name}
+          language={settings.language}
+          onCheck={startCheck}
+          onSkip={() => finish('skipped')}
+        />
+      )}
+    </div>
+  )
+}
+
+/** "Name 2 of 3" over one segment per Name, coloured by how it went. */
+function SessionProgress({ total, outcomes }: { total: number; outcomes: LearnOutcome[] }) {
+  const current = Math.min(outcomes.length + 1, total)
+  return (
+    <div>
+      <p className="px-1 text-[0.9375rem] text-muted-foreground tabular-nums" aria-live="polite">
+        Name {current} of {total}
+      </p>
+      <ol className="mt-2 flex gap-1.5" aria-hidden>
+        {Array.from({ length: total }, (_, index) => {
+          const outcome = outcomes[index]
+          return (
+            <li
+              key={index}
               className={cn(
-                'block h-1.5 rounded-full transition-colors duration-300',
-                index <= step ? 'bg-primary' : 'bg-muted',
+                'h-1.5 flex-1 rounded-full transition-colors duration-300',
+                outcome === 'learned'
+                  ? 'bg-primary'
+                  : outcome === 'missed'
+                    ? 'bg-danger'
+                    : outcome === 'skipped'
+                      ? 'bg-muted-foreground/40'
+                      : index === outcomes.length
+                        ? 'bg-primary/35'
+                        : 'bg-muted',
               )}
             />
-            <span className={cn('mt-1.5 block text-[0.6875rem]', index === step ? 'font-semibold text-foreground' : 'text-muted-foreground')}>
-              {label}
-            </span>
-          </li>
-        ))}
+          )
+        })}
       </ol>
+    </div>
+  )
+}
 
-      <section
-        aria-live="polite"
-        className="pattern-stars flex-1 rounded-[2rem] border border-border bg-gradient-to-b from-primary-soft to-card px-6 py-8 text-center"
-      >
+/** Everything about the Name on one screen. */
+function Study({
+  name,
+  language,
+  onCheck,
+  onSkip,
+}: {
+  name: AllahName
+  language: ContentLanguage
+  onCheck: () => void
+  onSkip: () => void
+}) {
+  const { progress } = useAppData()
+  const showEn = language !== 'bn'
+  const showBn = language !== 'en'
+
+  return (
+    <div className="animate-rise">
+      <article className="pattern-stars rounded-3xl border border-border bg-gradient-to-b from-primary-soft to-card px-6 pt-5 pb-6 text-center">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-primary tabular-nums">{formatNumber(name.id)} / 99</span>
-          <StatusBadge status={status} />
+          <span className="text-[0.9375rem] text-muted-foreground tabular-nums">{formatNumber(name.id)} of 99</span>
+          <StatusBadge status={getStatus(progress, name.id)} />
+        </div>
+        <ArabicText className="mt-2 block text-[4.5rem] leading-[1.7]">{name.arabic}</ArabicText>
+        <h2 className="text-[1.75rem] leading-tight font-bold tracking-tight">{name.transliteration}</h2>
+        {showBn ? (
+          <BanglaText className="mt-0.5 block text-[1.0625rem] text-muted-foreground">{name.banglaName}</BanglaText>
+        ) : null}
+
+        <div className="mt-5 space-y-0.5">
+          {showEn ? <p className="text-[1.0625rem] font-semibold">{name.englishName}</p> : null}
+          {showEn ? <p className="text-[0.9375rem] text-muted-foreground">{name.englishMeaning}</p> : null}
+          {showBn ? <BanglaText className="block text-[1.0625rem] font-semibold">{name.banglaMeaning}</BanglaText> : null}
         </div>
 
-        <ArabicText className="mt-4 block text-[4.5rem] leading-[1.7]">{name.arabic}</ArabicText>
+        <div className="mt-5 space-y-3 border-t border-border pt-5 text-left text-[0.9375rem] leading-relaxed">
+          {showEn ? <p>{name.shortExplanationEn}</p> : null}
+          {showBn ? <BanglaText className="block">{name.shortExplanationBn}</BanglaText> : null}
+        </div>
+      </article>
 
-        {step >= 1 ? (
-          <div className="animate-rise">
-            <h2 className="text-2xl font-bold tracking-tight">{name.transliteration}</h2>
-            {showBn ? <BanglaText className="block text-sm text-muted-foreground">{name.banglaName}</BanglaText> : null}
-          </div>
-        ) : (
-          <p className="text-sm text-muted-foreground">Take a moment with the Arabic.</p>
-        )}
+      <Button size="lg" className="mt-5 w-full rounded-xl" onClick={onCheck}>
+        Check Myself
+      </Button>
+      <Button variant="ghost" className="mt-2 w-full rounded-xl text-muted-foreground" onClick={onSkip}>
+        Skip for Now
+      </Button>
+    </div>
+  )
+}
 
-        {step >= 2 ? (
-          <div className="animate-rise mt-5 space-y-1">
-            {showEn ? <p className="text-lg font-semibold">{name.englishName}</p> : null}
-            {showEn ? <p className="text-sm text-muted-foreground">{name.englishMeaning}</p> : null}
-            {showBn ? <BanglaText className="block text-lg font-semibold">{name.banglaMeaning}</BanglaText> : null}
-          </div>
-        ) : null}
+/** Four choices; a right answer marks the Name learned. */
+function RecallCheck({
+  question,
+  name,
+  selectedId,
+  isLast,
+  onSelect,
+  onContinue,
+}: {
+  question: QuizQuestion
+  name: AllahName
+  selectedId: number | null
+  isLast: boolean
+  onSelect: (nameId: number) => void
+  onContinue: () => void
+}) {
+  const answered = selectedId !== null
+  const correct = selectedId === question.nameId
+  const continueRef = useRef<HTMLButtonElement>(null)
 
-        {step >= 3 ? (
-          <div className="animate-rise mt-6 space-y-3 rounded-2xl bg-card/80 p-4 text-left text-[0.95rem] leading-relaxed">
-            {showEn ? <p>{name.shortExplanationEn}</p> : null}
-            {showBn ? <BanglaText className="block">{name.shortExplanationBn}</BanglaText> : null}
-          </div>
-        ) : null}
+  // Move focus to "Continue" after answering so keyboard and screen-reader users can go on.
+  useEffect(() => {
+    if (answered) continueRef.current?.focus({ preventScroll: true })
+  }, [answered])
+
+  const stateFor = (optionId: number): OptionState => {
+    if (!answered) return 'idle'
+    if (optionId === question.nameId) return 'correct'
+    if (optionId === selectedId) return 'incorrect'
+    return 'dimmed'
+  }
+
+  return (
+    <div className="animate-rise space-y-5">
+      <section className="rounded-3xl border border-border bg-card px-5 py-6 text-center">
+        <h2 className="text-[0.9375rem] text-muted-foreground">
+          <span aria-hidden>{question.instruction}</span>
+          <span className="sr-only">{question.prompt}</span>
+        </h2>
+        <p className="mt-2" aria-hidden>
+          {question.subjectKind === 'bangla' ? (
+            <BanglaText className="text-[1.75rem] font-semibold">“{question.subject}”</BanglaText>
+          ) : (
+            <span className="text-[1.75rem] font-bold tracking-tight">{question.subject}</span>
+          )}
+        </p>
       </section>
 
-      <div className="mt-5 space-y-3">
-        {step < LAST_STEP ? (
-          <Button size="lg" className="w-full" onClick={() => setStep((value) => value + 1)}>
-            Show {STEPS[step + 1]?.toLowerCase()}
-            <ArrowRight className="size-5" aria-hidden />
-          </Button>
-        ) : (
-          <>
-            <Button size="lg" className="w-full" onClick={() => advance(true)}>
-              <Check className="size-5" aria-hidden />
-              {status === 'learned' ? 'Next Name' : 'Mark as learned & continue'}
-            </Button>
-            <div className="grid grid-cols-2 gap-3">
-              <Button variant="secondary" onClick={rememberThis} disabled={remembered || status !== 'not_started'}>
-                <BookmarkPlus className="size-4" aria-hidden />
-                {remembered || status !== 'not_started' ? 'In your review' : 'Remember this'}
-              </Button>
-              <Button variant="outline" onClick={() => advance(false)}>
-                <SkipForward className="size-4" aria-hidden />
-                Skip for now
-              </Button>
-            </div>
-          </>
-        )}
+      <div className="space-y-3" role="group" aria-label="Answer options">
+        {question.options.map((option, index) => (
+          <QuizOption
+            key={option.nameId}
+            option={option}
+            letter={LETTERS[index] ?? String(index + 1)}
+            state={stateFor(option.nameId)}
+            disabled={answered}
+            onSelect={() => onSelect(option.nameId)}
+          />
+        ))}
+      </div>
+
+      {answered ? (
+        <div
+          role="status"
+          className={cn(
+            'animate-rise rounded-3xl border p-4',
+            correct ? 'border-success/30 bg-success-soft' : 'border-danger/30 bg-danger-soft',
+          )}
+        >
+          <p className={cn('flex items-center gap-2 font-semibold', correct ? 'text-success' : 'text-danger')}>
+            {correct ? <CircleCheck className="size-5" aria-hidden /> : <CircleX className="size-5" aria-hidden />}
+            {correct ? `${name.transliteration} learned` : 'Not yet'}
+          </p>
+          {!correct ? (
+            <p className="mt-1 text-[0.9375rem]">
+              The answer is <strong>{optionFor(question.type, name).label}</strong>. It stays in your list and
+              comes up in review.
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {answered ? (
+        <Button ref={continueRef} size="lg" className="w-full rounded-xl" onClick={onContinue}>
+          {isLast ? 'See Summary' : 'Next Name'}
+        </Button>
+      ) : null}
+    </div>
+  )
+}
+
+function Summary({ ids, outcomes, onRestart }: { ids: number[]; outcomes: LearnOutcome[]; onRestart: () => void }) {
+  const counts = countOutcomes(outcomes)
+
+  return (
+    <div className="animate-rise space-y-6">
+      <div className="pt-2 text-center">
+        <span className="mx-auto grid size-14 place-items-center rounded-full bg-primary-soft text-primary">
+          <Check className="size-7" strokeWidth={2.5} aria-hidden />
+        </span>
+        <h2 className="mt-4 text-[1.75rem] leading-tight font-bold tracking-tight">Session Complete</h2>
+        <p className="mt-1 text-[1.0625rem] text-muted-foreground" role="status">
+          {counts.learned > 0 ? `${pluralize(counts.learned, 'Name')} learned` : 'No new Names learned this time'}
+          {counts.missed > 0 ? `, ${counts.missed} to practise` : ''}
+        </p>
+      </div>
+
+      <Card className="overflow-hidden">
+        <ul className="py-1">
+          {ids.map((id, index) => {
+            const name = getNameById(id)
+            const outcome = outcomes[index]
+            if (!name || !outcome) return null
+            return (
+              <li key={id} className="flex min-h-14 items-center gap-3 pl-4">
+                <span className="w-7 shrink-0 text-[0.9375rem] text-muted-foreground tabular-nums">
+                  {formatNumber(id)}
+                </span>
+                <span
+                  className={cn(
+                    'flex min-h-14 min-w-0 flex-1 items-center gap-2 pr-4',
+                    index > 0 && 'border-t border-border',
+                  )}
+                >
+                  <span className="flex-1 truncate text-[1.0625rem]">{name.transliteration}</span>
+                  <span
+                    className={cn(
+                      'text-[0.9375rem]',
+                      outcome === 'learned' ? 'text-success' : outcome === 'missed' ? 'text-danger' : 'text-muted-foreground',
+                    )}
+                  >
+                    {OUTCOME_LABELS[outcome]}
+                  </span>
+                </span>
+              </li>
+            )
+          })}
+        </ul>
+      </Card>
+
+      <div className="space-y-3">
+        <ButtonLink href="/" size="lg" className="w-full rounded-xl">
+          Done
+        </ButtonLink>
+        <Button variant="secondary" size="lg" className="w-full rounded-xl" onClick={onRestart}>
+          Learn More
+        </Button>
       </div>
     </div>
   )
