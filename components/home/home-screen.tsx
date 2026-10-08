@@ -1,6 +1,6 @@
 'use client'
 
-import { ArrowRight, BookOpenText, Check, ChevronRight, RotateCcw, Sparkles, Star } from 'lucide-react'
+import { ArrowRight, BookOpenText, Check, ChevronRight, Clapperboard, RotateCcw, Sparkles, Star } from 'lucide-react'
 import Link from 'next/link'
 import { ArabicText } from '@/components/common/localized-text'
 import { LoadingState } from '@/components/common/loading-state'
@@ -110,6 +110,12 @@ function TodayCard() {
   )
 }
 
+/** Full-width links below the quick action tiles. */
+const LINKS = [
+  { href: '/reels/', label: 'Reels', hint: 'Swipe through the 99 Names, one per screen', icon: Clapperboard },
+  { href: '/surahs/', label: 'Surahs', hint: 'All 114 surahs with Arabic and Bangla meaning', icon: BookOpenText },
+]
+
 function QuickActions() {
   const { favorites } = useAppData()
   const reviewQueue = useReviewQueue()
@@ -158,21 +164,22 @@ function QuickActions() {
           </Link>
         ))}
       </div>
-      <Link
-        href="/surahs/"
-        className="flex min-h-16 items-center gap-4 rounded-3xl border border-border bg-card p-4 transition-transform active:scale-[0.98]"
-      >
-        <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary-soft text-primary">
-          <BookOpenText className="size-5" aria-hidden />
-        </span>
-        <span className="min-w-0 flex-1">
-          <span className="block font-semibold">Surahs</span>
-          <span className="block text-xs text-muted-foreground">
-            All 114 surahs with Arabic and Bangla meaning
+      {LINKS.map(({ href, label, hint, icon: Icon }) => (
+        <Link
+          key={href}
+          href={href}
+          className="flex min-h-16 items-center gap-4 rounded-3xl border border-border bg-card p-4 transition-transform active:scale-[0.98]"
+        >
+          <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary-soft text-primary">
+            <Icon className="size-5" aria-hidden />
           </span>
-        </span>
-        <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
-      </Link>
+          <span className="min-w-0 flex-1">
+            <span className="block font-semibold">{label}</span>
+            <span className="block text-xs text-muted-foreground">{hint}</span>
+          </span>
+          <ChevronRight className="size-5 text-muted-foreground" aria-hidden />
+        </Link>
+      ))}
     </section>
   )
 }

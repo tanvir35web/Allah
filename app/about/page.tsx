@@ -1,3 +1,4 @@
+import { ExternalLink, Globe, MapPin } from 'lucide-react'
 import type { Metadata } from 'next'
 import { ArabicText } from '@/components/common/localized-text'
 import { PageShell } from '@/components/layout/page-shell'
@@ -9,6 +10,14 @@ export const metadata: Metadata = {
 }
 
 const APP_VERSION = '1.0.0'
+
+const DEVELOPER = {
+  name: 'Tanvirul Islam',
+  initials: 'TI',
+  role: 'Software Engineer',
+  location: 'Dhaka, Bangladesh',
+  website: 'https://tanvir35.vercel.app/',
+}
 
 export default function AboutPage() {
   return (
@@ -59,6 +68,39 @@ export default function AboutPage() {
               After the first visit the whole app is saved for offline use. Clearing Safari website data or deleting
               the Home Screen app removes your local progress.
             </p>
+          </Card>
+        </section>
+
+        <section className="space-y-3" aria-labelledby="about-developer">
+          <SectionTitle id="about-developer">Developer</SectionTitle>
+          <Card className="p-5">
+            <div className="flex items-center gap-4">
+              <span
+                className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary-soft text-lg font-bold text-primary"
+                aria-hidden
+              >
+                {DEVELOPER.initials}
+              </span>
+              <div className="min-w-0">
+                <h3 className="font-semibold">{DEVELOPER.name}</h3>
+                <p className="text-sm text-muted-foreground">{DEVELOPER.role}</p>
+                <p className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
+                  <MapPin className="size-3.5 shrink-0" aria-hidden />
+                  {DEVELOPER.location}
+                </p>
+              </div>
+            </div>
+            <a
+              href={DEVELOPER.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 flex min-h-11 items-center gap-2 rounded-2xl border border-border px-4 text-sm font-medium text-primary hover:bg-muted/50"
+            >
+              <Globe className="size-4 shrink-0" aria-hidden />
+              <span className="min-w-0 flex-1 truncate">{new URL(DEVELOPER.website).host}</span>
+              <ExternalLink className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+              <span className="sr-only">(opens in a new tab)</span>
+            </a>
           </Card>
         </section>
       </div>
