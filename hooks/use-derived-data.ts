@@ -5,6 +5,7 @@ import { useAppData } from '@/components/providers/app-data-provider'
 import { allahNames, TOTAL_NAMES } from '@/lib/storage/names'
 import { nextNameToLearn, summarizeProgress } from '@/lib/progress'
 import { overallAccuracy } from '@/lib/quiz'
+import { summarizeReading } from '@/lib/reading'
 import { getReviewRecommendations } from '@/lib/review'
 import { computeStreakStats } from '@/lib/streak'
 import { useToday } from './use-today'
@@ -41,6 +42,13 @@ export function useReviewQueue() {
     () => (today ? getReviewRecommendations(progress, reviewItems, today) : []),
     [progress, reviewItems, today],
   )
+}
+
+/** Quran reading time: today, this week and in total. */
+export function useReadingSummary() {
+  const { surahReadings, readingDays } = useAppData()
+  const today = useToday()
+  return useMemo(() => summarizeReading(surahReadings, readingDays, today), [surahReadings, readingDays, today])
 }
 
 /** Names learned today, for the daily goal. */

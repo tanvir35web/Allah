@@ -4,6 +4,7 @@ import { BanglaText } from '@/components/common/localized-text'
 import { SectionTitle } from '@/components/ui/card'
 import { bismillah, revelationLabel, toBanglaDigits } from '@/lib/surahs'
 import type { Surah } from '@/lib/types'
+import { ReadingTimer } from './reading-timer'
 
 const BISMILLAH_BN = 'শুরু করছি আল্লাহর নামে যিনি পরম করুণাময়, অতি দয়ালু।'
 
@@ -35,6 +36,8 @@ export function SurahReader({ surah, previous, next }: SurahReaderProps) {
           {toBanglaDigits(surah.ayahs.length)} আয়াত · {revelationLabel(surah)}
         </BanglaText>
       </section>
+
+      <ReadingTimer surahId={surah.id} surahName={surah.transliteration} />
 
       <section className="space-y-3" aria-labelledby="surah-arabic">
         <SectionTitle id="surah-arabic">Arabic</SectionTitle>

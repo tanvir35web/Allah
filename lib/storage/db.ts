@@ -15,11 +15,13 @@ import type {
   FavoriteRecord,
   LearningProgress,
   QuizResult,
+  ReadingDay,
   ReviewItem,
+  SurahReading,
 } from '@/lib/types'
 
 export const DB_NAME = 'asma-ul-husna'
-export const DB_VERSION = 1
+export const DB_VERSION = 2
 
 export interface SettingsRecord extends AppSettings {
   id: 'app'
@@ -32,10 +34,29 @@ export interface AsmaDB extends DBSchema {
   dailyActivity: { key: string; value: DailyActivity }
   settings: { key: string; value: SettingsRecord }
   reviewItems: { key: number; value: ReviewItem }
+  surahReading: { key: number; value: SurahReading }
+  readingDays: { key: string; value: ReadingDay }
 }
 
-export type StoreName = 'progress' | 'favorites' | 'quizResults' | 'dailyActivity' | 'settings' | 'reviewItems'
-export const ALL_STORES: StoreName[] = ['progress', 'favorites', 'quizResults', 'dailyActivity', 'settings', 'reviewItems']
+export type StoreName =
+  | 'progress'
+  | 'favorites'
+  | 'quizResults'
+  | 'dailyActivity'
+  | 'settings'
+  | 'reviewItems'
+  | 'surahReading'
+  | 'readingDays'
+export const ALL_STORES: StoreName[] = [
+  'progress',
+  'favorites',
+  'quizResults',
+  'dailyActivity',
+  'settings',
+  'reviewItems',
+  'surahReading',
+  'readingDays',
+]
 
 export class StorageUnavailableError extends Error {
   constructor(cause?: unknown) {
@@ -66,7 +87,12 @@ export function getDB(): Promise<IDBPDatabase<AsmaDB>> {
           db.createObjectStore('settings', { keyPath: 'id' })
           db.createObjectStore('reviewItems', { keyPath: 'nameId' })
         }
-        // Future migrations: if (oldVersion < 2) { ... }
+        if (oldVersion < 2) {
+          // Quran reading time, per surah and per day.
+          db.createObjectStore('surahReading', { keyPath: 'surahId' })
+          db.createObjectStore('readingDays', { keyPath: 'date' })
+        }
+        // Future migrations: if (oldVersion < 3) { ... }
       },
       blocking() {
         // A newer version of the app wants to upgrade: release our connection.

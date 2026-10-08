@@ -3,6 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { toDateKey } from '@/lib/date'
 import { applyReview, applyStatus, type ProgressMap } from '@/lib/progress'
+import { addReadingTime, applyReading, type SurahRef } from '@/lib/reading'
 import { applyQuizToReviewItems } from '@/lib/review'
 import { applyActivityEvent, createEmptyActivity, type ActivityEvent } from '@/lib/streak'
 import * as storage from '@/lib/storage'
@@ -12,7 +13,9 @@ import {
   type DailyActivity,
   type LearningStatus,
   type QuizResult,
+  type ReadingDay,
   type ReviewItem,
+  type SurahReading,
 } from '@/lib/types'
 import { applyTheme } from '@/lib/theme'
 
@@ -26,6 +29,9 @@ interface AppDataState {
   activities: DailyActivity[]
   reviewItems: Record<number, ReviewItem>
   settings: AppSettings
+  /** Quran reading time, by surah id. */
+  surahReadings: Record<number, SurahReading>
+  readingDays: ReadingDay[]
 }
 
 interface AppDataActions {
@@ -33,9 +39,11 @@ interface AppDataActions {
   toggleFavorite: (nameId: number) => Promise<boolean>
   saveQuiz: (result: QuizResult) => Promise<void>
   recordReview: (nameId: number, remembered: boolean) => Promise<void>
+  recordReading: (surah: SurahRef, seconds: number) => Promise<void>
   updateSettings: (patch: Partial<AppSettings>) => Promise<void>
   resetProgress: () => Promise<void>
   resetQuizHistory: () => Promise<void>
+  resetQuranReading: () => Promise<void>
   clearAllData: () => Promise<void>
 }
 
@@ -50,6 +58,8 @@ const initialState: AppDataState = {
   activities: [],
   reviewItems: {},
   settings: DEFAULT_SETTINGS,
+  surahReadings: {},
+  readingDays: [],
 }
 
 const AppDataContext = createContext<AppData | null>(null)
@@ -91,6 +101,8 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
           activities: data.activities,
           reviewItems: toMap(data.reviewItems),
           settings: data.settings,
+          surahReadings: Object.fromEntries(data.surahReadings.map((reading) => [reading.surahId, reading])),
+          readingDays: data.readingDays,
         })
         applyTheme(data.settings.theme)
         void storage.requestPersistentStorage()
@@ -204,6 +216,31 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     [persist, localActivity],
   )
 
+  const recordReading = useCallback<AppDataActions['recordReading']>(
+    async (surah, seconds) => {
+      const result = await persist(
+        () => storage.recordSurahReading(surah, seconds),
+        () => {
+          const now = new Date()
+          const date = toDateKey(now)
+          return {
+            reading: applyReading(stateRef.current.surahReadings[surah.surahId], surah, seconds, now.toISOString()),
+            day: addReadingTime(stateRef.current.readingDays.find((day) => day.date === date), date, seconds),
+          }
+        },
+      )
+      setState((s) => ({
+        ...s,
+        surahReadings: { ...s.surahReadings, [surah.surahId]: result.reading },
+        readingDays:
+          result.day.seconds > 0
+            ? [...s.readingDays.filter((day) => day.date !== result.day.date), result.day]
+            : s.readingDays,
+      }))
+    },
+    [persist],
+  )
+
   const updateSettings = useCallback<AppDataActions['updateSettings']>(
     async (patch) => {
       const settings = await persist(
@@ -226,6 +263,11 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, quizResults: [], reviewItems: {} }))
   }, [persist])
 
+  const resetQuranReading = useCallback(async () => {
+    await persist(storage.resetQuranReading, () => undefined)
+    setState((s) => ({ ...s, surahReadings: {}, readingDays: [] }))
+  }, [persist])
+
   const clearAllData = useCallback(async () => {
     await persist(storage.clearAllData, () => undefined)
     applyTheme(DEFAULT_SETTINGS.theme)
@@ -239,12 +281,26 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       toggleFavorite,
       saveQuiz,
       recordReview,
+      recordReading,
       updateSettings,
       resetProgress,
       resetQuizHistory,
+      resetQuranReading,
       clearAllData,
     }),
-    [state, setStatus, toggleFavorite, saveQuiz, recordReview, updateSettings, resetProgress, resetQuizHistory, clearAllData],
+    [
+      state,
+      setStatus,
+      toggleFavorite,
+      saveQuiz,
+      recordReview,
+      recordReading,
+      updateSettings,
+      resetProgress,
+      resetQuizHistory,
+      resetQuranReading,
+      clearAllData,
+    ],
   )
 
   return <AppDataContext.Provider value={value}>{children}</AppDataContext.Provider>

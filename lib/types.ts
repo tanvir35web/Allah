@@ -57,6 +57,22 @@ export interface QuizResult {
   answers: QuizAnswer[]
 }
 
+/** Time spent reading one surah. */
+export interface SurahReading {
+  surahId: number
+  /** Transliterated name, so lists can show it without the surah data. */
+  surahName: string
+  /** Active reading time, in seconds. */
+  seconds: number
+  lastReadAt: string
+}
+
+/** Quran reading time on one local calendar day (YYYY-MM-DD). */
+export interface ReadingDay {
+  date: string
+  seconds: number
+}
+
 /** Activity performed on a given local calendar day (YYYY-MM-DD). */
 export interface DailyActivity {
   date: string

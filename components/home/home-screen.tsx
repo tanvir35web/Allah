@@ -226,7 +226,7 @@ function ExploreList() {
                       <span className="sr-only"> due</span>
                     </span>
                   ) : null}
-                  {detail ? <span className="text-[1.0625rem] text-muted-foreground">{detail}</span> : null}
+                  {detail ? <span className="text-[1rem] text-muted-foreground">{detail}</span> : null}
                   <ChevronRight className="size-5 shrink-0 text-muted-foreground/60" aria-hidden />
                 </span>
               </Link>

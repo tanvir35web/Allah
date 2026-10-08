@@ -7,6 +7,7 @@ import { Card, SectionTitle } from '@/components/ui/card'
 import { useProgressSummary, useQuizStats, useStreak } from '@/hooks/use-derived-data'
 import { pluralize } from '@/lib/utils'
 import { ProgressCard, StatTile } from './progress-card'
+import { QuranReadingCard } from './quran-reading-card'
 import { StreakCard } from './streak-card'
 
 export function ProgressDashboard() {
@@ -21,6 +22,7 @@ export function ProgressDashboard() {
     <div className="space-y-6">
       <ProgressCard />
       <StreakCard />
+      <QuranReadingCard />
 
       <section aria-labelledby="stats-title" className="space-y-3">
         <SectionTitle id="stats-title">Statistics</SectionTitle>

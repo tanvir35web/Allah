@@ -11,7 +11,14 @@ import { SegmentedControl } from '@/components/ui/segmented-control'
 import type { ContentLanguage, ThemePreference } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
-type DestructiveAction = 'progress' | 'quiz' | 'all'
+type DestructiveAction = 'progress' | 'quiz' | 'reading' | 'all'
+
+const ACTION_LABELS: Record<DestructiveAction, string> = {
+  progress: 'Reset learning progress',
+  quiz: 'Reset quiz history',
+  reading: 'Reset Quran reading',
+  all: 'Clear all local data',
+}
 
 const CONFIRMATIONS: Record<DestructiveAction, { title: string; description: string; confirm: string }> = {
   progress: {
@@ -24,9 +31,14 @@ const CONFIRMATIONS: Record<DestructiveAction, { title: string; description: str
     description: 'All quiz results and quiz-based review data will be deleted from this device. This cannot be undone.',
     confirm: 'Reset quizzes',
   },
+  reading: {
+    title: 'Reset Quran reading?',
+    description: 'Your Quran reading time will be deleted from this device. This cannot be undone.',
+    confirm: 'Reset reading',
+  },
   all: {
     title: 'Clear all local data?',
-    description: 'Progress, favorites, quiz history, streaks and settings will be permanently deleted from this device, and you will see the welcome screen again.',
+    description: 'Progress, favorites, quiz history, streaks, Quran reading and settings will be permanently deleted from this device, and you will see the welcome screen again.',
     confirm: 'Clear everything',
   },
 }
@@ -44,6 +56,7 @@ export function SettingsScreen() {
   const runDestructive = async (action: DestructiveAction) => {
     if (action === 'progress') await data.resetProgress()
     if (action === 'quiz') await data.resetQuizHistory()
+    if (action === 'reading') await data.resetQuranReading()
     if (action === 'all') await data.clearAllData()
     setDone(action === 'all' ? 'All local data was cleared.' : `${CONFIRMATIONS[action].confirm} — done.`)
   }
@@ -142,7 +155,7 @@ export function SettingsScreen() {
           </p>
         </Card>
         <Card className="divide-y divide-border overflow-hidden">
-          {(['progress', 'quiz', 'all'] as const).map((action) => (
+          {(['progress', 'quiz', 'reading', 'all'] as const).map((action) => (
             <button
               key={action}
               type="button"
@@ -153,7 +166,7 @@ export function SettingsScreen() {
               className="flex min-h-14 w-full items-center gap-3 px-4 text-left text-sm font-medium text-danger hover:bg-danger-soft/50"
             >
               <Trash2 className="size-4" aria-hidden />
-              {action === 'progress' ? 'Reset learning progress' : action === 'quiz' ? 'Reset quiz history' : 'Clear all local data'}
+              {ACTION_LABELS[action]}
             </button>
           ))}
         </Card>
