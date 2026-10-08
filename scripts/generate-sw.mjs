@@ -12,8 +12,19 @@ import path from 'node:path'
 const root = path.resolve(import.meta.dirname, '..')
 const outDir = path.join(root, 'out')
 
-/** Not needed offline: iOS fetches splash images itself at install time. */
-const EXCLUDE = [/^\/splash\//, /^\/sw\.js$/, /\.map$/, /^\/_next\/static\/.*\/_buildManifest\.js$/i, /^\/_next\/static\/.*\/_ssgManifest\.js$/i]
+/**
+ * Not needed offline: iOS fetches splash images itself at install time.
+ * Surah RSC payloads repeat the whole surah text three times over its
+ * `index.html`; offline, the router falls back to the precached HTML.
+ */
+const EXCLUDE = [
+  /^\/splash\//,
+  /^\/sw\.js$/,
+  /\.map$/,
+  /^\/_next\/static\/.*\/_buildManifest\.js$/i,
+  /^\/_next\/static\/.*\/_ssgManifest\.js$/i,
+  /^\/surahs\/\d+\/.*\.txt$/,
+]
 
 async function walk(dir) {
   const entries = await readdir(dir, { withFileTypes: true })

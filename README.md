@@ -143,4 +143,4 @@ No personal data is collected. There is no analytics, tracking or third-party re
 - Daily reminders are a stored preference only; notifications are not implemented yet (iOS supports Web Push for Home Screen apps from iOS 16.4, which would require a push server).
 - UI labels are in English; the language setting controls which meanings/explanations are shown (English, Bangla or both).
 - No audio pronunciation and no cross-device sync (both would need extra assets or a backend).
-- The full offline precache is about 11 MB uncompressed (roughly 2–3 MB transferred with gzip/brotli), mostly the 99 prerendered Name pages.
+- The full offline precache is about 27 MB uncompressed, mostly the 114 surah pages and the 99 Name pages. Surah RSC payloads (`/surahs/<id>/*.txt`) are not precached because they repeat the surah text; offline, navigation falls back to the precached HTML.

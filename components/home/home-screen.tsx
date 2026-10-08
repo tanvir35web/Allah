@@ -19,7 +19,6 @@ import {
   useStreak,
   useTodayActivity,
 } from '@/hooks/use-derived-data'
-import { surahs } from '@/lib/surahs'
 import { pluralize } from '@/lib/utils'
 import { DailyNameCard } from './daily-name-card'
 import { Onboarding } from './onboarding'
@@ -169,7 +168,7 @@ function QuickActions() {
         <span className="min-w-0 flex-1">
           <span className="block font-semibold">Surahs</span>
           <span className="block text-xs text-muted-foreground">
-            {pluralize(surahs.length, 'surah')} with Arabic and Bangla meaning
+            All 114 surahs with Arabic and Bangla meaning
           </span>
         </span>
         <ChevronRight className="size-5 text-muted-foreground" aria-hidden />

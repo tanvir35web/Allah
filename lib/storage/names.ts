@@ -24,7 +24,7 @@ export function normalizeLatin(text: string): string {
     .replace(/['’‘`ʿʾ\-\s]/g, '')
 }
 
-function stripArticle(text: string): string {
+export function stripArticle(text: string): string {
   return text.replace(/^(ash|al|ar|as|at|ad|an|az)/, '')
 }
 

@@ -15,8 +15,8 @@ interface SurahReaderProps {
 
 /** The whole surah in Arabic first, then the whole Bangla meaning. */
 export function SurahReader({ surah, previous, next }: SurahReaderProps) {
-  // Al-Fatihah counts the Bismillah as its first ayah.
-  const showBismillah = surah.id !== 1
+  // Al-Fatihah counts the Bismillah as its first ayah; At-Tawbah has none.
+  const showBismillah = surah.id !== 1 && surah.id !== 9
 
   return (
     <article className="space-y-5" aria-labelledby="surah-title">

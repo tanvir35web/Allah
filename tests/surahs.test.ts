@@ -1,20 +1,34 @@
 import { describe, expect, it } from 'vitest'
+import { matchesSurahQuery, toSurahSummary } from '@/lib/surah-search'
 import { bismillah, getAdjacentSurahs, surahs, toBanglaDigits } from '@/lib/surahs'
 
-/** Ayah counts from the standard Hafs numbering. */
-const AYAH_COUNTS: Record<number, number> = {
-  1: 7, 18: 110, 36: 83, 55: 78, 67: 30, 96: 19, 97: 5, 98: 8, 99: 8, 100: 11, 101: 11, 102: 8, 103: 3, 104: 9,
-  105: 5, 106: 4, 107: 7, 108: 3, 109: 6, 110: 3, 111: 5, 112: 4, 113: 5, 114: 6,
-}
+/** Ayah counts from the standard Hafs numbering, surah 1 to 114. */
+const AYAH_COUNTS = [
+  7, 286, 200, 176, 120, 165, 206, 75, 129, 109, 123, 111,
+  43, 52, 99, 128, 111, 110, 98, 135, 112, 78, 118, 64,
+  77, 227, 93, 88, 69, 60, 34, 30, 73, 54, 45, 83,
+  182, 88, 75, 85, 54, 53, 89, 59, 37, 35, 38, 29,
+  18, 45, 60, 49, 62, 55, 78, 96, 29, 22, 24, 13,
+  14, 11, 11, 18, 12, 12, 30, 52, 52, 44, 28, 28,
+  20, 56, 40, 31, 50, 40, 46, 42, 29, 19, 36, 25,
+  22, 17, 19, 26, 30, 20, 15, 21, 11, 8, 8, 19,
+  5, 8, 8, 11, 11, 8, 3, 9, 5, 4, 7, 3,
+  6, 3, 5, 4, 5, 6,
+]
 
 describe('Surah data', () => {
-  it('contains Al-Fatihah, Al-Kahf, Ya-Sin, Ar-Rahman, Al-Mulk and surahs 96 to 114 in order', () => {
-    expect(surahs.map((surah) => surah.id)).toEqual([1, 18, 36, 55, 67, ...Array.from({ length: 19 }, (_, index) => 96 + index)])
+  it('contains all 114 surahs in order', () => {
+    expect(surahs.map((surah) => surah.id)).toEqual(Array.from({ length: 114 }, (_, index) => index + 1))
+  })
+
+  it('has 6236 ayahs in total', () => {
+    expect(AYAH_COUNTS.reduce((sum, count) => sum + count, 0)).toBe(6236)
+    expect(surahs.reduce((sum, surah) => sum + surah.ayahs.length, 0)).toBe(6236)
   })
 
   it('has the correct number of ayahs, numbered from 1', () => {
     for (const surah of surahs) {
-      expect(surah.ayahs, `surah ${surah.id}`).toHaveLength(AYAH_COUNTS[surah.id] ?? -1)
+      expect(surah.ayahs, `surah ${surah.id}`).toHaveLength(AYAH_COUNTS[surah.id - 1] ?? -1)
       expect(surah.ayahs.map((ayah) => ayah.number)).toEqual(surah.ayahs.map((_, index) => index + 1))
     }
   })
@@ -46,18 +60,49 @@ describe('Surah data', () => {
 })
 
 describe('Surah helpers', () => {
-  it('links neighbours across gaps in Qur’an order', () => {
-    expect(getAdjacentSurahs(1).next?.id).toBe(18)
-    expect(getAdjacentSurahs(18).next?.id).toBe(36)
-    expect(getAdjacentSurahs(36).previous?.id).toBe(18)
-    expect(getAdjacentSurahs(36).next?.id).toBe(55)
-    expect(getAdjacentSurahs(55).next?.id).toBe(67)
-    expect(getAdjacentSurahs(67).next?.id).toBe(96)
-    expect(getAdjacentSurahs(96).previous?.id).toBe(67)
+  it('links neighbours in Qur’an order', () => {
+    expect(getAdjacentSurahs(1).previous).toBeUndefined()
+    expect(getAdjacentSurahs(1).next?.id).toBe(2)
+    expect(getAdjacentSurahs(18).previous?.id).toBe(17)
+    expect(getAdjacentSurahs(18).next?.id).toBe(19)
     expect(getAdjacentSurahs(114).next).toBeUndefined()
   })
 
   it('converts digits to Bangla', () => {
     expect(toBanglaDigits(19)).toBe('১৯')
+  })
+})
+
+describe('Surah search', () => {
+  const summaries = surahs.map(toSurahSummary)
+  const search = (query: string) => summaries.filter((surah) => matchesSurahQuery(surah, query)).map((surah) => surah.id)
+
+  it('returns everything for an empty query', () => {
+    expect(search('  ')).toHaveLength(114)
+  })
+
+  it('finds by number in English or Bangla digits', () => {
+    expect(search('18')).toEqual([18])
+    expect(search('১৮')).toEqual([18])
+    expect(search('115')).toEqual([])
+  })
+
+  it('finds by transliteration regardless of case, article or punctuation', () => {
+    expect(search('kahf')).toEqual([18])
+    expect(search('AL KAHF')).toEqual([18])
+    expect(search('al rahman')).toContain(55)
+    expect(search('yasin')).toEqual([36])
+  })
+
+  it('finds by English meaning, Bangla name or meaning, and Arabic name', () => {
+    expect(search('the cave')).toEqual([18])
+    expect(search('কাহফ')).toEqual([18])
+    expect(search('গুহা')).toEqual([18])
+    expect(search('الملك')).toEqual([67])
+  })
+
+  it('does not send the surah text to the client', () => {
+    expect(Object.keys(summaries[0] ?? {})).not.toContain('arabic')
+    expect(Object.keys(summaries[0] ?? {})).not.toContain('ayahs')
   })
 })
