@@ -12,7 +12,7 @@ interface NavItem {
   match: (path: string) => boolean
 }
 
-const MORE_ROUTES = ['/more', '/surahs', '/favorites', '/review', '/settings', '/about']
+const MORE_ROUTES = ['/more', '/reels', '/surahs', '/favorites', '/review', '/settings', '/about']
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/', label: 'Home', icon: House, match: (p) => p === '/' || p.startsWith('/learn') },
