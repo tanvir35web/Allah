@@ -106,6 +106,8 @@ In Chrome DevTools → Application: check Manifest, Service Workers and Cache St
 3. Tap **Share → Add to Home Screen → Add**.
 4. Launch from the Home Screen icon. The app opens full screen (standalone) and works offline after the first launch.
 
+On Vercel, `vercel.json` sets the framework to "Other", runs `npm run build` and serves `out/`. With the default Next.js preset Vercel ignores `out/`, so `/sw.js` returns 404 and the app does not work offline. After deploying, check that `/sw.js` loads.
+
 Set `NEXT_PUBLIC_SITE_URL` (e.g. `https://names.example.com`) at build time so Open Graph URLs are absolute.
 
 Note: on iOS, Home Screen apps have their own storage, separate from Safari. Deleting the Home Screen app deletes its local progress.
