@@ -1,6 +1,7 @@
 'use client'
 
 import {
+  BarChart3,
   BookOpenText,
   Check,
   ChevronRight,
@@ -180,8 +181,16 @@ interface ExploreItem {
 function ExploreList() {
   const { favorites } = useAppData()
   const reviewQueue = useReviewQueue()
+  const summary = useProgressSummary()
   const items: ExploreItem[] = [
     { href: '/quiz/', label: 'Quiz', icon: Sparkles, tint: 'bg-[#ff9500]', detail: 'Test yourself' },
+    {
+      href: '/progress/',
+      label: 'Progress',
+      icon: BarChart3,
+      tint: 'bg-[#5856d6]',
+      detail: `${summary.learned}/99`,
+    },
     {
       href: '/review/',
       label: 'Review',
