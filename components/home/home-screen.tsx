@@ -1,24 +1,27 @@
 'use client'
 
 import {
+  ArrowRight,
   BarChart3,
   BookOpenText,
   Check,
   ChevronRight,
   Clapperboard,
+  Compass,
+  Flame,
   RotateCcw,
   Sparkles,
   Star,
+  Target,
+  Trophy,
   type LucideIcon,
 } from 'lucide-react'
 import Link from 'next/link'
-import type { ReactNode } from 'react'
 import { LoadingState } from '@/components/common/loading-state'
 import { StorageNotice } from '@/components/common/storage-notice'
 import { StreakPill } from '@/components/progress/streak-card'
 import { useAppData } from '@/components/providers/app-data-provider'
 import { ButtonLink } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
 import { ProgressBar, ProgressRing } from '@/components/ui/progress-bar'
 import {
   useNextName,
@@ -49,10 +52,15 @@ export function HomeScreen() {
   return (
     <>
       <header className="safe-top mx-auto max-w-2xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl px-4 md:px-8">
-        <div className="flex items-end justify-between gap-3 pt-5 md:pt-8">
+        <div className="flex items-end justify-between gap-3 pt-5 md:pt-8 pb-1">
           <div className="min-w-0">
             <TodayCaption />
-            <h1 className="text-[2.125rem] md:text-[2.5rem] leading-tight font-bold tracking-tight">Assalamu Alaikum</h1>
+            <h1 className="text-[2.125rem] md:text-[2.625rem] leading-tight font-extrabold tracking-tight text-foreground">
+              Assalamu Alaikum
+            </h1>
+            <p className="mt-0.5 text-xs md:text-sm text-muted-foreground">
+              Reflect upon the beautiful names of Allah today.
+            </p>
           </div>
           <Link href="/progress/" aria-label="Streak, see progress" className="mb-1 shrink-0 rounded-full">
             <StreakPill />
@@ -94,18 +102,7 @@ function TodayCaption() {
     label = DATE_FORMAT.format(new Date(year ?? 0, (month ?? 1) - 1, day ?? 1))
   }
   return (
-    <p className="min-h-5 text-[0.8125rem] font-semibold tracking-wide text-muted-foreground uppercase">{label}</p>
-  )
-}
-
-function SectionHeader({ id, title, action }: { id: string; title: string; action?: ReactNode }) {
-  return (
-    <div className="mb-2 flex min-h-11 items-center justify-between px-1">
-      <h2 id={id} className="text-[1.375rem] leading-tight font-bold tracking-tight">
-        {title}
-      </h2>
-      {action}
-    </div>
+    <p className="min-h-5 text-[0.8125rem] font-semibold tracking-wider text-primary uppercase">{label}</p>
   )
 }
 
@@ -121,54 +118,85 @@ function TodayCard() {
 
   return (
     <section aria-labelledby="today-title">
-      <SectionHeader id="today-title" title="Today" />
-      <Card className="p-5">
+      <div className="mb-3 flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <span className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary">
+            <Target className="size-4" aria-hidden />
+          </span>
+          <h2 id="today-title" className="text-[1.375rem] leading-tight font-bold tracking-tight">
+            Today’s Goal
+          </h2>
+        </div>
+        <span
+          className={cn(
+            'rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums',
+            goalMet ? 'bg-success/15 text-success' : 'bg-primary/10 text-primary',
+          )}
+        >
+          {goalMet ? 'Completed' : `${remaining} to go`}
+        </span>
+      </div>
+
+      <article className="pattern-stars relative overflow-hidden rounded-[2.25rem] border border-border/80 bg-gradient-to-br from-card via-card to-primary-soft/30 p-6 md:p-7 shadow-[0_2px_12px_rgb(0_0_0/0.04)] transition-all hover:shadow-md">
         <div className="flex items-center gap-5">
-          {/* Status is given by the ring, the check icon and the title, never by colour alone. */}
-          <ProgressRing
-            value={Math.min(learnedToday, goal)}
-            max={goal}
-            size={88}
-            stroke={9}
-            label="Daily goal"
-            valueText={goalMet ? `Goal reached, ${summary}` : summary}
-            tone={goalMet ? 'success' : 'primary'}
-          >
-            {goalMet ? (
-              <Check className="size-9 text-success" strokeWidth={2.75} aria-hidden />
-            ) : (
-              <span className="text-[1.75rem] leading-none font-bold tabular-nums" aria-hidden>
-                {learnedToday}
-                <span className="text-[0.9375rem] font-semibold text-muted-foreground">/{goal}</span>
-              </span>
-            )}
-          </ProgressRing>
+          <div className="relative shrink-0">
+            <ProgressRing
+              value={Math.min(learnedToday, goal)}
+              max={goal}
+              size={92}
+              stroke={9}
+              label="Daily goal"
+              valueText={goalMet ? `Goal reached, ${summary}` : summary}
+              tone={goalMet ? 'success' : 'primary'}
+            >
+              {goalMet ? (
+                <Check className="size-9 text-success" strokeWidth={3} aria-hidden />
+              ) : (
+                <div className="flex flex-col items-center justify-center text-center">
+                  <span className="text-[1.75rem] leading-none font-bold tabular-nums" aria-hidden>
+                    {learnedToday}
+                  </span>
+                  <span className="text-[0.75rem] font-semibold text-muted-foreground tabular-nums">
+                    /{goal}
+                  </span>
+                </div>
+              )}
+            </ProgressRing>
+          </div>
+
           <div className="min-w-0 flex-1">
-            <p className="text-[0.8125rem] font-semibold tracking-wide text-muted-foreground uppercase">Daily Goal</p>
-            <p className="mt-0.5 text-[1.375rem] leading-tight font-bold tracking-tight">
-              {goalMet ? 'Goal Reached' : `${pluralize(remaining, 'Name')} to Go`}
-            </p>
-            <p className="mt-1 text-[0.9375rem] text-muted-foreground">
-              {goalMet ? `${pluralize(learnedToday, 'Name')} learned today. Alhamdulillah.` : summary}
+            <span className="text-xs font-semibold uppercase tracking-wider text-primary">
+              Memorisation
+            </span>
+            <h3 className="mt-0.5 text-xl md:text-2xl font-bold tracking-tight text-foreground">
+              {goalMet ? 'Daily Goal Reached!' : `${pluralize(remaining, 'Name')} to Learn`}
+            </h3>
+            <p className="mt-1 text-xs md:text-sm text-muted-foreground leading-relaxed">
+              {goalMet
+                ? `${pluralize(learnedToday, 'Name')} memorised today. Alhamdulillah!`
+                : `${summary}. Keep going!`}
             </p>
           </div>
         </div>
+
         {next ? (
           <ButtonLink
             href="/learn/"
             size="lg"
             variant={goalMet ? 'secondary' : 'primary'}
-            className="mt-5 w-full rounded-xl"
+            className="mt-5 w-full rounded-2xl group shadow-xs hover:shadow-sm"
           >
-            {goalMet ? 'Keep Learning' : 'Continue Learning'}
-            <span className="truncate font-normal opacity-80">· {next.transliteration}</span>
+            <span>{goalMet ? 'Keep Learning Next' : 'Continue Learning'}</span>
+            <span className="truncate opacity-80">· {next.transliteration}</span>
+            <ArrowRight className="size-4 ml-1 transition-transform group-hover:translate-x-1" aria-hidden />
           </ButtonLink>
         ) : (
-          <ButtonLink href="/review/" size="lg" variant="secondary" className="mt-5 w-full rounded-xl">
-            All 99 Learned · Review
+          <ButtonLink href="/review/" size="lg" variant="secondary" className="mt-5 w-full rounded-2xl group shadow-xs">
+            <span>All 99 Learned · Review</span>
+            <ArrowRight className="size-4 ml-1 transition-transform group-hover:translate-x-1" aria-hidden />
           </ButtonLink>
         )}
-      </Card>
+      </article>
     </section>
   )
 }
@@ -177,31 +205,57 @@ interface ExploreItem {
   href: string
   label: string
   icon: LucideIcon
-  /** Icon tile colour, after the iOS system colours. */
+  /** Icon tile colour or gradient */
   tint: string
+  accentBg: string
   detail?: string
   badge?: number
 }
 
-/** An iOS inset grouped list: coloured icon tiles, inset separators, chevrons. */
+/** Action tiles grid for primary practice and exploration */
 function ExploreList() {
   const { favorites } = useAppData()
   const reviewQueue = useReviewQueue()
   const summary = useProgressSummary()
   const items: ExploreItem[] = [
-    { href: '/quiz/', label: 'Quiz', icon: Sparkles, tint: 'bg-[#ff9500]', detail: 'Test yourself' },
+    {
+      href: '/quiz/',
+      label: 'Quiz',
+      icon: Sparkles,
+      tint: 'bg-gradient-to-br from-amber-400 to-amber-600',
+      accentBg: 'hover:border-amber-500/40',
+      detail: 'Test yourself',
+    },
     {
       href: '/progress/',
       label: 'Progress',
       icon: BarChart3,
-      tint: 'bg-[#5856d6]',
-      detail: `${summary.learned}/99`,
+      tint: 'bg-gradient-to-br from-indigo-400 to-indigo-600',
+      accentBg: 'hover:border-indigo-500/40',
+      detail: `${summary.learned}/99 learned`,
+    },
+    {
+      href: '/reels/',
+      label: 'Reels',
+      icon: Clapperboard,
+      tint: 'bg-gradient-to-br from-rose-400 to-rose-600',
+      accentBg: 'hover:border-rose-500/40',
+      detail: 'Swipe 99 Names',
+    },
+    {
+      href: '/surahs/',
+      label: 'Quran',
+      icon: BookOpenText,
+      tint: 'bg-gradient-to-br from-emerald-400 to-emerald-600',
+      accentBg: 'hover:border-emerald-500/40',
+      detail: 'All 114 Surahs',
     },
     {
       href: '/review/',
       label: 'Review',
       icon: RotateCcw,
-      tint: 'bg-[#007aff]',
+      tint: 'bg-gradient-to-br from-blue-400 to-blue-600',
+      accentBg: 'hover:border-blue-500/40',
       detail: reviewQueue.length ? undefined : 'All caught up',
       badge: reviewQueue.length || undefined,
     },
@@ -209,46 +263,60 @@ function ExploreList() {
       href: '/favorites/',
       label: 'Favorites',
       icon: Star,
-      tint: 'bg-[#ffcc00]',
-      detail: favorites.length ? String(favorites.length) : 'None yet',
+      tint: 'bg-gradient-to-br from-yellow-400 to-yellow-600',
+      accentBg: 'hover:border-yellow-500/40',
+      detail: favorites.length ? `${favorites.length} saved` : 'Saved names',
+      badge: favorites.length || undefined,
     },
-    { href: '/reels/', label: 'Reels', icon: Clapperboard, tint: 'bg-[#ff2d55]', detail: '99 Names' },
-    { href: '/surahs/', label: 'Quran', icon: BookOpenText, tint: 'bg-[#34c759]', detail: '114' },
   ]
 
   return (
     <section aria-labelledby="explore-title">
-      <SectionHeader id="explore-title" title="Explore" />
-      <Card className="overflow-hidden">
-        <ul className='py-2'>
-          {items.map(({ href, label, icon: Icon, tint, detail, badge }, index) => (
-            <li key={href}>
-              <Link href={href} className="flex min-h-14 items-center gap-3 pl-4 transition-colors active:bg-muted">
-                <span className={cn('grid size-8 shrink-0 place-items-center rounded-lg text-white', tint)}>
-                  <Icon className="size-[1.125rem]" strokeWidth={2.2} aria-hidden />
+      <div className="mb-3 flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <span className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary">
+            <Compass className="size-4" aria-hidden />
+          </span>
+          <h2 id="explore-title" className="text-[1.375rem] leading-tight font-bold tracking-tight">
+            Explore & Practice
+          </h2>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-3.5">
+        {items.map(({ href, label, icon: Icon, tint, accentBg, detail, badge }) => (
+          <Link
+            key={href}
+            href={href}
+            className={cn(
+              'group relative flex flex-col justify-between overflow-hidden rounded-[1.75rem] border border-border/80 bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98]',
+              accentBg,
+            )}
+          >
+            <div className="flex items-start justify-between gap-2">
+              <span className={cn('grid size-11 place-items-center rounded-2xl text-white shadow-xs transition-transform group-hover:scale-105', tint)}>
+                <Icon className="size-5" strokeWidth={2.2} aria-hidden />
+              </span>
+              {badge ? (
+                <span className="grid min-w-5 place-items-center rounded-full bg-danger px-1.5 py-0.5 text-xs font-bold text-white tabular-nums shadow-xs">
+                  {badge}
                 </span>
-                {/* The separator starts at the label, as in iOS lists. */}
-                <span
-                  className={cn(
-                    'flex min-h-12 min-w-0 flex-1 items-center gap-2 pr-3',
-                    index > 0 && 'border-t border-border',
-                  )}
-                >
-                  <span className="flex-1 truncate text-[1.0625rem]">{label}</span>
-                  {badge ? (
-                    <span className="grid min-w-6 place-items-center rounded-full bg-[#ff3b30] px-1.5 text-sm font-semibold text-white tabular-nums">
-                      {badge}
-                      <span className="sr-only"> due</span>
-                    </span>
-                  ) : null}
-                  {detail ? <span className="text-[1rem] text-muted-foreground">{detail}</span> : null}
-                  <ChevronRight className="size-5 shrink-0 text-muted-foreground/60" aria-hidden />
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </Card>
+              ) : (
+                <ChevronRight className="size-4 text-muted-foreground/40 transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" aria-hidden />
+              )}
+            </div>
+
+            <div className="mt-3.5">
+              <p className="text-base font-bold tracking-tight text-foreground group-hover:text-primary transition-colors">
+                {label}
+              </p>
+              {detail ? (
+                <p className="mt-0.5 text-xs text-muted-foreground truncate">{detail}</p>
+              ) : null}
+            </div>
+          </Link>
+        ))}
+      </div>
     </section>
   )
 }
@@ -258,38 +326,62 @@ function ProgressSummary() {
   const quiz = useQuizStats()
   const streak = useStreak()
   const stats = [
-    { label: 'Quizzes', value: String(quiz.total) },
-    { label: 'Accuracy', value: quiz.total ? `${quiz.accuracy}%` : '–' },
-    { label: 'Streak', value: streak ? pluralize(streak.currentStreak, 'day') : '–' },
+    { label: 'Quizzes', value: String(quiz.total), icon: Sparkles, color: 'text-amber-500' },
+    { label: 'Accuracy', value: quiz.total ? `${quiz.accuracy}%` : '–', icon: Trophy, color: 'text-emerald-500' },
+    { label: 'Streak', value: streak ? pluralize(streak.currentStreak, 'day') : '–', icon: Flame, color: 'text-orange-500' },
   ]
   return (
     <section aria-labelledby="your-progress">
-      <SectionHeader
-        id="your-progress"
-        title="Progress"
-        action={
-          <Link href="/progress/" className="-mr-1 inline-flex min-h-11 items-center px-1 text-[1.0625rem] text-primary">
-            See All
-          </Link>
-        }
-      />
-      <Card className="p-5">
-        <div className="flex items-baseline justify-between">
-          <p className="text-[1.0625rem] font-semibold">
-            {summary.learned} <span className="font-normal text-muted-foreground">of 99 Names learned</span>
-          </p>
-          <p className="text-[0.9375rem] font-semibold text-primary tabular-nums">{summary.percentage}%</p>
+      <div className="mb-3 flex items-center justify-between px-1">
+        <div className="flex items-center gap-2">
+          <span className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary">
+            <BarChart3 className="size-4" aria-hidden />
+          </span>
+          <h2 id="your-progress" className="text-[1.375rem] leading-tight font-bold tracking-tight">
+            Your Progress
+          </h2>
         </div>
-        <ProgressBar className="mt-3" value={summary.learned} max={99} label="Names learned" />
-        <dl className="mt-5 grid grid-cols-3 divide-x divide-border border-t border-border pt-4">
-          {stats.map(({ label, value }) => (
-            <div key={label} className="px-2 text-center first:pl-0 last:pr-0">
-              <dt className="text-[0.8125rem] text-muted-foreground">{label}</dt>
-              <dd className="mt-0.5 text-xl font-bold tabular-nums">{value}</dd>
+        <Link
+          href="/progress/"
+          className="inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline"
+        >
+          <span>Dashboard</span>
+          <ArrowRight className="size-3.5" aria-hidden />
+        </Link>
+      </div>
+
+      <article className="pattern-stars relative overflow-hidden rounded-[2.25rem] border border-border/80 bg-gradient-to-br from-card via-card to-primary-soft/20 p-6 md:p-7 shadow-[0_2px_12px_rgb(0_0_0/0.04)] transition-all hover:shadow-md">
+        <div className="flex items-baseline justify-between">
+          <div>
+            <p className="text-3xl md:text-4xl font-extrabold text-foreground tabular-nums">
+              {summary.learned}{' '}
+              <span className="text-base font-normal text-muted-foreground">/ 99 Names</span>
+            </p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {summary.learning} in progress · {summary.notStarted} remaining
+            </p>
+          </div>
+          <span className="rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-bold text-primary tabular-nums">
+            {summary.percentage}%
+          </span>
+        </div>
+
+        <ProgressBar className="mt-4" value={summary.learned} max={99} label="Names learned" />
+
+        <div className="mt-5 grid grid-cols-3 gap-2.5 pt-4 border-t border-border/70">
+          {stats.map(({ label, value, icon: Icon, color }) => (
+            <div key={label} className="rounded-2xl bg-muted/40 p-3 text-center border border-border/50">
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <Icon className={cn('size-3.5', color)} aria-hidden />
+                <span className="text-[0.6875rem] font-semibold uppercase tracking-wider text-muted-foreground">
+                  {label}
+                </span>
+              </div>
+              <p className="text-lg md:text-xl font-bold tabular-nums text-foreground">{value}</p>
             </div>
           ))}
-        </dl>
-      </Card>
+        </div>
+      </article>
     </section>
   )
 }

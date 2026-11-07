@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function LearnPage() {
   return (
-    <PageShell title="Learn" variant="compact" backHref="/" backLabel="Home">
+    <PageShell title="Learn" variant="compact" backHref="/" backLabel="Home" maxWidth="medium">
       {/* useSearchParams needs a Suspense boundary in a static export. */}
       <Suspense fallback={<LoadingState rows={2} />}>
         <LearnSession />

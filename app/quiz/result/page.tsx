@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: 'Quiz result', robots: { index: false
 
 export default function QuizResultPage() {
   return (
-    <PageShell title="Result" variant="compact" backHref="/quiz/" backLabel="Quiz">
+    <PageShell title="Result" variant="compact" backHref="/quiz/" backLabel="Quiz" maxWidth="medium">
       <Suspense fallback={<LoadingState rows={3} />}>
         <QuizResultView />
       </Suspense>
