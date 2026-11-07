@@ -33,7 +33,7 @@ import { Onboarding } from './onboarding'
 
 /**
  * Clean, distraction-free Islamic home screen.
- * Optimized for readability, spacious typography, and effortless learning.
+ * Optimized for pixel-perfect visual alignment and spacious, balanced typography.
  */
 export function HomeScreen() {
   const { ready, settings } = useAppData()
@@ -62,21 +62,25 @@ export function HomeScreen() {
       <main id="main" className="animate-rise pb-nav md:pb-12 mx-auto max-w-2xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl px-4 md:px-8 pt-4">
         <StorageNotice />
         {ready ? (
-          <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 items-start">
-            {/* Top Row: Hero Name of the Day (7 cols) + Daily Goal (5 cols) */}
-            <div className="lg:col-span-7">
-              <DailyNameCard />
-            </div>
-            <div className="lg:col-span-5">
-              <LearningHubCard />
+          <div className="space-y-6">
+            {/* Top Row: Daily Name Hero (7 cols) + Daily Goal (5 cols) - Equal Height & Baseline */}
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 items-stretch">
+              <div className="lg:col-span-7 flex flex-col">
+                <DailyNameCard />
+              </div>
+              <div className="lg:col-span-5 flex flex-col">
+                <LearningHubCard />
+              </div>
             </div>
 
-            {/* Bottom Row: Ayah of the Day (7 cols) + Quick Access (5 cols) */}
-            <div className="lg:col-span-7">
-              <AyahCard />
-            </div>
-            <div className="lg:col-span-5">
-              <ExploreList />
+            {/* Bottom Row: Ayah of the Day (7 cols) + Quick Access (5 cols) - Equal Height & Baseline */}
+            <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 items-stretch">
+              <div className="lg:col-span-7 flex flex-col">
+                <AyahCard />
+              </div>
+              <div className="lg:col-span-5 flex flex-col">
+                <ExploreList />
+              </div>
             </div>
           </div>
         ) : (
@@ -108,7 +112,7 @@ function TodayCaption() {
   )
 }
 
-/** Clean, focused Daily Goal card with zero clutter. */
+/** Clean, focused Daily Goal card aligned visually with the Name of the Day card. */
 function LearningHubCard() {
   const { settings } = useAppData()
   const todayActivity = useTodayActivity()
@@ -122,8 +126,9 @@ function LearningHubCard() {
   const remaining = goal - learnedToday
 
   return (
-    <section aria-labelledby="learning-hub-title">
-      <div className="mb-2 flex items-center justify-between px-1">
+    <section aria-labelledby="learning-hub-title" className="flex flex-col h-full">
+      {/* Header height h-7 exactly matches Name of the Day header */}
+      <div className="mb-2 flex items-center justify-between px-1 h-7">
         <h2 id="learning-hub-title" className="text-xs font-bold tracking-wider uppercase text-muted-foreground">
           Daily Goal
         </h2>
@@ -135,12 +140,12 @@ function LearningHubCard() {
         </Link>
       </div>
 
-      <article className="relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/70 bg-card p-6 shadow-xs hover:border-primary/30 transition-all duration-200">
-        {/* Streak & Status */}
+      <article className="relative flex flex-1 flex-col justify-between overflow-hidden rounded-3xl border border-border/70 bg-card p-6 shadow-xs hover:border-primary/30 transition-all duration-200">
+        {/* Streak & Status matching height of Name card's top bar */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Flame className="size-4 text-amber-500 fill-amber-500/20" aria-hidden />
-            <span className="text-xs font-bold text-foreground">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold text-amber-600 dark:text-amber-400">
+            <Flame className="size-3.5 fill-amber-500/20 text-amber-500" aria-hidden />
+            <span>
               {streak && streak.currentStreak > 0 ? `${pluralize(streak.currentStreak, 'Day')} Streak` : 'Daily Habit'}
             </span>
           </div>
@@ -156,13 +161,13 @@ function LearningHubCard() {
         </div>
 
         {/* Progress Ring + Goal Summary */}
-        <div className="my-5 flex items-center gap-4">
+        <div className="my-auto py-3 flex items-center gap-4">
           <div className="shrink-0">
             <ProgressRing
               value={Math.min(learnedToday, goal)}
               max={goal}
-              size={68}
-              stroke={6}
+              size={72}
+              stroke={6.5}
               label="Daily goal"
               valueText={goalMet ? 'Goal reached' : `${learnedToday} of ${goal}`}
               tone={goalMet ? 'success' : 'primary'}
@@ -183,27 +188,27 @@ function LearningHubCard() {
           </div>
 
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-bold text-foreground">
-              {goalMet ? 'Daily goal reached!' : `${learnedToday} of ${pluralize(goal, 'Name')} learned today`}
+            <h3 className="text-base font-bold text-foreground">
+              {goalMet ? 'Daily goal reached!' : `${learnedToday} of ${pluralize(goal, 'Name')} memorised`}
             </h3>
             <p className="mt-0.5 text-xs text-muted-foreground">
               {summary.learned} of 99 Names memorised ({summary.percentage}%)
             </p>
 
-            <div className="mt-2">
+            <div className="mt-2.5">
               <ProgressBar value={summary.learned} max={99} label="Total Names learned" />
             </div>
           </div>
         </div>
 
-        {/* Action Button */}
+        {/* Action Button - height, border radius, and bottom alignment match Name card */}
         <div>
           {next ? (
             <ButtonLink
               href="/learn/"
               size="md"
               variant="primary"
-              className="w-full rounded-2xl font-bold shadow-xs hover:shadow-sm group flex items-center justify-between px-5"
+              className="w-full rounded-2xl font-bold shadow-xs hover:shadow-sm group flex items-center justify-between px-5 transition-all"
             >
               <span className="truncate">
                 {goalMet ? 'Continue Learning' : 'Memorise Next Name'}
@@ -216,7 +221,7 @@ function LearningHubCard() {
               href="/review/"
               size="md"
               variant="secondary"
-              className="w-full rounded-2xl font-bold shadow-xs group flex items-center justify-between px-5"
+              className="w-full rounded-2xl font-bold shadow-xs group flex items-center justify-between px-5 transition-all"
             >
               <span>All 99 Learned · Review</span>
               <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" aria-hidden />
@@ -228,7 +233,7 @@ function LearningHubCard() {
   )
 }
 
-/** Clean, modern 2x2 action cards with zero clutter. */
+/** Clean, modern 2x2 action cards with matching height to AyahCard. */
 function ExploreList() {
   const { favorites } = useAppData()
   const reviewQueue = useReviewQueue()
@@ -262,55 +267,57 @@ function ExploreList() {
   ]
 
   return (
-    <section aria-labelledby="explore-title">
-      <div className="mb-2 flex items-center justify-between px-1">
+    <section aria-labelledby="explore-title" className="flex flex-col h-full">
+      <div className="mb-2 flex items-center justify-between px-1 h-7">
         <h2 id="explore-title" className="text-xs font-bold tracking-wider uppercase text-muted-foreground">
           Quick Access
         </h2>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        {items.map(({ href, title, badge, icon: Icon, color }) => (
+      <div className="flex flex-1 flex-col justify-between gap-3">
+        <div className="grid grid-cols-2 gap-3 flex-1">
+          {items.map(({ href, title, badge, icon: Icon, color }) => (
+            <Link
+              key={href}
+              href={href}
+              className="group relative flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs hover:border-primary/40 active:scale-[0.99]"
+            >
+              <span className={cn('grid size-10 place-items-center rounded-xl transition-transform group-hover:scale-105 shrink-0', color)}>
+                <Icon className="size-5" strokeWidth={2} aria-hidden />
+              </span>
+
+              <div className="min-w-0 flex-1">
+                <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors block truncate">
+                  {title}
+                </span>
+              </div>
+
+              {badge ? (
+                <span className="rounded-full bg-danger/15 text-danger px-2 py-0.5 text-xs font-bold tabular-nums shrink-0">
+                  {badge}
+                </span>
+              ) : null}
+            </Link>
+          ))}
+        </div>
+
+        {/* Subtle secondary links */}
+        <div className="flex items-center justify-between px-1 text-xs text-muted-foreground">
           <Link
-            key={href}
-            href={href}
-            className="group relative flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs hover:border-primary/40 active:scale-[0.99]"
+            href="/favorites/"
+            className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors py-1"
           >
-            <span className={cn('grid size-10 place-items-center rounded-xl transition-transform group-hover:scale-105 shrink-0', color)}>
-              <Icon className="size-5" strokeWidth={2} aria-hidden />
-            </span>
-
-            <div className="min-w-0 flex-1">
-              <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors block truncate">
-                {title}
-              </span>
-            </div>
-
-            {badge ? (
-              <span className="rounded-full bg-danger/15 text-danger px-2 py-0.5 text-xs font-bold tabular-nums shrink-0">
-                {badge}
-              </span>
-            ) : null}
+            <Star className="size-3.5 fill-accent/20 text-accent" />
+            <span>Favorites ({favorites.length})</span>
           </Link>
-        ))}
-      </div>
-
-      {/* Subtle secondary links */}
-      <div className="mt-2.5 flex items-center justify-between px-1 text-xs text-muted-foreground">
-        <Link
-          href="/favorites/"
-          className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors py-1"
-        >
-          <Star className="size-3.5 fill-accent/20 text-accent" />
-          <span>Favorites ({favorites.length})</span>
-        </Link>
-        <Link
-          href="/progress/"
-          className="inline-flex items-center gap-1 hover:text-foreground transition-colors py-1"
-        >
-          <BarChart3 className="size-3.5 text-primary" />
-          <span>Analytics</span>
-        </Link>
+          <Link
+            href="/progress/"
+            className="inline-flex items-center gap-1 hover:text-foreground transition-colors py-1"
+          >
+            <BarChart3 className="size-3.5 text-primary" />
+            <span>Analytics</span>
+          </Link>
+        </div>
       </div>
     </section>
   )

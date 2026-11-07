@@ -65,7 +65,7 @@ function reducedMotion() {
   return window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-/** Clean, minimalist Daily Name hero card with zero visual clutter. */
+/** Clean, minimalist Daily Name hero card aligned perfectly with neighbouring cards. */
 export function DailyNameCard() {
   const carousel = useSyncExternalStore(subscribe, getCarousel, () => null)
   const { settings } = useAppData()
@@ -102,9 +102,9 @@ export function DailyNameCard() {
   }
 
   return (
-    <section aria-labelledby="daily-name-title" aria-roledescription="carousel">
-      {/* Clean, quiet header */}
-      <div className="mb-2 flex items-center justify-between px-1">
+    <section aria-labelledby="daily-name-title" aria-roledescription="carousel" className="flex flex-col h-full">
+      {/* Clean header with fixed h-7 height for pixel-perfect vertical alignment */}
+      <div className="mb-2 flex items-center justify-between px-1 h-7">
         <h2 id="daily-name-title" className="text-xs font-bold tracking-wider uppercase text-muted-foreground">
           Name of the Day
         </h2>
@@ -136,7 +136,7 @@ export function DailyNameCard() {
       <div
         ref={trackRef}
         onScroll={onScroll}
-        className="scrollbar-none -mx-4 md:mx-0 flex snap-x snap-mandatory scroll-px-4 md:scroll-px-0 gap-4 overflow-x-auto overscroll-x-contain px-4 md:px-0"
+        className="scrollbar-none -mx-4 md:mx-0 flex flex-1 snap-x snap-mandatory scroll-px-4 md:scroll-px-0 gap-4 overflow-x-auto overscroll-x-contain px-4 md:px-0"
       >
         {carousel.names.map((slideName, index) => (
           <NameSlide
@@ -156,7 +156,7 @@ function NameSlide({ name, language, current }: { name: AllahName; language: str
 
   return (
     <article
-      className="relative flex w-full shrink-0 snap-start snap-always flex-col justify-between overflow-hidden rounded-3xl border border-border/70 bg-card p-6 sm:p-7 shadow-xs hover:border-primary/30 transition-all duration-200"
+      className="relative flex w-full h-full shrink-0 snap-start snap-always flex-col justify-between overflow-hidden rounded-3xl border border-border/70 bg-card p-6 shadow-xs hover:border-primary/30 transition-all duration-200"
       aria-roledescription="slide"
       aria-label={`${name.transliteration}, Name ${name.id} of 99`}
       aria-hidden={!current || undefined}
@@ -175,12 +175,12 @@ function NameSlide({ name, language, current }: { name: AllahName; language: str
       </div>
 
       {/* Center Calligraphy & Meaning */}
-      <div className="my-6 flex flex-col items-center justify-center text-center">
+      <div className="my-auto py-3 flex flex-col items-center justify-center text-center">
         <ArabicText className="block text-5xl sm:text-6xl font-arabic text-primary leading-tight select-none">
           {name.arabic}
         </ArabicText>
 
-        <h3 className="mt-3 text-2xl font-extrabold tracking-tight text-foreground">
+        <h3 className="mt-2 text-2xl font-extrabold tracking-tight text-foreground">
           {name.transliteration}
         </h3>
 
@@ -189,17 +189,17 @@ function NameSlide({ name, language, current }: { name: AllahName; language: str
         </p>
       </div>
 
-      {/* Single clean action button */}
-      <div className="flex justify-center">
+      {/* Full-width action button matching LearningHubCard */}
+      <div>
         <ButtonLink
           href={`/names/${name.id}/`}
           size="md"
           variant="outline"
-          className="rounded-full px-5 text-xs sm:text-sm font-semibold group shadow-2xs hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all"
+          className="w-full rounded-2xl font-bold shadow-xs hover:bg-muted group flex items-center justify-between px-5 transition-all"
           aria-label={`Explore details for ${name.transliteration}`}
         >
           <span>Explore Details</span>
-          <ArrowRight className="size-3.5 ml-1.5 transition-transform group-hover:translate-x-1" aria-hidden />
+          <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" aria-hidden />
         </ButtonLink>
       </div>
     </article>

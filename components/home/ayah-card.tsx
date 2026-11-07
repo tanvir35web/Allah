@@ -13,7 +13,7 @@ interface ShownAyah {
   ayah: SurahAyahs['ayahs'][number]
 }
 
-/** Clean, distraction-free Ayah card for daily contemplation. */
+/** Clean, distraction-free Ayah card aligned perfectly with neighbouring cards. */
 export function AyahCard() {
   const [shown, setShown] = useState<ShownAyah | null>(null)
   const [failed, setFailed] = useState(false)
@@ -38,9 +38,9 @@ export function AyahCard() {
   }, [])
 
   return (
-    <section aria-labelledby="ayah-title">
-      {/* Clean quiet header */}
-      <div className="mb-2 flex items-center justify-between px-1">
+    <section aria-labelledby="ayah-title" className="flex flex-col h-full">
+      {/* Clean quiet header with fixed h-7 for vertical alignment */}
+      <div className="mb-2 flex items-center justify-between px-1 h-7">
         <h2 id="ayah-title" className="text-xs font-bold tracking-wider uppercase text-muted-foreground">
           Ayah of the Day
         </h2>
@@ -54,7 +54,7 @@ export function AyahCard() {
       </div>
 
       {shown ? (
-        <article className="relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/70 bg-card p-6 sm:p-7 shadow-xs hover:border-primary/30 transition-all duration-200">
+        <article className="relative flex flex-1 flex-col justify-between overflow-hidden rounded-3xl border border-border/70 bg-card p-6 shadow-xs hover:border-primary/30 transition-all duration-200">
           {/* Top Surah info */}
           <div className="flex items-center justify-between">
             <span className="rounded-full bg-accent/10 px-2.5 py-0.5 text-xs font-bold text-accent tabular-nums">
@@ -65,30 +65,28 @@ export function AyahCard() {
             </span>
           </div>
 
-          {/* Arabic Ayah */}
-          <div className="my-5 flex flex-col items-center justify-center text-center">
+          {/* Arabic Ayah & Bengali Translation */}
+          <div className="my-auto py-3 flex flex-col items-center justify-center text-center">
             <p lang="ar" dir="rtl" className="font-quran text-2xl sm:text-3xl leading-[2.2] text-foreground select-none">
               {shown.ayah.arabic}
             </p>
+            <div className="mt-3 text-center">
+              <BanglaText className="block text-sm sm:text-base leading-relaxed text-foreground/85 font-medium">
+                “{shown.ayah.bangla}”
+              </BanglaText>
+            </div>
           </div>
 
-          {/* Clean Bengali Translation */}
-          <div className="my-2 text-center">
-            <BanglaText className="block text-sm sm:text-base leading-relaxed text-foreground/85 font-medium">
-              “{shown.ayah.bangla}”
-            </BanglaText>
-          </div>
-
-          {/* Action */}
-          <div className="mt-5 flex justify-center">
+          {/* Action Button */}
+          <div>
             <ButtonLink
               href={`/surahs/${shown.surah.id}/`}
               variant="outline"
               size="md"
-              className="rounded-full px-5 text-xs sm:text-sm font-semibold group shadow-2xs hover:bg-accent hover:text-white hover:border-accent transition-all"
+              className="w-full rounded-2xl font-bold shadow-xs hover:bg-muted group flex items-center justify-between px-5 transition-all"
             >
               <span>Read Full Surah</span>
-              <ArrowRight className="size-3.5 ml-1.5 transition-transform group-hover:translate-x-1" aria-hidden />
+              <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" aria-hidden />
             </ButtonLink>
           </div>
         </article>
