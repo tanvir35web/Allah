@@ -67,11 +67,15 @@ export function AyahCard() {
 
           {/* Arabic Ayah & Bengali Translation */}
           <div className="my-auto py-3 flex flex-col items-center justify-center text-center">
-            <p lang="ar" dir="rtl" className="font-quran text-2xl sm:text-3xl leading-[2.2] text-foreground select-none">
+            <p
+              lang="ar"
+              dir="rtl"
+              className="font-quran text-2xl sm:text-3xl md:text-4xl lg:text-[2.65rem] leading-[2.3] md:leading-[2.7] tracking-wider [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-foreground select-none"
+            >
               {shown.ayah.arabic}
             </p>
-            <div className="mt-3 text-center">
-              <BanglaText className="block text-sm sm:text-base leading-relaxed text-foreground/85 font-medium">
+            <div className="mt-4 text-center max-w-2xl">
+              <BanglaText className="block text-sm sm:text-base md:text-lg leading-relaxed md:leading-loose text-foreground/85 font-medium tracking-wide">
                 “{shown.ayah.bangla}”
               </BanglaText>
             </div>

@@ -43,11 +43,21 @@ export function SurahReader({ surah, previous, next }: SurahReaderProps) {
         <SectionTitle id="surah-arabic">Arabic</SectionTitle>
         <div>
           {showBismillah ? (
-            <span lang="ar" dir="rtl" className="mb-2 block text-center font-quran text-[1.9rem] leading-[2.2] text-arabic">{bismillah}</span>
+            <span
+              lang="ar"
+              dir="rtl"
+              className="mb-3 block text-center font-quran text-[2rem] md:text-[2.5rem] leading-[2.2] md:leading-[2.6] tracking-wider [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-arabic"
+            >
+              {bismillah}
+            </span>
           ) : null}
           {/* IndoPak mushaf style: one continuous block, with the ayah numbers,
               waqf signs and ruku marks drawn by the font from the text itself. */}
-          <p lang="ar" dir="rtl" className="font-quran text-justify text-[1.9rem] leading-[2.4] text-arabic">
+          <p
+            lang="ar"
+            dir="rtl"
+            className="font-quran text-justify text-[1.9rem] md:text-[2.35rem] lg:text-[2.6rem] leading-[2.4] md:leading-[2.8] tracking-wider [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-arabic"
+          >
             {surah.arabic}
           </p>
         </div>
@@ -59,15 +69,17 @@ export function SurahReader({ surah, previous, next }: SurahReaderProps) {
         </SectionTitle>
         <div lang="bn">
           {showBismillah ? (
-            <BanglaText className="mb-4 block text-center font-medium">{BISMILLAH_BN}</BanglaText>
+            <BanglaText className="mb-4 block text-center font-medium md:text-lg">{BISMILLAH_BN}</BanglaText>
           ) : null}
-          <ol className="space-y-3">
+          <ol className="space-y-4">
             {surah.ayahs.map((ayah) => (
-              <li key={ayah.number} className="flex gap-3">
-                <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-lg bg-primary-soft font-bangla text-xs font-semibold text-primary">
+              <li key={ayah.number} className="flex gap-3.5">
+                <span className="mt-0.5 grid size-7 md:size-8 shrink-0 place-items-center rounded-lg bg-primary-soft font-bangla text-xs md:text-sm font-semibold text-primary">
                   {toBanglaDigits(ayah.number)}
                 </span>
-                <BanglaText className="block text-[1.05rem] leading-relaxed">{ayah.bangla}</BanglaText>
+                <BanglaText className="block text-[1.05rem] md:text-[1.2rem] leading-relaxed md:leading-loose tracking-wide">
+                  {ayah.bangla}
+                </BanglaText>
               </li>
             ))}
           </ol>
