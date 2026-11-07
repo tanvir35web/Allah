@@ -4,8 +4,9 @@ import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react'
 import { useLayoutEffect, useRef, useSyncExternalStore } from 'react'
 import { ArabicText, BanglaText } from '@/components/common/localized-text'
 import { Skeleton } from '@/components/common/loading-state'
+import { FavoriteButton } from '@/components/names/favorite-button'
 import { useAppData } from '@/components/providers/app-data-provider'
-import { Button, ButtonLink } from '@/components/ui/button'
+import { ButtonLink } from '@/components/ui/button'
 import { pickRandomName } from '@/lib/daily-name'
 import { allahNames } from '@/lib/storage/names'
 import type { AllahName, ContentLanguage } from '@/lib/types'
@@ -115,48 +116,44 @@ export function DailyNameCard() {
     trackRef.current?.scrollTo({ left: index * stride(), behavior: reducedMotion() ? 'instant' : 'smooth' })
   }
 
-  // A WAI-ARIA carousel: the controls sit outside the cards, and every swipe
-  // has a button equivalent (WCAG 2.5.1).
   return (
     <section aria-labelledby="daily-name-title" aria-roledescription="carousel">
-      <div className="mb-3 flex items-center justify-between gap-3 px-1">
+      {/* Header with clear category branding and smooth pagination controls */}
+      <div className="mb-2.5 flex items-center justify-between px-1">
         <div className="flex items-center gap-2">
-          <span className="grid size-7 place-items-center rounded-lg bg-primary/10 text-primary">
-            <Sparkles className="size-4" aria-hidden />
-          </span>
-          <h2 id="daily-name-title" className="text-base font-semibold text-foreground">
-            Name of the Day
+          <Sparkles className="size-4 text-primary" aria-hidden />
+          <h2 id="daily-name-title" className="text-sm font-bold tracking-tight uppercase text-foreground">
+            Featured Name of the Day
           </h2>
         </div>
-        <div className="-mr-1 flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 rounded-lg hover:bg-muted"
+        <div className="flex items-center gap-1.5">
+          <button
+            type="button"
             onClick={() => goTo(carousel.position - 1)}
             disabled={carousel.position === 0}
             aria-label="Previous Name"
+            className="inline-flex size-8 items-center justify-center rounded-full border border-border/80 bg-card text-foreground hover:bg-muted shadow-2xs disabled:opacity-30 disabled:pointer-events-none transition-colors"
           >
             <ChevronLeft className="size-4" aria-hidden />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-8 rounded-lg hover:bg-muted"
+          </button>
+          <button
+            type="button"
             onClick={() => goTo(carousel.position + 1)}
             aria-label="Next Name"
+            className="inline-flex size-8 items-center justify-center rounded-full border border-border/80 bg-card text-foreground hover:bg-muted shadow-2xs transition-colors"
           >
             <ChevronRight className="size-4" aria-hidden />
-          </Button>
+          </button>
         </div>
       </div>
+
       <p className="sr-only" aria-live="polite">
         {name.transliteration}, {name.englishName}
       </p>
+
       {/*
-        Bleeds to the screen edges so neighbours slide in from there; scroll
-        padding keeps the snapped card aligned with the page gutter. Cards
-        stretch to the tallest, so the height never jumps.
+        Bleeds to screen edges on mobile so neighbours peek and slide naturally;
+        contained strictly within desktop column layout.
       */}
       <div
         ref={trackRef}
@@ -165,7 +162,6 @@ export function DailyNameCard() {
       >
         {carousel.names.map((slideName, index) => (
           <NameSlide
-            // Index, not Name id: the same Name may come up twice.
             key={index}
             name={slideName}
             language={settings.language}
@@ -179,52 +175,86 @@ export function DailyNameCard() {
 
 /** One card. Cards other than the current one are hidden from assistive tech and not focusable. */
 function NameSlide({ name, language, current }: { name: AllahName; language: ContentLanguage; current: boolean }) {
+  const showEn = language !== 'bn'
+  const showBn = language !== 'en'
+
   return (
     <article
-      className="relative flex w-full shrink-0 snap-start snap-always flex-col justify-between rounded-2xl border border-border/80 bg-card p-6 md:p-8 text-center shadow-xs transition-shadow hover:shadow-sm"
+      className="pattern-stars relative flex w-full shrink-0 snap-start snap-always flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-primary-soft/20 p-6 sm:p-7 shadow-xs transition-shadow hover:shadow-sm"
       aria-roledescription="slide"
       aria-label={`${name.transliteration}, Name ${name.id} of 99`}
       aria-hidden={!current || undefined}
       inert={!current}
     >
-      <div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-0.5 text-xs font-semibold text-primary tabular-nums">
+      {/* Top Header inside card */}
+      <div className="flex items-center justify-between">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 border border-primary/20 px-3 py-1 text-xs font-bold text-primary tabular-nums">
+          <Sparkles className="size-3" aria-hidden />
           Name {formatNumber(name.id)} of 99
         </span>
+        <div className="flex items-center -mr-1">
+          <FavoriteButton
+            nameId={name.id}
+            label={name.transliteration}
+            className="size-8 min-h-0 rounded-full"
+          />
+        </div>
       </div>
 
-      <div className="my-5 flex flex-col items-center justify-center">
-        <ArabicText className="block text-5xl md:text-6xl text-primary leading-normal font-arabic">
-          {name.arabic}
-        </ArabicText>
+      {/* Main Arabic & Transliteration */}
+      <div className="my-5 flex flex-col items-center justify-center text-center">
+        <div className="relative flex items-center justify-center py-2">
+          <div className="absolute inset-0 mx-auto size-28 rounded-full bg-primary/10 blur-xl pointer-events-none" />
+          <ArabicText className="relative block text-5xl sm:text-6xl font-arabic text-primary leading-[1.3] select-none drop-shadow-xs">
+            {name.arabic}
+          </ArabicText>
+        </div>
 
-        <h3 className="mt-2 text-2xl font-bold tracking-tight text-foreground">
+        <h3 className="mt-2 text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
           {name.transliteration}
         </h3>
 
-        <div className="mt-1 flex flex-wrap items-center justify-center gap-2 text-sm text-muted-foreground font-medium">
-          {language !== 'bn' ? <span>{name.englishName}</span> : null}
-          {language === 'both' ? <span className="opacity-40" aria-hidden>·</span> : null}
-          {language !== 'en' ? (
-            <BanglaText>{name.banglaMeaning}</BanglaText>
+        <div className="mt-1 flex flex-wrap items-center justify-center gap-1.5 text-sm sm:text-base">
+          {showBn ? (
+            <BanglaText className="font-bold text-foreground">
+              {name.banglaName}
+            </BanglaText>
+          ) : null}
+          {showBn && showEn ? <span className="text-muted-foreground/40">·</span> : null}
+          {showEn ? (
+            <span className="text-muted-foreground font-medium">
+              {name.englishName}
+            </span>
           ) : null}
         </div>
 
-        <p className="mt-3 max-w-md text-xs md:text-sm text-muted-foreground leading-relaxed line-clamp-2">
-          {language === 'bn' ? name.shortExplanationBn : name.shortExplanationEn}
-        </p>
+        <div className="mt-0.5 text-xs sm:text-sm text-muted-foreground">
+          {name.banglaMeaning}
+        </div>
+
+        {/* Short Wisdom / Reflection Snippet */}
+        {(name.shortExplanationBn || name.shortExplanationEn) ? (
+          <div className="mt-4 max-w-lg rounded-2xl border border-border/50 bg-background/60 dark:bg-muted/30 px-4 py-2.5 text-xs sm:text-sm text-muted-foreground leading-relaxed text-center">
+            <p className="line-clamp-2">
+              {language === 'bn' ? name.shortExplanationBn : name.shortExplanationEn}
+            </p>
+          </div>
+        ) : null}
       </div>
 
-      <ButtonLink
-        href={`/names/${name.id}/`}
-        size="lg"
-        variant="secondary"
-        className="w-full rounded-xl group font-medium"
-        aria-label={`Learn more about ${name.transliteration}`}
-      >
-        <span>Explore Details</span>
-        <ArrowRight className="size-4 ml-1 transition-transform group-hover:translate-x-1" aria-hidden />
-      </ButtonLink>
+      {/* Action CTA */}
+      <div className="mt-2 flex items-center justify-center">
+        <ButtonLink
+          href={`/names/${name.id}/`}
+          size="md"
+          variant="primary"
+          className="rounded-full px-6 font-semibold shadow-xs hover:shadow-md group"
+          aria-label={`Learn more about ${name.transliteration}`}
+        >
+          <span>Explore Name Details</span>
+          <ArrowRight className="size-4 ml-1.5 transition-transform group-hover:translate-x-1" aria-hidden />
+        </ButtonLink>
+      </div>
     </article>
   )
 }
