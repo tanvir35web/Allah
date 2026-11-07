@@ -5,6 +5,7 @@ import {
   BarChart3,
   BookOpenText,
   Check,
+  ChevronRight,
   Clapperboard,
   Flame,
   RotateCcw,
@@ -233,7 +234,7 @@ function LearningHubCard() {
   )
 }
 
-/** Clean, modern 2x2 action cards with matching height to AyahCard. */
+/** Unified, cohesive Quick Access card matching AyahCard's height, border and padding. */
 function ExploreList() {
   const { favorites } = useAppData()
   const reviewQueue = useReviewQueue()
@@ -241,25 +242,29 @@ function ExploreList() {
   const items = [
     {
       href: '/reels/',
-      title: 'Reels',
+      title: '99 Names Reels',
+      detail: 'Swipe through interactive visual cards',
       icon: Clapperboard,
       color: 'text-rose-500 bg-rose-500/10 group-hover:bg-rose-500/15',
     },
     {
       href: '/surahs/',
-      title: 'The Quran',
+      title: 'The Holy Quran',
+      detail: 'All 114 Surahs with Bangla translation',
       icon: BookOpenText,
       color: 'text-emerald-500 bg-emerald-500/10 group-hover:bg-emerald-500/15',
     },
     {
       href: '/quiz/',
-      title: 'Quiz',
+      title: 'Memory Quiz',
+      detail: 'Test retention and practice daily',
       icon: Sparkles,
       color: 'text-amber-500 bg-amber-500/10 group-hover:bg-amber-500/15',
     },
     {
       href: '/review/',
-      title: 'Review',
+      title: 'Smart Review',
+      detail: reviewQueue.length ? `${reviewQueue.length} Names due today` : 'All caught up · Spaced repetition',
       badge: reviewQueue.length ? `${reviewQueue.length}` : undefined,
       icon: RotateCcw,
       color: 'text-blue-500 bg-blue-500/10 group-hover:bg-blue-500/15',
@@ -268,57 +273,69 @@ function ExploreList() {
 
   return (
     <section aria-labelledby="explore-title" className="flex flex-col h-full">
+      {/* Header matches AyahCard's header */}
       <div className="mb-2 flex items-center justify-between px-1 h-7">
         <h2 id="explore-title" className="text-xs font-bold tracking-wider uppercase text-muted-foreground">
           Quick Access
         </h2>
+        <span className="text-xs text-muted-foreground font-medium">Practice & Explore</span>
       </div>
 
-      <div className="flex flex-1 flex-col justify-between gap-3">
-        <div className="grid grid-cols-2 gap-3 flex-1">
-          {items.map(({ href, title, badge, icon: Icon, color }) => (
+      {/* Unified container card matching AyahCard */}
+      <article className="relative flex flex-1 flex-col justify-between overflow-hidden rounded-3xl border border-border/70 bg-card p-6 shadow-xs hover:border-primary/30 transition-all duration-200">
+        {/* Interactive List of Features */}
+        <div className="my-auto divide-y divide-border/50">
+          {items.map(({ href, title, detail, badge, icon: Icon, color }) => (
             <Link
               key={href}
               href={href}
-              className="group relative flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs hover:border-primary/40 active:scale-[0.99]"
+              className="group flex items-center justify-between py-2.5 first:pt-0 last:pb-0 transition-colors"
             >
-              <span className={cn('grid size-10 place-items-center rounded-xl transition-transform group-hover:scale-105 shrink-0', color)}>
-                <Icon className="size-5" strokeWidth={2} aria-hidden />
-              </span>
-
-              <div className="min-w-0 flex-1">
-                <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors block truncate">
-                  {title}
+              <div className="flex items-center gap-3.5 min-w-0">
+                <span className={cn('grid size-9.5 place-items-center rounded-xl transition-transform group-hover:scale-105 shrink-0', color)}>
+                  <Icon className="size-4.5" strokeWidth={2} aria-hidden />
                 </span>
+
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-bold text-foreground group-hover:text-primary transition-colors leading-tight">
+                    {title}
+                  </p>
+                  <p className="text-xs text-muted-foreground truncate mt-0.5">
+                    {detail}
+                  </p>
+                </div>
               </div>
 
               {badge ? (
-                <span className="rounded-full bg-danger/15 text-danger px-2 py-0.5 text-xs font-bold tabular-nums shrink-0">
-                  {badge}
+                <span className="rounded-full bg-danger/15 text-danger px-2 py-0.5 text-xs font-bold tabular-nums shrink-0 ml-2">
+                  {badge} Due
                 </span>
-              ) : null}
+              ) : (
+                <ChevronRight className="size-4 text-muted-foreground/40 transition-transform group-hover:translate-x-1 group-hover:text-foreground shrink-0 ml-2" aria-hidden />
+              )}
             </Link>
           ))}
         </div>
 
-        {/* Subtle secondary links */}
-        <div className="flex items-center justify-between px-1 text-xs text-muted-foreground">
+        {/* Integrated Bottom Bar: Favorites & Analytics */}
+        <div className="pt-3 mt-3 border-t border-border/50 flex items-center justify-between text-xs text-muted-foreground">
           <Link
             href="/favorites/"
-            className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors py-1"
+            className="inline-flex items-center gap-1.5 font-medium hover:text-foreground transition-colors"
           >
             <Star className="size-3.5 fill-accent/20 text-accent" />
             <span>Favorites ({favorites.length})</span>
           </Link>
           <Link
             href="/progress/"
-            className="inline-flex items-center gap-1 hover:text-foreground transition-colors py-1"
+            className="inline-flex items-center gap-1 font-medium hover:text-foreground transition-colors"
           >
             <BarChart3 className="size-3.5 text-primary" />
-            <span>Analytics</span>
+            <span>Full Analytics</span>
+            <ArrowRight className="size-3" />
           </Link>
         </div>
-      </div>
+      </article>
     </section>
   )
 }
