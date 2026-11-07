@@ -1,6 +1,6 @@
 'use client'
 
-import { BarChart3, BookOpen, Ellipsis, House, Sparkles, type LucideIcon } from 'lucide-react'
+import { BookOpen, BookOpenText, Clapperboard, Ellipsis, House, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
@@ -12,13 +12,13 @@ interface NavItem {
   match: (path: string) => boolean
 }
 
-const MORE_ROUTES = ['/more', '/reels', '/surahs', '/favorites', '/review', '/settings', '/about']
+const MORE_ROUTES = ['/more', '/quiz', '/progress', '/favorites', '/review', '/settings', '/about']
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/', label: 'Home', icon: House, match: (p) => p === '/' || p.startsWith('/learn') },
   { href: '/names/', label: 'Names', icon: BookOpen, match: (p) => p.startsWith('/names') },
-  { href: '/quiz/', label: 'Quiz', icon: Sparkles, match: (p) => p.startsWith('/quiz') },
-  { href: '/progress/', label: 'Progress', icon: BarChart3, match: (p) => p.startsWith('/progress') },
+  { href: '/reels/', label: 'Reels', icon: Clapperboard, match: (p) => p.startsWith('/reels') },
+  { href: '/surahs/', label: 'Quran', icon: BookOpenText, match: (p) => p.startsWith('/surahs') },
   { href: '/more/', label: 'More', icon: Ellipsis, match: (p) => MORE_ROUTES.some((route) => p.startsWith(route)) },
 ]
 

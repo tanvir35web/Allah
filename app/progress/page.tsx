@@ -6,7 +6,12 @@ export const metadata: Metadata = { title: 'Progress' }
 
 export default function ProgressPage() {
   return (
-    <PageShell title="Progress" subtitle="Stored privately on this device.">
+    <PageShell
+      title="Progress"
+      subtitle="Stored privately on this device."
+      backHref="/more/"
+      backLabel="More"
+    >
       <ProgressDashboard />
     </PageShell>
   )

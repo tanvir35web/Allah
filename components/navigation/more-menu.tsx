@@ -1,6 +1,6 @@
 'use client'
 
-import { BookOpenText, ChevronRight, Clapperboard, Info, RotateCcw, Settings, Star, type LucideIcon } from 'lucide-react'
+import { BarChart3, ChevronRight, Info, RotateCcw, Settings, Sparkles, Star, type LucideIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useAppData } from '@/components/providers/app-data-provider'
 import { Card } from '@/components/ui/card'
@@ -18,8 +18,8 @@ export function MoreMenu() {
   const { favorites } = useAppData()
   const reviewQueue = useReviewQueue()
   const items: MenuItem[] = [
-    { href: '/reels/', label: 'Reels', description: 'Swipe through the 99 Names, one per screen', icon: Clapperboard },
-    { href: '/surahs/', label: 'Surahs', description: 'All 114 surahs with Arabic and Bangla meaning', icon: BookOpenText },
+    { href: '/quiz/', label: 'Quiz', description: 'Test your knowledge with short quizzes', icon: Sparkles },
+    { href: '/progress/', label: 'Progress', description: 'Track your memorisation, streaks and reading', icon: BarChart3 },
     { href: '/favorites/', label: 'Favorites', description: 'Names you have saved', icon: Star, badge: favorites.length || undefined },
     { href: '/review/', label: 'Review', description: 'Keep learned Names fresh', icon: RotateCcw, badge: reviewQueue.length || undefined },
     { href: '/settings/', label: 'Settings', description: 'Theme, language and data', icon: Settings },
