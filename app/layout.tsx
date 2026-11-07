@@ -3,6 +3,7 @@ import { Amiri, Hind_Siliguri, Plus_Jakarta_Sans } from 'next/font/google'
 import localFont from 'next/font/local'
 import type { ReactNode } from 'react'
 import { BottomNav } from '@/components/navigation/bottom-nav'
+import { SidebarNav } from '@/components/navigation/sidebar-nav'
 import { AppDataProvider } from '@/components/providers/app-data-provider'
 import { ServiceWorkerRegistrar } from '@/components/pwa/service-worker-registrar'
 import { SPLASH_SCREENS } from '@/lib/pwa'
@@ -105,7 +106,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         <AppDataProvider>
-          {children}
+          <div className="min-h-screen md:pl-64">
+            <SidebarNav />
+            <div className="min-h-screen">{children}</div>
+          </div>
           <BottomNav />
         </AppDataProvider>
         <ServiceWorkerRegistrar />

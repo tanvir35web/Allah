@@ -48,11 +48,11 @@ export function HomeScreen() {
 
   return (
     <>
-      <header className="safe-top mx-auto max-w-2xl px-4">
-        <div className="flex items-end justify-between gap-3 pt-5">
+      <header className="safe-top mx-auto max-w-2xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl px-4 md:px-8">
+        <div className="flex items-end justify-between gap-3 pt-5 md:pt-8">
           <div className="min-w-0">
             <TodayCaption />
-            <h1 className="text-[2.125rem] leading-tight font-bold tracking-tight">Assalamu Alaikum</h1>
+            <h1 className="text-[2.125rem] md:text-[2.5rem] leading-tight font-bold tracking-tight">Assalamu Alaikum</h1>
           </div>
           <Link href="/progress/" aria-label="Streak, see progress" className="mb-1 shrink-0 rounded-full">
             <StreakPill />
@@ -60,19 +60,25 @@ export function HomeScreen() {
         </div>
       </header>
 
-      <main id="main" className="animate-rise pb-nav mx-auto max-w-2xl space-y-8 px-4 pt-5">
+      <main id="main" className="animate-rise pb-nav md:pb-12 mx-auto max-w-2xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl space-y-8 px-4 md:px-8 pt-5">
         <StorageNotice />
-        {ready ? <TodayCard /> : <LoadingState rows={1} />}
-        <DailyNameCard />
-       
         {ready ? (
-          <>
-            <ExploreList />
-             <AyahCard />
-            <ProgressSummary />
-          </>
+          <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 items-start">
+            <div className="space-y-8 lg:col-span-7">
+              <TodayCard />
+              <DailyNameCard />
+              <AyahCard />
+            </div>
+            <div className="space-y-8 lg:col-span-5">
+              <ProgressSummary />
+              <ExploreList />
+            </div>
+          </div>
         ) : (
-          <LoadingState rows={2} />
+          <div className="space-y-8">
+            <LoadingState rows={1} />
+            <LoadingState rows={2} />
+          </div>
         )}
       </main>
     </>

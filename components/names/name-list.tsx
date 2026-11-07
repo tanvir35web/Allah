@@ -49,7 +49,7 @@ export function NameList({ names = allahNames, showControls = true }: NameListPr
   return (
     <div>
       {showControls ? (
-        <div className="sticky top-[env(safe-area-inset-top)] z-20 -mx-4 space-y-3 bg-background/90 px-4 pt-2 pb-3 backdrop-blur-xl">
+        <div className="sticky top-[env(safe-area-inset-top)] z-20 -mx-4 md:mx-0 space-y-3 bg-background/90 px-4 md:px-0 pt-2 pb-3 backdrop-blur-xl md:rounded-2xl">
           <div className="flex gap-2">
             <label className="relative flex-1">
               <span className="sr-only">Search names</span>
@@ -87,7 +87,7 @@ export function NameList({ names = allahNames, showControls = true }: NameListPr
               {descending ? <ArrowUp10 className="size-5" aria-hidden /> : <ArrowDown01 className="size-5" aria-hidden />}
             </Button>
           </div>
-          <div className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4" role="group" aria-label="Filter names">
+          <div className="scrollbar-none -mx-4 md:mx-0 flex gap-2 overflow-x-auto px-4 md:px-0" role="group" aria-label="Filter names">
             {FILTERS.map((option) => (
               <button
                 key={option.value}
@@ -130,7 +130,7 @@ export function NameList({ names = allahNames, showControls = true }: NameListPr
           }
         />
       ) : (
-        <ul className="grid gap-3 md:grid-cols-2">
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {visible.map((name) => (
             <li key={name.id}>
               <NameCard

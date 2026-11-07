@@ -8,7 +8,7 @@ export const metadata: Metadata = { title: 'More' }
 
 export default function MorePage() {
   return (
-    <PageShell title="More">
+    <PageShell title="More" maxWidth="medium">
       <MoreMenu />
       <ConnectionStatus />
       <figure className="mt-10 px-4 text-center">

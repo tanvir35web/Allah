@@ -21,7 +21,7 @@ const DEVELOPER = {
 
 export default function AboutPage() {
   return (
-    <PageShell title="About" variant="compact" backHref="/more/" backLabel="More">
+    <PageShell title="About" variant="compact" backHref="/more/" backLabel="More" maxWidth="medium">
       <div className="space-y-6">
         <Card className="pattern-stars overflow-hidden p-6 text-center">
           <ArabicText className="block text-5xl leading-[1.8]">الْأَسْمَاءُ الْحُسْنَىٰ</ArabicText>

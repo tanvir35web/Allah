@@ -30,7 +30,7 @@ export default async function NamePage({ params }: Props) {
   if (!name) notFound()
 
   return (
-    <PageShell title={name.transliteration} variant="compact" backHref="/names/" backLabel="Names">
+    <PageShell title={name.transliteration} variant="compact" backHref="/names/" backLabel="Names" maxWidth="medium">
       <NameDetails name={name} previous={getNameById(id - 1)} next={getNameById(id + 1)} />
     </PageShell>
   )

@@ -20,13 +20,15 @@ export function ProgressDashboard() {
 
   return (
     <div className="space-y-6">
-      <ProgressCard />
-      <StreakCard />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <ProgressCard />
+        <StreakCard />
+      </div>
       <QuranReadingCard />
 
       <section aria-labelledby="stats-title" className="space-y-3">
         <SectionTitle id="stats-title">Statistics</SectionTitle>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-4">
           <StatTile label="Names learned" value={summary.learned} />
           <StatTile label="In progress" value={summary.learning} />
           <StatTile label="Remaining" value={summary.notStarted} />

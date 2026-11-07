@@ -30,7 +30,7 @@ export default async function SurahPage({ params }: Props) {
   if (!surah) notFound()
 
   return (
-    <PageShell title={surah.transliteration} variant="compact" backHref="/surahs/" backLabel="Surahs">
+    <PageShell title={surah.transliteration} variant="compact" backHref="/surahs/" backLabel="Surahs" maxWidth="medium">
       <SurahReader surah={surah} {...getAdjacentSurahs(id)} />
     </PageShell>
   )

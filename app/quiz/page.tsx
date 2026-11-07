@@ -16,6 +16,7 @@ export default function QuizPage() {
       subtitle="Short, gentle practice. Five questions is enough."
       backHref="/more/"
       backLabel="More"
+      maxWidth="medium"
     >
       <Suspense fallback={<LoadingState rows={3} />}>
         <QuizScreen />
