@@ -21,7 +21,6 @@ import { ProgressBar, ProgressRing } from '@/components/ui/progress-bar'
 import {
   useNextName,
   useProgressSummary,
-  useQuizStats,
   useReviewQueue,
   useStreak,
   useTodayActivity,
@@ -33,8 +32,8 @@ import { DailyNameCard } from './daily-name-card'
 import { Onboarding } from './onboarding'
 
 /**
- * Modern Islamic Home screen designed with standard UI/UX principles:
- * clean hierarchy, balanced grid rhythm, and peaceful spiritual aesthetics.
+ * Clean, distraction-free Islamic home screen.
+ * Optimized for readability, spacious typography, and effortless learning.
  */
 export function HomeScreen() {
   const { ready, settings } = useAppData()
@@ -63,8 +62,8 @@ export function HomeScreen() {
       <main id="main" className="animate-rise pb-nav md:pb-12 mx-auto max-w-2xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl px-4 md:px-8 pt-4">
         <StorageNotice />
         {ready ? (
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 items-start">
-            {/* Top Row: Hero Name of the Day (7 cols) + Daily Goal Tracker (5 cols) */}
+          <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 items-start">
+            {/* Top Row: Hero Name of the Day (7 cols) + Daily Goal (5 cols) */}
             <div className="lg:col-span-7">
               <DailyNameCard />
             </div>
@@ -72,7 +71,7 @@ export function HomeScreen() {
               <LearningHubCard />
             </div>
 
-            {/* Bottom Row: Ayah of the Day (7 cols) + Practice & Explore (5 cols) */}
+            {/* Bottom Row: Ayah of the Day (7 cols) + Quick Access (5 cols) */}
             <div className="lg:col-span-7">
               <AyahCard />
             </div>
@@ -91,7 +90,6 @@ export function HomeScreen() {
   )
 }
 
-/** "Saturday, 7 November" above the title; localized to user preference. */
 function TodayCaption() {
   const today = useToday()
   const { settings } = useAppData()
@@ -110,15 +108,13 @@ function TodayCaption() {
   )
 }
 
-/** Unified Learning Hub: Daily Target + Overall Memorisation + Key Metrics */
+/** Clean, focused Daily Goal card with zero clutter. */
 function LearningHubCard() {
   const { settings } = useAppData()
   const todayActivity = useTodayActivity()
   const next = useNextName()
   const summary = useProgressSummary()
-  const quiz = useQuizStats()
   const streak = useStreak()
-  const reviewQueue = useReviewQueue()
 
   const learnedToday = todayActivity?.learnedNames.length ?? 0
   const goal = settings.dailyGoal
@@ -127,69 +123,58 @@ function LearningHubCard() {
 
   return (
     <section aria-labelledby="learning-hub-title">
-      <div className="mb-2.5 flex items-center justify-between px-1">
-        <div className="flex items-center gap-2">
-          <Flame className="size-4 text-amber-500" aria-hidden />
-          <h2 id="learning-hub-title" className="text-sm font-bold tracking-tight uppercase text-foreground">
-            Daily Goal & Progress
-          </h2>
-        </div>
+      <div className="mb-2 flex items-center justify-between px-1">
+        <h2 id="learning-hub-title" className="text-xs font-bold tracking-wider uppercase text-muted-foreground">
+          Daily Goal
+        </h2>
         <Link
           href="/progress/"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+          className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
         >
-          <span>Dashboard</span>
-          <ArrowRight className="size-3" aria-hidden />
+          Dashboard →
         </Link>
       </div>
 
-      <article className="pattern-stars relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-primary-soft/20 p-6 shadow-xs transition-shadow hover:shadow-sm">
-        {/* Top: Streak & Goal Status */}
+      <article className="relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/70 bg-card p-6 shadow-xs hover:border-primary/30 transition-all duration-200">
+        {/* Streak & Status */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <span className="flex size-9 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-              <Flame className="size-5 fill-amber-500/20 text-amber-500" aria-hidden />
+          <div className="flex items-center gap-2">
+            <Flame className="size-4 text-amber-500 fill-amber-500/20" aria-hidden />
+            <span className="text-xs font-bold text-foreground">
+              {streak && streak.currentStreak > 0 ? `${pluralize(streak.currentStreak, 'Day')} Streak` : 'Daily Habit'}
             </span>
-            <div>
-              <p className="text-xs font-bold text-foreground">
-                {streak && streak.currentStreak > 0 ? `${pluralize(streak.currentStreak, 'Day')} Streak` : 'Daily Streak'}
-              </p>
-              <p className="text-[0.6875rem] text-muted-foreground">Keep up your momentum</p>
-            </div>
           </div>
 
           <span
             className={cn(
-              'rounded-full px-2.5 py-1 text-xs font-bold tabular-nums border',
-              goalMet
-                ? 'bg-success/15 border-success/30 text-success'
-                : 'bg-primary/10 border-primary/20 text-primary',
+              'rounded-full px-2.5 py-0.5 text-xs font-bold tabular-nums',
+              goalMet ? 'bg-success/15 text-success' : 'bg-primary/10 text-primary',
             )}
           >
-            {goalMet ? '✓ Completed' : `${remaining} to go today`}
+            {goalMet ? '✓ Completed' : `${remaining} to go`}
           </span>
         </div>
 
-        {/* Middle: Progress Ring + Goal Stats */}
-        <div className="my-5 flex items-center gap-5">
-          <div className="relative shrink-0">
+        {/* Progress Ring + Goal Summary */}
+        <div className="my-5 flex items-center gap-4">
+          <div className="shrink-0">
             <ProgressRing
               value={Math.min(learnedToday, goal)}
               max={goal}
-              size={80}
-              stroke={7.5}
+              size={68}
+              stroke={6}
               label="Daily goal"
-              valueText={goalMet ? `Goal reached` : `${learnedToday} of ${goal}`}
+              valueText={goalMet ? 'Goal reached' : `${learnedToday} of ${goal}`}
               tone={goalMet ? 'success' : 'primary'}
             >
               {goalMet ? (
-                <Check className="size-7 text-success" strokeWidth={3} aria-hidden />
+                <Check className="size-6 text-success" strokeWidth={3} aria-hidden />
               ) : (
                 <div className="flex flex-col items-center justify-center text-center">
-                  <span className="text-lg font-extrabold tabular-nums text-foreground leading-none" aria-hidden>
+                  <span className="text-base font-extrabold tabular-nums text-foreground leading-none" aria-hidden>
                     {learnedToday}
                   </span>
-                  <span className="text-[0.6875rem] font-bold text-muted-foreground tabular-nums">
+                  <span className="text-[0.625rem] font-bold text-muted-foreground tabular-nums">
                     /{goal}
                   </span>
                 </div>
@@ -198,63 +183,43 @@ function LearningHubCard() {
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-xs font-bold uppercase tracking-wider text-primary">
-              Daily Target
-            </p>
-            <h3 className="mt-0.5 text-base font-bold text-foreground">
-              {goalMet ? 'Daily goal reached! Alhamdulillah.' : `${learnedToday} of ${pluralize(goal, 'Name')} memorised.`}
+            <h3 className="text-sm font-bold text-foreground">
+              {goalMet ? 'Daily goal reached!' : `${learnedToday} of ${pluralize(goal, 'Name')} learned today`}
             </h3>
             <p className="mt-0.5 text-xs text-muted-foreground">
-              Total {summary.learned} / 99 Names memorised ({summary.percentage}%)
+              {summary.learned} of 99 Names memorised ({summary.percentage}%)
             </p>
 
-            {/* Total Progress Bar */}
-            <div className="mt-2.5">
+            <div className="mt-2">
               <ProgressBar value={summary.learned} max={99} label="Total Names learned" />
             </div>
           </div>
         </div>
 
-        {/* Quick Stat Highlights */}
-        <div className="grid grid-cols-2 gap-2 border-t border-border/60 pt-4 mb-4">
-          <div className="rounded-xl border border-border/50 bg-background/60 dark:bg-muted/30 px-3 py-2 text-center">
-            <span className="text-[0.6875rem] font-medium text-muted-foreground block">Memory Accuracy</span>
-            <span className="text-sm font-bold text-foreground tabular-nums">
-              {quiz.total ? `${quiz.accuracy}%` : '–'}
-            </span>
-          </div>
-          <div className="rounded-xl border border-border/50 bg-background/60 dark:bg-muted/30 px-3 py-2 text-center">
-            <span className="text-[0.6875rem] font-medium text-muted-foreground block">Review Due</span>
-            <span className={cn('text-sm font-bold tabular-nums', reviewQueue.length ? 'text-danger' : 'text-foreground')}>
-              {reviewQueue.length ? `${reviewQueue.length} Names` : 'All Caught Up'}
-            </span>
-          </div>
-        </div>
-
-        {/* Bottom CTA Button */}
+        {/* Action Button */}
         <div>
           {next ? (
             <ButtonLink
               href="/learn/"
-              size="lg"
+              size="md"
               variant="primary"
-              className="w-full rounded-2xl font-bold shadow-xs hover:shadow-md group flex items-center justify-between px-5"
+              className="w-full rounded-2xl font-bold shadow-xs hover:shadow-sm group flex items-center justify-between px-5"
             >
-              <span className="flex items-center gap-2">
-                <span>{goalMet ? 'Continue Learning' : 'Memorise Next Name'}</span>
-                <span className="text-xs font-normal opacity-80">· {next.transliteration}</span>
+              <span className="truncate">
+                {goalMet ? 'Continue Learning' : 'Memorise Next Name'}
+                <span className="ml-1 text-xs font-normal opacity-80">· {next.transliteration}</span>
               </span>
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+              <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" aria-hidden />
             </ButtonLink>
           ) : (
             <ButtonLink
               href="/review/"
-              size="lg"
+              size="md"
               variant="secondary"
               className="w-full rounded-2xl font-bold shadow-xs group flex items-center justify-between px-5"
             >
-              <span>All 99 Learned · Spaced Review</span>
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+              <span>All 99 Learned · Review</span>
+              <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" aria-hidden />
             </ButtonLink>
           )}
         </div>
@@ -263,7 +228,7 @@ function LearningHubCard() {
   )
 }
 
-/** Quick Access: 4 high-impact practice cards + secondary shortcuts */
+/** Clean, modern 2x2 action cards with zero clutter. */
 function ExploreList() {
   const { favorites } = useAppData()
   const reviewQueue = useReviewQueue()
@@ -271,103 +236,80 @@ function ExploreList() {
   const items = [
     {
       href: '/reels/',
-      title: '99 Names Reels',
-      subtitle: 'Visual swipe cards',
-      tag: 'Swipe',
-      tagAlert: false,
+      title: 'Reels',
       icon: Clapperboard,
-      theme: 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20 group-hover:border-rose-500/40',
+      color: 'text-rose-500 bg-rose-500/10 group-hover:bg-rose-500/15',
     },
     {
       href: '/surahs/',
-      title: 'The Holy Quran',
-      subtitle: '114 Surahs with Bangla',
-      tag: 'Quran',
-      tagAlert: false,
+      title: 'The Quran',
       icon: BookOpenText,
-      theme: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 group-hover:border-emerald-500/40',
+      color: 'text-emerald-500 bg-emerald-500/10 group-hover:bg-emerald-500/15',
     },
     {
       href: '/quiz/',
-      title: 'Memory Quiz',
-      subtitle: 'Test your retention',
-      tag: 'Test',
-      tagAlert: false,
+      title: 'Quiz',
       icon: Sparkles,
-      theme: 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20 group-hover:border-amber-500/40',
+      color: 'text-amber-500 bg-amber-500/10 group-hover:bg-amber-500/15',
     },
     {
       href: '/review/',
-      title: 'Smart Review',
-      subtitle: reviewQueue.length ? `${reviewQueue.length} names due` : 'All caught up',
-      tag: reviewQueue.length ? `${reviewQueue.length} Due` : 'Spaced',
-      tagAlert: reviewQueue.length > 0,
+      title: 'Review',
+      badge: reviewQueue.length ? `${reviewQueue.length}` : undefined,
       icon: RotateCcw,
-      theme: 'bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20 group-hover:border-blue-500/40',
+      color: 'text-blue-500 bg-blue-500/10 group-hover:bg-blue-500/15',
     },
   ]
 
   return (
     <section aria-labelledby="explore-title">
-      <div className="mb-2.5 flex items-center justify-between px-1">
-        <div className="flex items-center gap-2">
-          <Sparkles className="size-4 text-primary" aria-hidden />
-          <h2 id="explore-title" className="text-sm font-bold tracking-tight uppercase text-foreground">
-            Explore & Practice
-          </h2>
-        </div>
-        <span className="text-xs text-muted-foreground font-medium">Quick Access</span>
+      <div className="mb-2 flex items-center justify-between px-1">
+        <h2 id="explore-title" className="text-xs font-bold tracking-wider uppercase text-muted-foreground">
+          Quick Access
+        </h2>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        {items.map(({ href, title, subtitle, tag, tagAlert, icon: Icon, theme }) => (
+        {items.map(({ href, title, badge, icon: Icon, color }) => (
           <Link
             key={href}
             href={href}
-            className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md active:scale-[0.99] shadow-xs overflow-hidden"
+            className="group relative flex items-center gap-3 rounded-2xl border border-border/70 bg-card p-4 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xs hover:border-primary/40 active:scale-[0.99]"
           >
-            <div className="flex items-center justify-between">
-              <span className={cn('grid size-10 place-items-center rounded-xl transition-transform group-hover:scale-105', theme)}>
-                <Icon className="size-5" strokeWidth={2} aria-hidden />
-              </span>
-              <span
-                className={cn(
-                  'rounded-full px-2 py-0.5 text-[0.6875rem] font-bold tabular-nums',
-                  tagAlert
-                    ? 'bg-danger/15 text-danger'
-                    : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors',
-                )}
-              >
-                {tag}
+            <span className={cn('grid size-10 place-items-center rounded-xl transition-transform group-hover:scale-105 shrink-0', color)}>
+              <Icon className="size-5" strokeWidth={2} aria-hidden />
+            </span>
+
+            <div className="min-w-0 flex-1">
+              <span className="text-sm font-bold text-foreground group-hover:text-primary transition-colors block truncate">
+                {title}
               </span>
             </div>
 
-            <div className="mt-3.5">
-              <h3 className="text-sm font-bold text-foreground group-hover:text-primary transition-colors leading-snug">
-                {title}
-              </h3>
-              <p className="text-xs text-muted-foreground truncate mt-0.5">{subtitle}</p>
-            </div>
+            {badge ? (
+              <span className="rounded-full bg-danger/15 text-danger px-2 py-0.5 text-xs font-bold tabular-nums shrink-0">
+                {badge}
+              </span>
+            ) : null}
           </Link>
         ))}
       </div>
 
-      {/* Secondary Quick Links (Favorites & Analytics) */}
-      <div className="mt-3 flex items-center justify-between gap-2 px-1">
+      {/* Subtle secondary links */}
+      <div className="mt-2.5 flex items-center justify-between px-1 text-xs text-muted-foreground">
         <Link
           href="/favorites/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors py-1"
+          className="inline-flex items-center gap-1.5 hover:text-foreground transition-colors py-1"
         >
           <Star className="size-3.5 fill-accent/20 text-accent" />
-          <span>Saved Favorites ({favorites.length})</span>
+          <span>Favorites ({favorites.length})</span>
         </Link>
         <Link
           href="/progress/"
-          className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors py-1"
+          className="inline-flex items-center gap-1 hover:text-foreground transition-colors py-1"
         >
           <BarChart3 className="size-3.5 text-primary" />
-          <span>Full Analytics</span>
-          <ArrowRight className="size-3" />
+          <span>Analytics</span>
         </Link>
       </div>
     </section>
