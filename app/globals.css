@@ -153,8 +153,12 @@
     overscroll-behavior-y: none;
   }
 
-  /* Arabic and Bangla get their own fonts wherever they appear. */
-  :lang(ar) {
+  /* Arabic and Bangla get their own fonts wherever they appear.
+     Arabic matches only elements that declare lang="ar" (not `:lang(ar)`,
+     which also matches every descendant): children then inherit their
+     parent's font, so the per-ayah spans inside a `font-quran` block keep
+     the IndoPak font instead of falling back to Amiri. */
+  [lang='ar'] {
     font-family: var(--font-arabic);
     font-feature-settings: normal;
     line-height: 1.9;
