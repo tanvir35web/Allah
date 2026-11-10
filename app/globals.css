@@ -152,6 +152,9 @@
 
   body {
     min-height: 100dvh;
+    /* Never scroll sideways on a phone, even if something is too wide.
+       `clip` (unlike `hidden`) does not make a scroll container, so sticky still works. */
+    overflow-x: clip;
     background-color: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);

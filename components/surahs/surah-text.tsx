@@ -200,18 +200,23 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
 
       <section className="space-y-3" aria-labelledby="surah-arabic">
         <SectionTitle id="surah-arabic">Arabic</SectionTitle>
-        <div>
+        {/* No text selection or iOS callout anywhere in the Arabic: on iPhone a
+            press inside a selectable paragraph starts a selection (and cancels
+            our long press), even if the ayah itself is not selectable. */}
+        <div className="select-none [-webkit-touch-callout:none]">
           {heading || bismillah ? (
             <span
               id={heading ? undefined : 'surah-bismillah'}
               lang="ar"
               dir="rtl"
               className={cn(
-                'mb-3 block rounded-xl px-3 whitespace-nowrap transition-colors',
+                // Side padding only from md: on a phone it would push this
+                // unwrapped line past the screen edge.
+                'mb-3 block max-w-full rounded-xl whitespace-nowrap transition-colors md:px-3',
                 !heading && reciting === 0 && 'bg-accent-soft ring-1 ring-accent/25',
               )}
             >
-              <span className="block text-center font-quran text-[clamp(1.4rem,6.5vw,2rem)] md:text-[2.5rem] leading-[2.2] md:leading-[2.35] [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-arabic">
+              <span className="block text-center font-quran text-[clamp(1.25rem,5.8vw,2rem)] md:text-[2.5rem] leading-[2.2] md:leading-[2.35] [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-arabic">
                 {heading ? arabicAyah(heading, 'heading') : bismillah}
               </span>
             </span>
