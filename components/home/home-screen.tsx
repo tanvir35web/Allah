@@ -31,6 +31,7 @@ import { cn, pluralize } from '@/lib/utils'
 import { AyahCard } from './ayah-card'
 import { DailyNameCard } from './daily-name-card'
 import { FavoritesCard } from './favorites-card'
+import { HijriCard } from './hijri-card'
 import { Onboarding } from './onboarding'
 import { ReadingCard } from './reading-card'
 
@@ -69,7 +70,7 @@ export function HomeScreen() {
           // narrower, sticky side column, so each card stacks directly under
           // the one above it whatever their heights. Below lg the columns
           // dissolve (`contents`) and `order` keeps the mobile sequence:
-          // Name, Goal, Ayah, Quick Access.
+          // Name, Goal, Ayah, Quick Access, Hijri, Reading, Favorites.
           <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:gap-5 xl:grid-cols-[minmax(0,1fr)_21rem] 2xl:grid-cols-[minmax(0,1fr)_23rem]">
             <div className="contents lg:flex lg:min-w-0 lg:flex-col lg:gap-6">
               <div className="order-1">
@@ -78,19 +79,24 @@ export function HomeScreen() {
               <div className="order-3">
                 <AyahCard />
               </div>
-              <div className="order-5">
+              <div className="order-6">
                 <ReadingCard />
               </div>
-              <div className="order-6">
+              <div className="order-7">
                 <FavoritesCard />
               </div>
             </div>
-            <div className="contents lg:sticky lg:top-[calc(env(safe-area-inset-top)+1.5rem)] lg:flex lg:min-w-0 lg:flex-col lg:gap-6">
+            {/* Sticky, but never taller than the screen: if the side cards do not
+                fit, the column scrolls on its own so its last card stays reachable. */}
+            <div className="scrollbar-none contents lg:sticky lg:top-[calc(env(safe-area-inset-top)+1.5rem)] lg:-m-1 lg:flex lg:max-h-[calc(100dvh-env(safe-area-inset-top)-3rem)] lg:min-w-0 lg:flex-col lg:gap-6 lg:overflow-y-auto lg:overscroll-contain lg:p-1">
               <div className="order-2">
                 <LearningHubCard />
               </div>
               <div className="order-4">
                 <ExploreList />
+              </div>
+              <div className="order-5">
+                <HijriCard />
               </div>
             </div>
           </div>
