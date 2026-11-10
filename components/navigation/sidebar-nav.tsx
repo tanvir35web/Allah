@@ -8,6 +8,7 @@ import {
   House,
   Info,
   ChevronLeft,
+  PanelLeftOpen,
   Moon,
   RotateCcw,
   Settings,
@@ -92,24 +93,34 @@ export function SidebarNav() {
   return (
     <aside
       aria-label="Sidebar Navigation"
-      className="safe-top safe-bottom fixed inset-y-0 left-0 z-40 hidden w-(--sidebar-width) flex-col border-r border-border/70 bg-card/60 backdrop-blur-xl transition-[width] duration-200 lg:flex"
+      // Collapsed: a click on any empty part of the rail expands it. Links and
+      // buttons keep their own action; keyboard users have the logo button.
+      onClick={
+        collapsed
+          ? (event) => {
+              if (!(event.target as HTMLElement).closest('a, button')) setSidebarCollapsed(false)
+            }
+          : undefined
+      }
+      title={collapsed ? 'Expand sidebar' : undefined}
+      className={cn(
+        'safe-top safe-bottom fixed inset-y-0 left-0 z-40 hidden w-(--sidebar-width) flex-col border-r border-border/70 bg-card/60 backdrop-blur-xl transition-[width,background-color] duration-200 lg:flex',
+        collapsed && 'cursor-e-resize hover:bg-card/80 [&_a]:cursor-pointer [&_button]:cursor-pointer',
+      )}
     >
-      {/* Collapse toggle: a small round button sitting on the sidebar's right
-          edge, level with the logo. The chevron turns to point the way it will go. */}
-      <button
-        type="button"
-        onClick={() => setSidebarCollapsed(!collapsed)}
-        aria-expanded={!collapsed}
-        aria-label={toggleLabel}
-        title={toggleLabel}
-        className="absolute top-[calc(env(safe-area-inset-top)+1.625rem)] -right-3.5 z-10 grid size-7 place-items-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-[color,border-color,transform] hover:scale-110 hover:border-primary/40 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
-      >
-        <ChevronLeft
-          className={cn('size-4 transition-transform duration-200', collapsed && 'rotate-180')}
-          strokeWidth={2.4}
-          aria-hidden
-        />
-      </button>
+      {/* Expanded: a small round collapse button on the sidebar's right edge, level with the logo. */}
+      {collapsed ? null : (
+        <button
+          type="button"
+          onClick={() => setSidebarCollapsed(true)}
+          aria-expanded
+          aria-label={toggleLabel}
+          title={toggleLabel}
+          className="absolute top-[calc(env(safe-area-inset-top)+1.625rem)] -right-3.5 z-10 grid size-7 place-items-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-[color,border-color,transform] hover:scale-110 hover:border-primary/40 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+        >
+          <ChevronLeft className="size-4" strokeWidth={2.4} aria-hidden />
+        </button>
+      )}
 
       {/* Brand header */}
       <div
@@ -118,30 +129,50 @@ export function SidebarNav() {
           collapsed ? 'justify-center px-2' : 'px-5',
         )}
       >
-        <Link
-          href="/"
-          title={collapsed ? '99 Names of Allah' : undefined}
-          className={cn('group flex min-w-0 items-center gap-3', !collapsed && 'flex-1')}
-        >
-          <Image
-            src="/icons/icon-192.png"
-            alt=""
-            width={40}
-            height={40}
-            priority
-            className="size-10 shrink-0 rounded-xl shadow-sm transition-transform group-hover:scale-105"
-          />
-          {collapsed ? (
-            <span className="sr-only">99 Names of Allah</span>
-          ) : (
+        {collapsed ? (
+          // Collapsed: the logo itself expands the sidebar. On hover or focus it
+          // turns into an "expand" icon, so the rail stays uncluttered.
+          <button
+            type="button"
+            onClick={() => setSidebarCollapsed(false)}
+            aria-expanded={false}
+            aria-label={toggleLabel}
+            title={toggleLabel}
+            className="group relative grid size-10 place-items-center rounded-xl focus-visible:outline-2 focus-visible:outline-primary"
+          >
+            <Image
+              src="/icons/icon-192.png"
+              alt=""
+              width={40}
+              height={40}
+              priority
+              className="size-10 rounded-xl shadow-sm transition-opacity duration-150 group-hover:opacity-0 group-focus-visible:opacity-0"
+            />
+            <span
+              className="absolute inset-0 grid place-items-center rounded-xl border border-border bg-muted text-foreground opacity-0 transition-opacity duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
+              aria-hidden
+            >
+              <PanelLeftOpen className="size-5" />
+            </span>
+          </button>
+        ) : (
+          <Link href="/" className="group flex min-w-0 flex-1 items-center gap-3">
+            <Image
+              src="/icons/icon-192.png"
+              alt=""
+              width={40}
+              height={40}
+              priority
+              className="size-10 shrink-0 rounded-xl shadow-sm transition-transform group-hover:scale-105"
+            />
             <div className="min-w-0 flex-1 leading-tight">
               <span className="block truncate text-[0.95rem] font-bold tracking-tight text-foreground">
                 99 Names of Allah
               </span>
               <span className="mt-0.5 block truncate text-xs font-medium text-primary">Asma ul Husna</span>
             </div>
-          )}
-        </Link>
+          </Link>
+        )}
       </div>
 
       {/* Navigation sections */}

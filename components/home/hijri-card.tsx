@@ -1,34 +1,12 @@
 'use client'
 
 import { CalendarDays, Clock } from 'lucide-react'
-import { useSyncExternalStore } from 'react'
 import { Skeleton } from '@/components/common/loading-state'
 import { useAppData } from '@/components/providers/app-data-provider'
+import { useNow } from '@/hooks/use-now'
 import { daysInHijriMonth, formatHijri, toHijri, upcomingIslamicDays } from '@/lib/hijri'
 import { toBanglaDigits } from '@/lib/surah-search'
 import { cn } from '@/lib/utils'
-
-/** The current minute, as a timestamp; `null` while prerendering (no build-time time). */
-function subscribeMinute(callback: () => void) {
-  // Tick on the next minute boundary, then every minute after.
-  let interval: number | undefined
-  const timeout = window.setTimeout(() => {
-    callback()
-    interval = window.setInterval(callback, 60_000)
-  }, 60_000 - (Date.now() % 60_000))
-  document.addEventListener('visibilitychange', callback)
-  return () => {
-    window.clearTimeout(timeout)
-    window.clearInterval(interval)
-    document.removeEventListener('visibilitychange', callback)
-  }
-}
-const currentMinute = () => Math.floor(Date.now() / 60_000) * 60_000
-
-function useNow(): Date | null {
-  const minute = useSyncExternalStore(subscribeMinute, currentMinute, () => null)
-  return minute === null ? null : new Date(minute)
-}
 
 function daysAwayLabel(days: number): string {
   if (days === 0) return 'Today'

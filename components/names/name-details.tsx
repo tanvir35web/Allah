@@ -23,8 +23,8 @@ interface NameDetailsProps {
 const label = 'text-xs font-bold tracking-wider text-muted-foreground uppercase'
 
 /**
- * One Name, kept minimal: the Arabic hero (sticky beside the details on wider
- * screens), its meaning, the learning status, and the neighbouring Names.
+ * One Name, kept minimal: the Arabic hero (beside the details, at equal height,
+ * on wider screens), its meaning, the learning status, and the neighbouring Names.
  * Swipe or use the arrow keys to move between Names.
  */
 export function NameDetails({ name, previous, next }: NameDetailsProps) {
@@ -60,10 +60,10 @@ export function NameDetails({ name, previous, next }: NameDetailsProps) {
     <article
       {...swipe}
       aria-labelledby="name-title"
-      className="grid items-start gap-4 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] md:gap-6"
+      className="grid gap-4 md:grid-cols-2 md:gap-6"
     >
-      {/* Hero */}
-      <section className="pattern-stars relative flex flex-col overflow-hidden rounded-[2rem] border border-border/70 bg-gradient-to-b from-primary-soft to-card px-6 pt-5 pb-6 text-center md:sticky md:top-[calc(env(safe-area-inset-top)+4.5rem)] md:min-h-[28rem]">
+      {/* Hero: stretches to match the details column so both edges line up */}
+      <section className="pattern-stars relative flex flex-col overflow-hidden rounded-3xl border border-border/70 bg-linear-to-b from-primary-soft to-card p-5 text-center md:min-h-120 md:p-6">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-primary tabular-nums">
             {formatNumber(name.id)} / {TOTAL_NAMES}
@@ -71,8 +71,8 @@ export function NameDetails({ name, previous, next }: NameDetailsProps) {
           <FavoriteButton nameId={name.id} label={name.transliteration} className="-mr-2" />
         </div>
 
-        <div className="flex flex-1 flex-col items-center justify-center py-3">
-          <ArabicText className="block text-[4.5rem] leading-[1.7] text-primary sm:text-[5.5rem] md:text-[6rem]">
+        <div className="flex flex-1 flex-col items-center justify-center py-4">
+          <ArabicText className="mb-3 block text-[4.5rem] leading-normal text-primary sm:text-[5.5rem] md:text-[6rem]">
             {name.arabic}
           </ArabicText>
           <h2 id="name-title" className="text-2xl font-bold tracking-tight md:text-3xl">
@@ -87,7 +87,7 @@ export function NameDetails({ name, previous, next }: NameDetailsProps) {
 
         {/* Position in the 99 */}
         <div
-          className="mx-auto h-1 w-24 overflow-hidden rounded-full bg-card/80"
+          className="mx-auto h-1 w-32 overflow-hidden rounded-full bg-border/60"
           role="progressbar"
           aria-label="Position in the 99 Names"
           aria-valuemin={1}
@@ -98,10 +98,10 @@ export function NameDetails({ name, previous, next }: NameDetailsProps) {
         </div>
       </section>
 
-      <div className="space-y-4">
-        {/* Meaning */}
+      <div className="flex flex-col gap-4 md:gap-6">
+        {/* Meaning: grows to fill the column so its bottom meets the hero's */}
         {showEn || showBn ? (
-          <section className="space-y-4 rounded-3xl border border-border/70 bg-card p-5 md:p-6">
+          <section className="space-y-4 rounded-3xl border border-border/70 bg-card p-5 md:flex-1 md:p-6">
             <h3 className={label}>Meaning</h3>
             {showEn ? (
               <div>
@@ -140,12 +140,12 @@ export function NameDetails({ name, previous, next }: NameDetailsProps) {
         {/* Previous / next */}
         <nav
           aria-label="Previous and next name"
-          className="grid grid-cols-2 divide-x divide-border/70 overflow-hidden rounded-2xl border border-border/70 bg-card"
+          className="grid grid-cols-2 divide-x divide-border/70 overflow-hidden rounded-3xl border border-border/70 bg-card"
         >
           {previous ? (
             <Link
               href={`/names/${previous.id}/`}
-              className="group flex min-h-14 items-center gap-1.5 px-3 transition-colors hover:bg-muted/50"
+              className="group flex min-h-16 items-center gap-2 px-4 transition-colors hover:bg-muted/50"
             >
               <ChevronLeft className="size-4 shrink-0 text-muted-foreground" aria-hidden />
               <span className="min-w-0">
@@ -159,7 +159,7 @@ export function NameDetails({ name, previous, next }: NameDetailsProps) {
           {next ? (
             <Link
               href={`/names/${next.id}/`}
-              className="group flex min-h-14 items-center justify-end gap-1.5 px-3 text-right transition-colors hover:bg-muted/50"
+              className="group flex min-h-16 items-center justify-end gap-2 px-4 text-right transition-colors hover:bg-muted/50"
             >
               <span className="min-w-0">
                 <span className="block text-[0.6875rem] text-muted-foreground tabular-nums">{formatNumber(next.id)}</span>

@@ -27,6 +27,14 @@
   --sidebar-width: 16rem;
 }
 
+/* A little wider on desktop screens (xl, 1280px+); tablets keep 16rem. */
+@media (min-width: 80rem) {
+  :root {
+    --sidebar-width: 18rem;
+  }
+}
+
+/* After the media query, so collapsing still wins on desktop. */
 :root[data-sidebar='collapsed'] {
   --sidebar-width: 4.75rem;
 }
