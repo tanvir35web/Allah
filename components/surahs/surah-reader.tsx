@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
+import { LinkPending } from '@/components/common/link-pending'
 import { BanglaText } from '@/components/common/localized-text'
 import { SectionTitle } from '@/components/ui/card'
 import { bismillah, revelationLabel, toBanglaDigits } from '@/lib/surahs'
@@ -96,9 +97,12 @@ export function SurahReader({ surah, previous, next }: SurahReaderProps) {
         {previous ? (
           <Link
             href={`/surahs/${previous.id}/`}
+            prefetch={false}
             className="flex min-h-14 items-center gap-2 rounded-2xl border border-border bg-card px-3 py-2 hover:bg-muted/50"
           >
-            <ChevronLeft className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            <LinkPending className="text-muted-foreground">
+              <ChevronLeft className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            </LinkPending>
             <span className="min-w-0">
               <span className="block text-xs text-muted-foreground">Previous</span>
               <span className="block truncate text-sm font-medium">{previous.transliteration}</span>
@@ -110,13 +114,16 @@ export function SurahReader({ surah, previous, next }: SurahReaderProps) {
         {next ? (
           <Link
             href={`/surahs/${next.id}/`}
+            prefetch={false}
             className="flex min-h-14 items-center justify-end gap-2 rounded-2xl border border-border bg-card px-3 py-2 text-right hover:bg-muted/50"
           >
             <span className="min-w-0">
               <span className="block text-xs text-muted-foreground">Next</span>
               <span className="block truncate text-sm font-medium">{next.transliteration}</span>
             </span>
-            <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            <LinkPending className="text-muted-foreground">
+              <ChevronRight className="size-4 shrink-0 text-muted-foreground" aria-hidden />
+            </LinkPending>
           </Link>
         ) : null}
       </nav>

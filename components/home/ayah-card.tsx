@@ -2,6 +2,7 @@
 
 import { ArrowRight } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { LinkPending } from '@/components/common/link-pending'
 import { BanglaText } from '@/components/common/localized-text'
 import { Skeleton } from '@/components/common/loading-state'
 import { ButtonLink } from '@/components/ui/button'
@@ -85,12 +86,15 @@ export function AyahCard() {
           <div>
             <ButtonLink
               href={`/surahs/${shown.surah.id}/`}
+              prefetch={false}
               variant="outline"
               size="md"
               className="w-full rounded-2xl font-bold shadow-xs hover:bg-muted group flex items-center justify-between px-5 transition-all"
             >
               <span>Read Full Surah</span>
-              <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" aria-hidden />
+              <LinkPending>
+                <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" aria-hidden />
+              </LinkPending>
             </ButtonLink>
           </div>
         </article>

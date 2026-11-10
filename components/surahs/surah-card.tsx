@@ -1,6 +1,7 @@
 import { Landmark, MoonStar } from 'lucide-react'
 import Link from 'next/link'
 import { memo } from 'react'
+import { LinkPending } from '@/components/common/link-pending'
 import { BanglaText } from '@/components/common/localized-text'
 import { revelationLabel, toBanglaDigits, type SurahSummary } from '@/lib/surah-search'
 import type { ContentLanguage } from '@/lib/types'
@@ -21,13 +22,16 @@ export const SurahCard = memo(function SurahCard({ surah, language }: SurahCardP
   const meccan = surah.revelation === 'meccan'
   const RevelationIcon = meccan ? MoonStar : Landmark
   return (
+    // No prefetch: each surah's page data is up to ~400 KB, and prefetching
+    // every card that scrolls into view queues the tapped surah behind them.
     <Link
       href={`/surahs/${surah.id}/`}
+      prefetch={false}
       className="group flex h-full flex-col rounded-3xl border border-border bg-card p-4 transition-[transform,box-shadow,border-color] duration-200 hover:border-primary/30 hover:shadow-md active:scale-[0.99]"
     >
       <div className="flex items-start gap-3">
         <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary-soft text-xs font-semibold text-primary tabular-nums">
-          {formatNumber(surah.id)}
+          <LinkPending>{formatNumber(surah.id)}</LinkPending>
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate font-semibold">{surah.transliteration}</p>

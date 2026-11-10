@@ -2,6 +2,7 @@
 
 import { ArrowRight, BookOpenText } from 'lucide-react'
 import Link from 'next/link'
+import { LinkPending } from '@/components/common/link-pending'
 import { useAppData } from '@/components/providers/app-data-provider'
 import { ButtonLink } from '@/components/ui/button'
 import { useToday } from '@/hooks/use-today'
@@ -70,12 +71,15 @@ export function ReadingCard() {
 
         <ButtonLink
           href={`/surahs/${last?.surahId ?? 1}/`}
+          prefetch={false}
           variant="outline"
           size="md"
           className="group flex w-full items-center justify-between rounded-2xl px-5 font-bold shadow-xs transition-all hover:bg-muted"
         >
           <span className="truncate">{last ? `Continue ${last.surahName}` : 'Start with Al-Fatihah'}</span>
-          <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" aria-hidden />
+          <LinkPending>
+            <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" aria-hidden />
+          </LinkPending>
         </ButtonLink>
       </article>
     </section>
