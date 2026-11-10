@@ -24,6 +24,8 @@ const EXCLUDE = [
   /^\/_next\/static\/.*\/_buildManifest\.js$/i,
   /^\/_next\/static\/.*\/_ssgManifest\.js$/i,
   /^\/surahs\/\d+\/.*\.txt$/,
+  // Recitation audio is large: the worker caches each file the first time it plays.
+  /^\/audio\//,
 ]
 
 async function walk(dir) {

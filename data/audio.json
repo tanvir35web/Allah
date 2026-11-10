@@ -6,6 +6,7 @@
   },
   "surahs": [
     { "id": 1, "ayahs": 7 },
+    { "id": 2, "ayahs": 286 },
     { "id": 36, "ayahs": 83 },
     { "id": 55, "ayahs": 78 },
     { "id": 103, "ayahs": 3 },

@@ -7,6 +7,8 @@
  * - Install: precache every file of the static export (HTML, RSC payloads,
  *   JS, CSS, fonts, icons). The whole app therefore works offline after the
  *   first visit, including pages that were never opened.
+ * - Audio (/audio/): not precached; cached in AUDIO the first time each file
+ *   plays (byte-range requests answered from the cached file).
  * - Fetch: serve precached responses first (they are versioned by build),
  *   otherwise go to the network and keep a runtime copy.
  * - Update: a new build has a new CACHE_VERSION. The new worker waits until
@@ -15,6 +17,12 @@
 const CACHE_VERSION = '__CACHE_VERSION__'
 const PRECACHE = `precache-${CACHE_VERSION}`
 const RUNTIME = 'runtime-v1'
+/**
+ * Recitation audio (/audio/…): not precached (it is large), but kept here the
+ * first time each file plays, so it works offline afterwards. Files are named
+ * by surah and ayah and never change, so this cache survives app updates.
+ */
+const AUDIO = 'audio-v1'
 const PRECACHE_URLS = __PRECACHE_URLS__
 const OFFLINE_FALLBACK = '/'
 
@@ -88,6 +96,52 @@ async function handleAsset(request) {
   }
 }
 
+/**
+ * Audio: cache first; on a miss, fetch the whole file (without the Range
+ * header), keep it, and serve from it. Browsers (Safari especially) ask for
+ * media in byte ranges and need a 206 Partial Content reply, so a Range
+ * request is answered with the requested slice of the cached file.
+ */
+async function handleAudio(request, url) {
+  const cache = await caches.open(AUDIO)
+  const key = url.origin + url.pathname
+  let response = await cache.match(key)
+  if (!response) {
+    const fresh = await fetch(key)
+    if (!fresh.ok || fresh.status !== 200) return fresh
+    await cache.put(key, fresh.clone())
+    response = fresh
+  }
+
+  const range = request.headers.get('range')
+  const match = range && /^bytes=(\d*)-(\d*)$/.exec(range.trim())
+  if (!match) return response
+
+  const blob = await response.blob()
+  const size = blob.size
+  let start = match[1] ? Number(match[1]) : NaN
+  let end = match[2] ? Number(match[2]) : size - 1
+  if (Number.isNaN(start)) {
+    // "bytes=-N": the last N bytes.
+    start = Math.max(0, size - end)
+    end = size - 1
+  }
+  end = Math.min(end, size - 1)
+  if (start >= size || start > end) {
+    return new Response(null, { status: 416, headers: { 'Content-Range': `bytes */${size}` } })
+  }
+  return new Response(blob.slice(start, end + 1), {
+    status: 206,
+    statusText: 'Partial Content',
+    headers: {
+      'Content-Type': response.headers.get('Content-Type') || 'audio/mpeg',
+      'Content-Length': String(end - start + 1),
+      'Content-Range': `bytes ${start}-${end}/${size}`,
+      'Accept-Ranges': 'bytes',
+    },
+  })
+}
+
 async function handleHead(request, url) {
   const cached = await fromPrecache(request, normalizeNavigationPath(url))
   if (cached) return new Response(null, { status: cached.status, headers: cached.headers })
@@ -109,6 +163,10 @@ self.addEventListener('fetch', (event) => {
 
   if (request.mode === 'navigate') {
     event.respondWith(handleNavigation(request))
+    return
+  }
+  if (url.pathname.startsWith('/audio/')) {
+    event.respondWith(handleAudio(request, url))
     return
   }
   event.respondWith(handleAsset(request))

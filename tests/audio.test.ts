@@ -11,7 +11,7 @@ describe('bundled recitation', () => {
   it('knows which surahs have audio', () => {
     expect(hasAudio(1)).toBe(true)
     expect(hasAudio(114)).toBe(true)
-    expect(hasAudio(2)).toBe(false)
+    expect(hasAudio(3)).toBe(false)
   })
 
   it('names files by surah and ayah', () => {
