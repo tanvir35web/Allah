@@ -1,19 +1,45 @@
 'use client'
 
-import { Bookmark, BookmarkX } from 'lucide-react'
-import { useEffect, type KeyboardEvent } from 'react'
+import { ArrowDown, Bookmark, X } from 'lucide-react'
+import { useCallback, useEffect, useState, type KeyboardEvent } from 'react'
 import { BanglaText } from '@/components/common/localized-text'
 import { useAppData } from '@/components/providers/app-data-provider'
 import { SectionTitle } from '@/components/ui/card'
 import type { ArabicSegment } from '@/lib/ayah'
 import { toBanglaDigits } from '@/lib/surah-search'
 import { cn } from '@/lib/utils'
+import { AyahActions, useLongPress } from './ayah-actions'
 import { RecitationBar, useRecitation } from './recitation-player'
 
 const BISMILLAH_BN = 'শুরু করছি আল্লাহর নামে যিনি পরম করুণাময়, অতি দয়ালু।'
 
 /** Clears the sticky page header when jumping to an ayah. */
 const SCROLL_MARGIN = 'scroll-mt-28'
+
+/** localStorage key: set once the long-press hint has been shown on this device. */
+const LONG_PRESS_HINT_KEY = 'asma-hint-long-press'
+
+/**
+ * True on the first page view where the hint appears on this device, then
+ * never again. A per-device convenience, so it lives in localStorage; if
+ * storage is unavailable the hint simply shows each time. Starts false so
+ * the prerendered page and first client render match.
+ */
+function useFirstTimeHint(key: string): boolean {
+  const [show, setShow] = useState(false)
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(key)) return
+      localStorage.setItem(key, '1')
+    } catch {
+      // Storage blocked: show the hint, nothing to remember it with.
+    }
+    // Reading localStorage only works after mount; this runs once per page view.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setShow(true)
+  }, [key])
+  return show
+}
 
 interface SurahTextProps {
   surahId: number
@@ -29,15 +55,21 @@ interface SurahTextProps {
 }
 
 /**
- * The surah's Arabic and Bangla text. Tapping an ayah (in either) bookmarks
- * it, so the reader can continue from there next time; tapping it again
- * removes the bookmark.
+ * The surah's Arabic and Bangla text. Long-press (or right-click) an Arabic
+ * ayah for its menu: save it as the last read ayah, or play from it. A tap
+ * plays the ayah where audio is bundled, and bookmarks it elsewhere. The
+ * Bangla ayah number also toggles the bookmark.
  */
 export function SurahText({ surahId, surahName, bismillah, heading, segments, ayahs, audio }: SurahTextProps) {
   const { ready, surahReadings, setBookmark } = useAppData()
   const bookmark = ready ? surahReadings[surahId]?.bookmarkAyah : undefined
   const recitation = useRecitation(surahId, surahName, ayahs.length, audio)
   const reciting = recitation.ayah
+  // The ayah whose long-press menu is open.
+  const [menuAyah, setMenuAyah] = useState<number | null>(null)
+  const longPress = useLongPress(setMenuAyah)
+  const closeMenu = useCallback(() => setMenuAyah(null), [])
+  const showHint = useFirstTimeHint(LONG_PRESS_HINT_KEY)
 
   // Keep the ayah being recited in view.
   useEffect(() => {
@@ -60,6 +92,12 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
     recitation.play(ayah)
   }
   const onKey = (event: KeyboardEvent, ayah: number) => {
+    // The keyboard's "menu" key, or Shift+F10, opens the same menu as a long press.
+    if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
+      event.preventDefault()
+      setMenuAyah(ayah)
+      return
+    }
     if (event.key !== 'Enter' && event.key !== ' ') return
     event.preventDefault()
     tapAyah(ayah)
@@ -91,15 +129,23 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
               ? `Ayah ${segment.ayah}, bookmarked. Tap to remove.`
               : `Bookmark ayah ${segment.ayah}`
         }
-        title={audio ? 'Play this ayah' : undefined}
-        onClick={() => tapAyah(segment.ayah)}
+        aria-haspopup="dialog"
+        title={audio ? 'Tap to play · hold for more' : 'Tap to bookmark · hold for more'}
+        {...longPress.handlers(segment.ayah)}
+        onClick={() => {
+          // The click that ends a long press only opens the menu.
+          if (longPress.consumeClick()) return
+          tapAyah(segment.ayah)
+        }}
         onKeyDown={(event) => onKey(event, segment.ayah)}
         className={cn(
           SCROLL_MARGIN,
           // Padding on every ayah, all the time, so highlighting one only changes
           // colour and never reflows the justified lines. box-decoration-clone
           // repeats it on each line of an ayah that wraps.
-          'cursor-pointer rounded-xl px-2 box-decoration-clone transition-colors focus-visible:outline-2 focus-visible:outline-primary',
+          // No text selection or iOS callout, so holding an ayah opens our menu instead.
+          'cursor-pointer rounded-xl px-2 box-decoration-clone transition-colors select-none [-webkit-touch-callout:none] focus-visible:outline-2 focus-visible:outline-primary',
+          menuAyah === segment.ayah && 'bg-muted',
           marked ? 'bg-primary-soft text-primary ring-1 ring-primary/30' : 'hover:bg-muted/60',
           playing && 'bg-accent-soft text-foreground ring-1 ring-accent/25',
         )}
@@ -114,36 +160,43 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
       {/* Always rendered at the same height, so bookmarking an ayah never
           shifts the text below it. */}
       {bookmark ? (
-        <div className="flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary-soft p-2 pl-4">
-          <Bookmark className="size-4 shrink-0 fill-current text-primary" aria-hidden />
-          <p className="min-w-0 flex-1 text-sm font-medium text-primary">Bookmarked at Ayah {bookmark}</p>
+        // Balanced: a 40px icon tile on the left, two 40px controls on the right, equal padding all round.
+        <div className="flex items-center gap-3 rounded-2xl border border-primary/25 bg-primary-soft p-2">
+          <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
+            <Bookmark className="size-4 fill-current" aria-hidden />
+          </span>
+          <p className="min-w-0 flex-1 leading-tight">
+            <span className="block text-[0.6875rem] font-bold tracking-wider text-primary/80 uppercase">Last read</span>
+            <span className="block truncate text-[0.9375rem] font-semibold text-foreground">Ayah {bookmark}</span>
+          </p>
           <button
             type="button"
             onClick={() => jumpTo(bookmark)}
-            className="inline-flex min-h-10 items-center rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-xs hover:opacity-90"
+            className="group inline-flex h-10 items-center gap-1.5 rounded-xl bg-card px-3.5 text-sm font-semibold text-primary shadow-xs ring-1 ring-primary/20 transition-colors hover:bg-card/80"
           >
             Continue
+            <ArrowDown className="size-4 transition-transform group-hover:translate-y-0.5" aria-hidden />
           </button>
           <button
             type="button"
             onClick={() => void setBookmark({ surahId, surahName }, null)}
             aria-label="Remove bookmark"
             title="Remove bookmark"
-            className="grid size-10 place-items-center rounded-xl text-primary hover:bg-card/60"
+            className="grid size-10 shrink-0 place-items-center rounded-xl bg-card text-muted-foreground shadow-xs ring-1 ring-primary/20 transition-colors hover:text-danger"
           >
-            <BookmarkX className="size-4" aria-hidden />
+            <X className="size-4" aria-hidden />
           </button>
         </div>
-      ) : (
+      ) : showHint ? (
         <div className="flex items-center gap-3 rounded-2xl border border-dashed border-border p-2 pl-4">
           <Bookmark className="size-4 shrink-0 text-muted-foreground" aria-hidden />
           <p className="min-w-0 flex-1 text-sm text-muted-foreground">
-            {audio ? 'Tap an ayah number to bookmark where you stopped' : 'Tap any ayah to bookmark where you stopped'}
+            Long-press any ayah to save where you stopped
           </p>
           {/* Matches the height of the Continue button. */}
           <span className="min-h-10" aria-hidden />
         </div>
-      )}
+      ) : null}
 
       <section className="space-y-3" aria-labelledby="surah-arabic">
         <SectionTitle id="surah-arabic">Arabic</SectionTitle>
@@ -229,6 +282,16 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
         </div>
         <BanglaText className="block px-1 text-xs text-muted-foreground">অনুবাদ: মুহিউদ্দীন খান</BanglaText>
       </section>
+
+      <AyahActions
+        ayah={menuAyah}
+        bookmarked={menuAyah !== null && menuAyah === bookmark}
+        canPlay={audio}
+        onSave={() => menuAyah !== null && void setBookmark({ surahId, surahName }, menuAyah)}
+        onRemove={() => void setBookmark({ surahId, surahName }, null)}
+        onPlay={() => menuAyah !== null && recitation.play(menuAyah)}
+        onClose={closeMenu}
+      />
 
       {/* Last, so it sticks to the bottom of the screen throughout the surah. */}
       {audio ? <RecitationBar recitation={recitation} ayahCount={ayahs.length} bookmark={bookmark} /> : null}
