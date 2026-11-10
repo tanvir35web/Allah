@@ -49,10 +49,20 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
   const toggle = (ayah: number) => {
     void setBookmark({ surahId, surahName }, ayah === bookmark ? null : ayah)
   }
+  /**
+   * Tapping an Arabic ayah: with audio, plays from that ayah (or pauses /
+   * resumes the one playing); without audio, bookmarks it. With audio, the
+   * Bangla ayah number still bookmarks.
+   */
+  const tapAyah = (ayah: number) => {
+    if (!audio) return toggle(ayah)
+    if (ayah === reciting) return recitation.playing ? recitation.pause() : recitation.play()
+    recitation.play(ayah)
+  }
   const onKey = (event: KeyboardEvent, ayah: number) => {
     if (event.key !== 'Enter' && event.key !== ' ') return
     event.preventDefault()
-    toggle(ayah)
+    tapAyah(ayah)
   }
   const jumpTo = (ayah: number) => {
     document.getElementById(`ayah-${ayah}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -71,9 +81,18 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
         id={id}
         role="button"
         tabIndex={0}
-        aria-pressed={marked}
-        aria-label={marked ? `Ayah ${segment.ayah}, bookmarked. Tap to remove.` : `Bookmark ayah ${segment.ayah}`}
-        onClick={() => toggle(segment.ayah)}
+        aria-pressed={audio ? playing && recitation.playing : marked}
+        aria-label={
+          audio
+            ? playing && recitation.playing
+              ? `Pause ayah ${segment.ayah}`
+              : `Play ayah ${segment.ayah}${marked ? ' (bookmarked)' : ''}`
+            : marked
+              ? `Ayah ${segment.ayah}, bookmarked. Tap to remove.`
+              : `Bookmark ayah ${segment.ayah}`
+        }
+        title={audio ? 'Play this ayah' : undefined}
+        onClick={() => tapAyah(segment.ayah)}
         onKeyDown={(event) => onKey(event, segment.ayah)}
         className={cn(
           SCROLL_MARGIN,
@@ -118,7 +137,9 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
       ) : (
         <div className="flex items-center gap-3 rounded-2xl border border-dashed border-border p-2 pl-4">
           <Bookmark className="size-4 shrink-0 text-muted-foreground" aria-hidden />
-          <p className="min-w-0 flex-1 text-sm text-muted-foreground">Tap any ayah to bookmark where you stopped</p>
+          <p className="min-w-0 flex-1 text-sm text-muted-foreground">
+            {audio ? 'Tap an ayah number to bookmark where you stopped' : 'Tap any ayah to bookmark where you stopped'}
+          </p>
           {/* Matches the height of the Continue button. */}
           <span className="min-h-10" aria-hidden />
         </div>
