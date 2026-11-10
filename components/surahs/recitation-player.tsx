@@ -153,7 +153,8 @@ export function useRecitation(surahId: number, surahName: string, ayahCount: num
  * A single round play/pause button in the bottom-right corner, kept on screen
  * while the surah is. A thin ring around it shows progress through the surah;
  * the ayah and reciter are in its tooltip and accessible name. The wrapper is
- * zero-height, so the button takes no room in the page. Next / previous stay
+ * as tall as the button: mid-surah it floats over the text, and at the end it
+ * rests in its own slot instead of overlapping what follows. Next / previous stay
  * available from the lock screen and media keys.
  */
 export function RecitationBar({
@@ -185,14 +186,14 @@ export function RecitationBar({
   const ratio = started ? (index + 1) / total : 0
 
   return (
-    <div className="pointer-events-none sticky bottom-[calc(var(--nav-height)+env(safe-area-inset-bottom)+0.75rem)] z-20 h-0 lg:bottom-6">
+    <div className="pointer-events-none sticky bottom-[calc(var(--nav-height)+env(safe-area-inset-bottom)+0.75rem)] z-20 flex h-13 justify-end lg:bottom-6">
       <button
         type="button"
         onClick={() => (playing ? pause() : play(started ? undefined : bookmark))}
         aria-label={label}
         title={`${status} · ${RECITER.name}`}
         className={cn(
-          'pointer-events-auto absolute right-0 bottom-0 grid size-13 place-items-center rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95',
+          'pointer-events-auto relative grid size-13 place-items-center rounded-full shadow-lg transition-transform hover:scale-105 active:scale-95',
           error ? 'bg-danger-soft text-danger' : 'bg-primary text-primary-foreground',
         )}
       >
