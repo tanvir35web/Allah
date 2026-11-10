@@ -67,85 +67,90 @@ function HijriBody({ now, showEn, showBn }: { now: Date; showEn: boolean; showBn
 
   return (
     <article className="pattern-stars relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-b from-primary-soft to-card p-6 shadow-xs transition-all duration-200 hover:border-primary/30">
-      {/* Date and time */}
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p lang="ar" dir="rtl" className="text-left text-2xl leading-[1.6] text-primary">
-            {formatHijri(now, 'ar')}
-          </p>
-          {showEn ? <p className="text-lg font-bold tracking-tight text-foreground">{formatHijri(now, 'en')}</p> : null}
-          {showBn ? (
-            <p lang="bn" className="text-sm font-medium text-foreground/85">
-              {formatHijri(now, 'bn')}
-            </p>
-          ) : null}
-        </div>
-        <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-          <MoonStar className="size-5" aria-hidden />
-        </span>
-      </div>
-
-      <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-card/80 px-2.5 py-1 text-foreground tabular-nums">
-          <Clock className="size-3.5 text-primary" aria-hidden />
-          <time dateTime={now.toISOString()}>{time}</time>
-        </span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-card/80 px-2.5 py-1 text-muted-foreground">
-          <CalendarDays className="size-3.5" aria-hidden />
-          {gregorian}
-        </span>
-        {isFriday ? (
-          <span className="rounded-full bg-accent-soft px-2.5 py-1 font-bold text-accent">Jumu&apos;ah</span>
-        ) : null}
-      </div>
-
-      {/* Progress through the month */}
-      <div className="mt-5">
-        <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground">
-          <span>
-            Day {hijri.day} of {monthLength}
-          </span>
-          <span>{monthLength - hijri.day === 0 ? 'Last day of the month' : `${monthLength - hijri.day} days left`}</span>
-        </div>
-        <div
-          className="h-1.5 overflow-hidden rounded-full bg-card/80"
-          role="progressbar"
-          aria-label="Progress through the Hijri month"
-          aria-valuemin={1}
-          aria-valuemax={monthLength}
-          aria-valuenow={hijri.day}
-        >
-          <div className="h-full rounded-full bg-primary" style={{ width: `${(hijri.day / monthLength) * 100}%` }} />
-        </div>
-      </div>
-
-      {/* Upcoming days */}
-      <div className="mt-5">
-        <h3 className="mb-2 text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase">Coming up</h3>
-        <ul className="divide-y divide-border/50 rounded-2xl bg-card/70">
-          {upcoming.map((day) => (
-            <li key={day.key} className="flex items-center gap-3 px-3.5 py-2.5">
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{showEn ? day.en : day.bn}</p>
-                <p className="truncate text-xs text-muted-foreground">
-                  {showEn && showBn ? <span lang="bn">{day.bn} · </span> : null}
-                  {new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' }).format(day.date)}
+      {/* Two halves side by side from md: today on the left, coming up on the right. */}
+      <div className="grid gap-5 md:grid-cols-2 md:gap-8">
+        <div>
+          {/* Date and time */}
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p lang="ar" dir="rtl" className="text-left text-2xl leading-[1.6] text-primary">
+                {formatHijri(now, 'ar')}
+              </p>
+              {showEn ? <p className="text-lg font-bold tracking-tight text-foreground">{formatHijri(now, 'en')}</p> : null}
+              {showBn ? (
+                <p lang="bn" className="text-sm font-medium text-foreground/85">
+                  {formatHijri(now, 'bn')}
                 </p>
-              </div>
-              <span
-                className={cn(
-                  'shrink-0 rounded-full px-2.5 py-1 text-xs font-bold tabular-nums',
-                  day.daysAway <= 1 ? 'bg-primary text-primary-foreground' : 'bg-primary-soft text-primary',
-                )}
-              >
-                {showEn ? daysAwayLabel(day.daysAway) : `${toBanglaDigits(day.daysAway)} দিন`}
+              ) : null}
+            </div>
+            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+              <MoonStar className="size-5" aria-hidden />
+            </span>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-card/80 px-2.5 py-1 text-foreground tabular-nums">
+              <Clock className="size-3.5 text-primary" aria-hidden />
+              <time dateTime={now.toISOString()}>{time}</time>
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-card/80 px-2.5 py-1 text-muted-foreground">
+              <CalendarDays className="size-3.5" aria-hidden />
+              {gregorian}
+            </span>
+            {isFriday ? (
+              <span className="rounded-full bg-accent-soft px-2.5 py-1 font-bold text-accent">Jumu&apos;ah</span>
+            ) : null}
+          </div>
+
+          {/* Progress through the month */}
+          <div className="mt-5">
+            <div className="mb-1.5 flex items-center justify-between text-xs text-muted-foreground">
+              <span>
+                Day {hijri.day} of {monthLength}
               </span>
-            </li>
-          ))}
-        </ul>
+              <span>{monthLength - hijri.day === 0 ? 'Last day of the month' : `${monthLength - hijri.day} days left`}</span>
+            </div>
+            <div
+              className="h-1.5 overflow-hidden rounded-full bg-card/80"
+              role="progressbar"
+              aria-label="Progress through the Hijri month"
+              aria-valuemin={1}
+              aria-valuemax={monthLength}
+              aria-valuenow={hijri.day}
+            >
+              <div className="h-full rounded-full bg-primary" style={{ width: `${(hijri.day / monthLength) * 100}%` }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Upcoming days */}
+        <div>
+          <h3 className="mb-2 text-[0.6875rem] font-semibold tracking-wider text-muted-foreground uppercase">Coming up</h3>
+          <ul className="divide-y divide-border/50 rounded-2xl bg-card/70">
+            {upcoming.map((day) => (
+              <li key={day.key} className="flex items-center gap-3 px-3.5 py-2.5">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold">{showEn ? day.en : day.bn}</p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {showEn && showBn ? <span lang="bn">{day.bn} · </span> : null}
+                    {new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'short' }).format(day.date)}
+                  </p>
+                </div>
+                <span
+                  className={cn(
+                    'shrink-0 rounded-full px-2.5 py-1 text-xs font-bold tabular-nums',
+                    day.daysAway <= 1 ? 'bg-primary text-primary-foreground' : 'bg-primary-soft text-primary',
+                  )}
+                >
+                  {showEn ? daysAwayLabel(day.daysAway) : `${toBanglaDigits(day.daysAway)} দিন`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       </div>
 
-      <p className="mt-3 text-[0.6875rem] leading-relaxed text-muted-foreground">
+      <p className="mt-4 text-[0.6875rem] leading-relaxed text-muted-foreground">
         Calculated dates; your local date may differ by a day with the moon sighting.
       </p>
     </article>

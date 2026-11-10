@@ -70,13 +70,16 @@ export function HomeScreen() {
           // narrower, sticky side column, so each card stacks directly under
           // the one above it whatever their heights. Below lg the columns
           // dissolve (`contents`) and `order` keeps the mobile sequence:
-          // Name, Goal, Ayah, Quick Access, Hijri, Reading, Favorites.
+          // Name, Goal, Hijri, Ayah, Quick Access, Reading, Favorites.
           <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:gap-5 xl:grid-cols-[minmax(0,1fr)_21rem] 2xl:grid-cols-[minmax(0,1fr)_23rem]">
             <div className="contents lg:flex lg:min-w-0 lg:flex-col lg:gap-6">
               <div className="order-1">
                 <DailyNameCard />
               </div>
               <div className="order-3">
+                <HijriCard />
+              </div>
+              <div className="order-4">
                 <AyahCard />
               </div>
               <div className="order-6">
@@ -92,11 +95,8 @@ export function HomeScreen() {
               <div className="order-2">
                 <LearningHubCard />
               </div>
-              <div className="order-4">
-                <ExploreList />
-              </div>
               <div className="order-5">
-                <HijriCard />
+                <ExploreList />
               </div>
             </div>
           </div>
