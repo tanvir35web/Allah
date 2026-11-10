@@ -30,7 +30,9 @@ import { useToday } from '@/hooks/use-today'
 import { cn, pluralize } from '@/lib/utils'
 import { AyahCard } from './ayah-card'
 import { DailyNameCard } from './daily-name-card'
+import { FavoritesCard } from './favorites-card'
 import { Onboarding } from './onboarding'
+import { ReadingCard } from './reading-card'
 
 /**
  * Clean, distraction-free Islamic home screen.
@@ -75,6 +77,12 @@ export function HomeScreen() {
               </div>
               <div className="order-3">
                 <AyahCard />
+              </div>
+              <div className="order-5">
+                <ReadingCard />
+              </div>
+              <div className="order-6">
+                <FavoritesCard />
               </div>
             </div>
             <div className="contents lg:sticky lg:top-6 lg:flex lg:min-w-0 lg:flex-col lg:gap-6">
