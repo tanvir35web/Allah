@@ -23,6 +23,12 @@
   --arabic: #10302e;
   --pattern: rgb(23 96 91 / 0.07);
   --nav-height: 4rem;
+  /* Desktop sidebar; `data-sidebar="collapsed"` on <html> narrows it to icons. */
+  --sidebar-width: 16rem;
+}
+
+:root[data-sidebar='collapsed'] {
+  --sidebar-width: 4.75rem;
 }
 
 .dark {

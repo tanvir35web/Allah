@@ -9,40 +9,29 @@ export const THEME_STORAGE_KEY = 'asma-theme'
 
 export const THEME_COLORS = { light: '#f6f3ec', dark: '#0b1517' } as const
 
-let mediaQuery: MediaQueryList | null = null
-let currentPreference: ThemePreference = 'system'
-
-function resolve(preference: ThemePreference): 'light' | 'dark' {
-  if (preference !== 'system') return preference
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
-function paint() {
-  const resolved = resolve(currentPreference)
+function paint(theme: ThemePreference) {
   const root = document.documentElement
-  root.classList.toggle('dark', resolved === 'dark')
-  root.style.colorScheme = resolved
+  root.classList.toggle('dark', theme === 'dark')
+  root.style.colorScheme = theme
   document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => {
-    meta.setAttribute('content', THEME_COLORS[resolved])
+    meta.setAttribute('content', THEME_COLORS[theme])
   })
 }
 
 export function applyTheme(preference: ThemePreference): void {
   if (typeof window === 'undefined') return
-  currentPreference = preference
+  // Older versions also stored 'system'; anything but light is dark, the default.
+  const theme: ThemePreference = preference === 'light' ? 'light' : 'dark'
   try {
-    localStorage.setItem(THEME_STORAGE_KEY, preference)
+    localStorage.setItem(THEME_STORAGE_KEY, theme)
   } catch {
     // storage blocked: theme still applies for this session
   }
-  if (!mediaQuery) {
-    mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addEventListener('change', () => {
-      if (currentPreference === 'system') paint()
-    })
-  }
-  paint()
+  paint(theme)
 }
 
-/** Inline script (runs before hydration) that applies the mirrored preference. */
-export const themeInitScript = `(function(){try{var p=localStorage.getItem('${THEME_STORAGE_KEY}')||'system';var d=p==='dark'||(p==='system'&&matchMedia('(prefers-color-scheme: dark)').matches);var r=document.documentElement;if(d)r.classList.add('dark');r.style.colorScheme=d?'dark':'light';}catch(e){}})();`
+/**
+ * Inline script (runs before hydration) that applies the mirrored preference.
+ * Dark unless light was chosen, so first-time visitors start in dark.
+ */
+export const themeInitScript = `(function(){try{var d=localStorage.getItem('${THEME_STORAGE_KEY}')!=='light';var r=document.documentElement;if(d)r.classList.add('dark');r.style.colorScheme=d?'dark':'light';}catch(e){document.documentElement.classList.add('dark');}})();`

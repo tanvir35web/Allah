@@ -93,7 +93,7 @@ export interface ReviewItem {
   lastCorrectAt?: string
 }
 
-export type ThemePreference = 'light' | 'dark' | 'system'
+export type ThemePreference = 'light' | 'dark'
 export type ContentLanguage = 'en' | 'bn' | 'both'
 
 export interface AppSettings {
@@ -106,7 +106,7 @@ export interface AppSettings {
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-  theme: 'system',
+  theme: 'dark',
   language: 'both',
   dailyGoal: 3,
   reminderEnabled: false,

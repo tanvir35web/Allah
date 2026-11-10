@@ -75,7 +75,6 @@ export function SettingsScreen() {
             options={[
               { value: 'light', label: 'Light' },
               { value: 'dark', label: 'Dark' },
-              { value: 'system', label: 'System' },
             ]}
             onChange={(theme) => void updateSettings({ theme })}
           />

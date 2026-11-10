@@ -7,6 +7,7 @@ import { SidebarNav } from '@/components/navigation/sidebar-nav'
 import { AppDataProvider } from '@/components/providers/app-data-provider'
 import { ServiceWorkerRegistrar } from '@/components/pwa/service-worker-registrar'
 import { SPLASH_SCREENS } from '@/lib/pwa'
+import { sidebarInitScript } from '@/lib/sidebar'
 import { THEME_COLORS, themeInitScript } from '@/lib/theme'
 import './globals.css'
 
@@ -80,10 +81,8 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: THEME_COLORS.light },
-    { media: '(prefers-color-scheme: dark)', color: THEME_COLORS.dark },
-  ],
+  // Dark is the default; applyTheme() updates this when the user picks light.
+  themeColor: THEME_COLORS.dark,
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -97,6 +96,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <head>
         {/* Applies the saved theme before first paint to avoid a flash. */}
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        {/* Restores a collapsed sidebar before first paint, so the layout does not jump. */}
+        <script dangerouslySetInnerHTML={{ __html: sidebarInitScript }} />
       </head>
       <body>
         <a
@@ -106,7 +107,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         <AppDataProvider>
-          <div className="min-h-screen lg:pl-64">
+          <div className="min-h-screen transition-[padding] duration-200 lg:pl-(--sidebar-width)">
             <SidebarNav />
             <div className="min-h-screen">{children}</div>
           </div>

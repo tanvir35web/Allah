@@ -43,7 +43,7 @@ export function NameReels() {
       ref={scroller}
       tabIndex={0}
       aria-label="Names, one per screen. Scroll or swipe up for the next."
-      className="scrollbar-none fixed inset-0 lg:left-64 snap-y snap-mandatory overflow-y-auto overscroll-contain focus:outline-none"
+      className="scrollbar-none fixed inset-0 lg:left-(--sidebar-width) snap-y snap-mandatory overflow-y-auto overscroll-contain focus:outline-none"
     >
       {order.map((name, index) => (
         <section

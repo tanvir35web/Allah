@@ -97,10 +97,16 @@ describe('IndexedDB storage', () => {
   })
 
   it('merges settings with defaults', async () => {
-    expect((await getSettings()).theme).toBe('system')
-    await updateSettings({ theme: 'dark', onboardingComplete: true })
+    expect((await getSettings()).theme).toBe('dark')
+    await updateSettings({ theme: 'light', onboardingComplete: true })
     const settings = await getSettings()
-    expect(settings).toMatchObject({ theme: 'dark', onboardingComplete: true, language: 'both', dailyGoal: 3 })
+    expect(settings).toMatchObject({ theme: 'light', onboardingComplete: true, language: 'both', dailyGoal: 3 })
+  })
+
+  it("moves the retired 'system' theme to dark", async () => {
+    // Saved by an older version that still offered a system theme.
+    await updateSettings({ theme: 'system' as unknown as 'dark' })
+    expect((await getSettings()).theme).toBe('dark')
   })
 
   it('resets progress and quiz history independently', async () => {

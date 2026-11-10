@@ -10,7 +10,10 @@ export async function getSettings(): Promise<AppSettings> {
   if (!record) return { ...DEFAULT_SETTINGS }
   const { id: _id, ...settings } = record
   void _id
-  return { ...DEFAULT_SETTINGS, ...settings }
+  const merged = { ...DEFAULT_SETTINGS, ...settings }
+  // Older versions also had a 'system' theme; it is now dark, the default.
+  if (merged.theme !== 'light' && merged.theme !== 'dark') merged.theme = DEFAULT_SETTINGS.theme
+  return merged
 }
 
 export async function updateSettings(patch: Partial<AppSettings>): Promise<AppSettings> {

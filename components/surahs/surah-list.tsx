@@ -1,8 +1,10 @@
 'use client'
 
-import { ArrowDown01, ArrowUp10, Search, SearchX, X } from 'lucide-react'
+import { ArrowDown01, ArrowRight, ArrowUp10, Bookmark, BookOpenText, Search, SearchX, X } from 'lucide-react'
+import Link from 'next/link'
 import { useDeferredValue, useMemo, useState } from 'react'
 import { EmptyState } from '@/components/common/empty-state'
+import { LinkPending } from '@/components/common/link-pending'
 import { useAppData } from '@/components/providers/app-data-provider'
 import { Button } from '@/components/ui/button'
 import { matchesSurahQuery, type SurahSummary } from '@/lib/surah-search'
@@ -22,7 +24,7 @@ interface SurahListProps {
 }
 
 export function SurahList({ surahs }: SurahListProps) {
-  const { settings } = useAppData()
+  const { settings, surahReadings } = useAppData()
   const [query, setQuery] = useState('')
   const [filter, setFilter] = useState<Filter>('all')
   const [descending, setDescending] = useState(false)
@@ -35,8 +37,59 @@ export function SurahList({ surahs }: SurahListProps) {
     return descending ? [...filtered].reverse() : filtered
   }, [surahs, deferredQuery, filter, descending])
 
+  const counts: Record<Filter, number> = {
+    all: surahs.length,
+    meccan: surahs.filter((surah) => surah.revelation === 'meccan').length,
+    medinan: surahs.filter((surah) => surah.revelation === 'medinan').length,
+  }
+  // The surah read or bookmarked most recently, to continue from.
+  const last = Object.values(surahReadings)
+    .filter((reading) => reading.seconds > 0 || reading.bookmarkAyah)
+    .sort((a, b) => b.lastReadAt.localeCompare(a.lastReadAt))[0]
+  const lastSurah = last ? surahs.find((surah) => surah.id === last.surahId) : undefined
+
   return (
     <div>
+      {lastSurah && last ? (
+        <Link
+          href={`/surahs/${lastSurah.id}/${last.bookmarkAyah ? `#ayah-${last.bookmarkAyah}` : ''}`}
+          prefetch={false}
+          className="pattern-stars group relative mb-5 flex items-center gap-4 overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-br from-primary-soft to-card p-5 shadow-xs transition-[border-color,box-shadow] hover:border-primary/45 hover:shadow-md md:p-6"
+        >
+          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+            {last.bookmarkAyah ? (
+              <Bookmark className="size-5 fill-current" aria-hidden />
+            ) : (
+              <BookOpenText className="size-5" aria-hidden />
+            )}
+          </span>
+          <div className="relative min-w-0 flex-1">
+            <p className="text-xs font-bold tracking-wider text-primary uppercase">Continue reading</p>
+            <p className="truncate text-lg font-bold tracking-tight md:text-xl">
+              {lastSurah.transliteration}
+              <span className="font-medium text-muted-foreground"> · Surah {lastSurah.id}</span>
+            </p>
+            <p className="text-sm text-muted-foreground">
+              {last.bookmarkAyah
+                ? `Bookmarked at Ayah ${last.bookmarkAyah} of ${lastSurah.ayahCount}`
+                : `${lastSurah.ayahCount} ayahs · ${lastSurah.englishMeaning}`}
+            </p>
+          </div>
+          <span
+            lang="ar"
+            dir="rtl"
+            className="relative hidden shrink-0 font-quran text-4xl leading-[1.6] text-arabic sm:block"
+          >
+            {lastSurah.arabicName}
+          </span>
+          <span className="relative grid size-10 shrink-0 place-items-center rounded-full bg-card text-primary shadow-xs transition-transform group-hover:translate-x-0.5">
+            <LinkPending>
+              <ArrowRight className="size-4" aria-hidden />
+            </LinkPending>
+          </span>
+        </Link>
+      ) : null}
+
       <div className="sticky top-[env(safe-area-inset-top)] z-20 -mx-4 md:mx-0 space-y-3 bg-background/90 px-4 md:px-0 pt-2 pb-3 backdrop-blur-xl md:rounded-2xl">
         <div className="flex gap-2">
           <label className="relative flex-1">
@@ -90,6 +143,14 @@ export function SurahList({ surahs }: SurahListProps) {
               )}
             >
               {option.label}
+              <span
+                className={cn(
+                  'ml-1.5 rounded-full px-1.5 text-xs tabular-nums',
+                  filter === option.value ? 'bg-primary-foreground/20' : 'bg-muted',
+                )}
+              >
+                {counts[option.value]}
+              </span>
             </button>
           ))}
         </div>
@@ -117,12 +178,20 @@ export function SurahList({ surahs }: SurahListProps) {
           }
         />
       ) : (
-        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {visible.map((surah) => (
-            <li key={surah.id}>
-              <SurahCard surah={surah} language={settings.language} />
-            </li>
-          ))}
+        <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+          {visible.map((surah) => {
+            const reading = surahReadings[surah.id]
+            return (
+              <li key={surah.id}>
+                <SurahCard
+                  surah={surah}
+                  language={settings.language}
+                  bookmarkAyah={reading?.bookmarkAyah}
+                  read={(reading?.seconds ?? 0) > 0}
+                />
+              </li>
+            )
+          })}
         </ul>
       )}
     </div>
