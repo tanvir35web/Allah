@@ -1,46 +1,59 @@
 'use client'
 
+import type { ReactNode } from 'react'
 import { Card } from '@/components/ui/card'
-import { ProgressBar } from '@/components/ui/progress-bar'
+import { ProgressRing } from '@/components/ui/progress-bar'
 import { useProgressSummary } from '@/hooks/use-derived-data'
 import { cn } from '@/lib/utils'
 
-/** Overall "23 / 99 Names learned" card. */
+/** Overall progress: a ring with the percentage, and learned / learning / remaining. */
 export function ProgressCard({ className }: { className?: string }) {
   const summary = useProgressSummary()
+  const parts = [
+    { label: 'Learned', value: summary.learned, dot: 'bg-success' },
+    { label: 'Learning', value: summary.learning, dot: 'bg-accent' },
+    { label: 'Remaining', value: summary.notStarted, dot: 'bg-muted-foreground/40' },
+  ]
+
   return (
-    <Card className={cn('p-5', className)}>
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <p className="text-sm text-muted-foreground">Names learned</p>
-          <p className="mt-1 text-3xl font-bold tabular-nums">
-            {summary.learned}
-            <span className="text-lg font-medium text-muted-foreground"> / {summary.total}</span>
-          </p>
-        </div>
-        <p className="text-2xl font-semibold text-primary tabular-nums">{summary.percentage}%</p>
-      </div>
-      <ProgressBar className="mt-4" value={summary.learned} max={summary.total} label="Names learned" />
-      <div className="mt-4 flex gap-4 text-xs text-muted-foreground">
-        <span className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-success" aria-hidden /> {summary.learned} learned
+    <Card className={cn('flex items-center gap-5 p-5', className)}>
+      <ProgressRing
+        value={summary.learned}
+        max={summary.total}
+        size={92}
+        stroke={8}
+        label="Names learned"
+        valueText={`${summary.learned} of ${summary.total} Names learned`}
+      >
+        <span className="text-center leading-tight">
+          <span className="block text-xl font-bold tabular-nums">{summary.percentage}%</span>
         </span>
-        <span className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-accent" aria-hidden /> {summary.learning} learning
-        </span>
-        <span className="flex items-center gap-1.5">
-          <span className="size-2 rounded-full bg-muted-foreground/40" aria-hidden /> {summary.notStarted} remaining
-        </span>
+      </ProgressRing>
+      <div className="min-w-0 flex-1">
+        <p className="text-2xl font-bold tabular-nums">
+          {summary.learned}
+          <span className="text-base font-medium text-muted-foreground"> / {summary.total}</span>
+        </p>
+        <p className="text-sm text-muted-foreground">Names learned</p>
+        <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
+          {parts.map(({ label, value, dot }) => (
+            <li key={label} className="flex items-center gap-2">
+              <span className={cn('size-2 rounded-full', dot)} aria-hidden />
+              <span className="flex-1">{label}</span>
+              <span className="font-semibold text-foreground tabular-nums">{value}</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </Card>
   )
 }
 
-export function StatTile({ label, value, hint }: { label: string; value: React.ReactNode; hint?: string }) {
+export function StatTile({ label, value, hint }: { label: string; value: ReactNode; hint?: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-1 text-xl font-bold tabular-nums">{value}</p>
+    <div className="rounded-2xl border border-border/70 bg-card p-4 shadow-xs">
+      <p className="text-xl font-bold tabular-nums">{value}</p>
+      <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
       {hint ? <p className="mt-0.5 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   )

@@ -11,13 +11,7 @@ export const metadata: Metadata = {
 
 export default function QuizPage() {
   return (
-    <PageShell
-      title="Quiz"
-      subtitle="Short, gentle practice. Five questions is enough."
-      backHref="/more/"
-      backLabel="More"
-      maxWidth="medium"
-    >
+    <PageShell title="Quiz" variant="compact" backHref="/more/" backLabel="More" maxWidth="medium">
       <Suspense fallback={<LoadingState rows={3} />}>
         <QuizScreen />
       </Suspense>

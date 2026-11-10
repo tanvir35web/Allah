@@ -14,7 +14,7 @@ export function QuranReadingCard() {
   ]
 
   return (
-    <section aria-labelledby="quran-reading-title" className="space-y-3">
+    <section aria-labelledby="quran-reading-title" className="space-y-2">
       <SectionTitle id="quran-reading-title">Quran Reading Time</SectionTitle>
       <Card className="p-5">
         <dl className="grid grid-cols-3 divide-x divide-border">

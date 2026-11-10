@@ -23,13 +23,13 @@ export default function AboutPage() {
   return (
     <PageShell title="About" variant="compact" backHref="/more/" backLabel="More" maxWidth="medium">
       <div className="space-y-6">
-        <Card className="pattern-stars overflow-hidden p-6 text-center">
-          <ArabicText className="block text-5xl leading-[1.8]">الْأَسْمَاءُ الْحُسْنَىٰ</ArabicText>
+        <Card className="pattern-stars overflow-hidden bg-gradient-to-b from-primary-soft to-card p-6 text-center">
+          <ArabicText className="block text-5xl leading-[1.8] text-primary">الْأَسْمَاءُ الْحُسْنَىٰ</ArabicText>
           <h2 className="mt-2 text-xl font-semibold">99 Names of Allah</h2>
           <p className="mt-1 text-sm text-muted-foreground">Learn, Remember & Reflect · v{APP_VERSION}</p>
         </Card>
 
-        <section className="space-y-3" aria-labelledby="about-purpose">
+        <section className="space-y-2" aria-labelledby="about-purpose">
           <SectionTitle id="about-purpose">Purpose</SectionTitle>
           <Card className="space-y-3 p-5 text-[0.95rem] leading-relaxed">
             <p>
@@ -43,7 +43,7 @@ export default function AboutPage() {
           </Card>
         </section>
 
-        <section className="space-y-3" aria-labelledby="about-sources">
+        <section className="space-y-2" aria-labelledby="about-sources">
           <SectionTitle id="about-sources">About the list and meanings</SectionTitle>
           <Card className="space-y-3 p-5 text-[0.95rem] leading-relaxed">
             <p>
@@ -57,7 +57,7 @@ export default function AboutPage() {
           </Card>
         </section>
 
-        <section className="space-y-3" aria-labelledby="about-privacy">
+        <section className="space-y-2" aria-labelledby="about-privacy">
           <SectionTitle id="about-privacy">Privacy & offline use</SectionTitle>
           <Card className="space-y-3 p-5 text-[0.95rem] leading-relaxed">
             <p>
@@ -71,7 +71,7 @@ export default function AboutPage() {
           </Card>
         </section>
 
-        <section className="space-y-3" aria-labelledby="about-developer">
+        <section className="space-y-2" aria-labelledby="about-developer">
           <SectionTitle id="about-developer">Developer</SectionTitle>
           <Card className="p-5">
             <div className="flex items-center gap-4">

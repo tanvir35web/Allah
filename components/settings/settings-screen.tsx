@@ -1,12 +1,11 @@
 'use client'
 
-import { BellRing, ChevronRight, Info, Lock, Trash2 } from 'lucide-react'
-import Link from 'next/link'
-import { useId, useState } from 'react'
+import { BellRing, Clock, Languages, Lock, Palette, Target, Trash2, type LucideIcon } from 'lucide-react'
+import { useId, useState, type ReactNode } from 'react'
 import { ConfirmDialog } from '@/components/common/confirm-dialog'
 import { LoadingState } from '@/components/common/loading-state'
 import { useAppData } from '@/components/providers/app-data-provider'
-import { Card, SectionTitle } from '@/components/ui/card'
+import { ListGroup, ListRow } from '@/components/ui/list-group'
 import { SegmentedControl } from '@/components/ui/segmented-control'
 import type { ContentLanguage, ThemePreference } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -62,13 +61,9 @@ export function SettingsScreen() {
   }
 
   return (
-    <div className="space-y-7">
-      <section aria-labelledby="appearance" className="space-y-3">
-        <SectionTitle id="appearance">Appearance</SectionTitle>
-        <Card className="space-y-2 p-4">
-          <p className="text-sm font-medium" id="theme-label">
-            Theme
-          </p>
+    <div className="space-y-6">
+      <ListGroup title="Appearance">
+        <SettingBlock icon={Palette} title="Theme">
           <SegmentedControl<ThemePreference>
             label="Theme"
             value={settings.theme}
@@ -78,12 +73,8 @@ export function SettingsScreen() {
             ]}
             onChange={(theme) => void updateSettings({ theme })}
           />
-        </Card>
-      </section>
-
-      <section aria-labelledby="language" className="space-y-3">
-        <SectionTitle id="language">Meanings language</SectionTitle>
-        <Card className="space-y-2 p-4">
+        </SettingBlock>
+        <SettingBlock icon={Languages} title="Meanings" description="Which meanings and explanations are shown">
           <SegmentedControl<ContentLanguage>
             label="Meanings language"
             value={settings.language}
@@ -94,98 +85,74 @@ export function SettingsScreen() {
             ]}
             onChange={(language) => void updateSettings({ language })}
           />
-          <p className="px-1 text-xs text-muted-foreground">Choose which meanings and explanations are shown with each Name.</p>
-        </Card>
-      </section>
+        </SettingBlock>
+      </ListGroup>
 
-      <section aria-labelledby="learning" className="space-y-3">
-        <SectionTitle id="learning">Learning</SectionTitle>
-        <Card className="divide-y divide-border">
-          <div className="space-y-2 p-4">
-            <p className="text-sm font-medium">Daily goal</p>
-            <SegmentedControl<number>
-              label="Daily goal (Names per day)"
-              value={settings.dailyGoal}
-              options={[1, 3, 5, 10].map((value) => ({ value, label: `${value}` }))}
-              onChange={(dailyGoal) => void updateSettings({ dailyGoal })}
+      <ListGroup title="Learning">
+        <SettingBlock icon={Target} title="Daily goal" description="Names to learn each day. Small and steady is best.">
+          <SegmentedControl<number>
+            label="Daily goal (Names per day)"
+            value={settings.dailyGoal}
+            options={[1, 3, 5, 10].map((value) => ({ value, label: `${value}` }))}
+            onChange={(dailyGoal) => void updateSettings({ dailyGoal })}
+          />
+        </SettingBlock>
+        <ListRow
+          icon={BellRing}
+          tone="muted"
+          title={<label htmlFor={reminderId}>Daily reminder</label>}
+          description="Notifications are coming in a future version"
+          trailing={
+            <Switch
+              id={reminderId}
+              checked={settings.reminderEnabled}
+              onChange={(reminderEnabled) => void updateSettings({ reminderEnabled })}
             />
-            <p className="px-1 text-xs text-muted-foreground">Names to learn each day. Small and steady is best.</p>
-          </div>
-          <div className="space-y-3 p-4">
-            <div className="flex items-center justify-between gap-4">
-              <label htmlFor={reminderId} className="flex items-center gap-3">
-                <BellRing className="size-5 text-muted-foreground" aria-hidden />
-                <span>
-                  <span className="block text-sm font-medium">Daily reminder</span>
-                  <span className="block text-xs text-muted-foreground">Notifications are coming in a future version.</span>
-                </span>
-              </label>
-              <Switch
-                id={reminderId}
-                checked={settings.reminderEnabled}
-                onChange={(reminderEnabled) => void updateSettings({ reminderEnabled })}
+          }
+        />
+        {settings.reminderEnabled ? (
+          <ListRow
+            icon={Clock}
+            tone="muted"
+            title={<label htmlFor={timeId}>Preferred time</label>}
+            trailing={
+              <input
+                id={timeId}
+                type="time"
+                value={settings.reminderTime}
+                onChange={(event) => void updateSettings({ reminderTime: event.target.value })}
+                className="h-10 rounded-xl border border-border bg-background px-3 text-sm"
               />
-            </div>
-            {settings.reminderEnabled ? (
-              <div className="flex items-center justify-between">
-                <label htmlFor={timeId} className="text-sm text-muted-foreground">
-                  Preferred time
-                </label>
-                <input
-                  id={timeId}
-                  type="time"
-                  value={settings.reminderTime}
-                  onChange={(event) => void updateSettings({ reminderTime: event.target.value })}
-                  className="h-11 rounded-xl border border-border bg-card px-3 text-base"
-                />
-              </div>
-            ) : null}
-          </div>
-        </Card>
-      </section>
-
-      <section aria-labelledby="data" className="space-y-3">
-        <SectionTitle id="data">Your data</SectionTitle>
-        <Card className="p-4">
-          <p className="flex gap-3 text-sm text-muted-foreground">
-            <Lock className="mt-0.5 size-4 shrink-0" aria-hidden />
-            Everything is stored only on this device using IndexedDB. Nothing is uploaded and there is no account or
-            tracking.
-          </p>
-        </Card>
-        <Card className="divide-y divide-border overflow-hidden">
-          {(['progress', 'quiz', 'reading', 'all'] as const).map((action) => (
-            <button
-              key={action}
-              type="button"
-              onClick={() => {
-                setDone(null)
-                setPending(action)
-              }}
-              className="flex min-h-14 w-full items-center gap-3 px-4 text-left text-sm font-medium text-danger hover:bg-danger-soft/50"
-            >
-              <Trash2 className="size-4" aria-hidden />
-              {ACTION_LABELS[action]}
-            </button>
-          ))}
-        </Card>
-        {done ? (
-          <p role="status" className="px-1 text-sm text-success">
-            {done}
-          </p>
+            }
+          />
         ) : null}
-      </section>
+      </ListGroup>
 
-      <section aria-labelledby="about-section" className="space-y-3">
-        <SectionTitle id="about-section">About</SectionTitle>
-        <Card>
-          <Link href="/about/" className="flex min-h-14 items-center gap-3 px-4 text-sm font-medium">
-            <Info className="size-4 text-muted-foreground" aria-hidden />
-            <span className="flex-1">About this app</span>
-            <ChevronRight className="size-4 text-muted-foreground" aria-hidden />
-          </Link>
-        </Card>
-      </section>
+      <ListGroup title="Your data">
+        <ListRow
+          icon={Lock}
+          tone="success"
+          title="Private to this device"
+          description="Stored only here (IndexedDB). No account, no upload, no tracking."
+        />
+        {(['progress', 'quiz', 'reading', 'all'] as const).map((action) => (
+          <ListRow
+            key={action}
+            icon={Trash2}
+            destructive
+            title={ACTION_LABELS[action]}
+            onClick={() => {
+              setDone(null)
+              setPending(action)
+            }}
+          />
+        ))}
+      </ListGroup>
+      {done ? (
+        <p role="status" className="-mt-3 px-1 text-sm text-success">
+          {done}
+        </p>
+      ) : null}
 
       <ConfirmDialog
         open={pending !== null}
@@ -195,6 +162,34 @@ export function SettingsScreen() {
         onConfirm={() => (pending ? runDestructive(pending) : undefined)}
         onClose={() => setPending(null)}
       />
+    </div>
+  )
+}
+
+/** A setting whose control (a segmented control) sits full width under its title. */
+function SettingBlock({
+  icon: Icon,
+  title,
+  description,
+  children,
+}: {
+  icon: LucideIcon
+  title: string
+  description?: string
+  children: ReactNode
+}) {
+  return (
+    <div className="space-y-3 px-4 py-3.5">
+      <div className="flex items-center gap-3.5">
+        <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
+          <Icon className="size-[1.125rem]" aria-hidden />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block text-[0.9375rem] font-semibold">{title}</span>
+          {description ? <span className="block text-xs leading-snug text-muted-foreground">{description}</span> : null}
+        </span>
+      </div>
+      {children}
     </div>
   )
 }

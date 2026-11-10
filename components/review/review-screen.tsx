@@ -51,42 +51,53 @@ export function ReviewScreen() {
 
   return (
     <div className="space-y-6">
-      <Card className="pattern-stars overflow-hidden p-6">
-        <h2 className="text-lg font-semibold">Today’s review</h2>
-        <p className="mt-1 text-muted-foreground">
-          You have {pluralize(queue.length, 'Name')} to review.
-        </p>
-        <Button size="lg" className="mt-5 w-full" onClick={() => setSession(queue)}>
+      <Card className="pattern-stars overflow-hidden bg-gradient-to-b from-primary-soft to-card p-5 md:p-6">
+        <div className="flex items-center gap-4">
+          <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+            <span className="text-2xl font-bold tabular-nums">{queue.length}</span>
+          </span>
+          <div className="min-w-0">
+            <h2 className="text-lg font-bold tracking-tight">Today’s review</h2>
+            <p className="text-sm text-muted-foreground">{pluralize(queue.length, 'Name')} ready to refresh</p>
+          </div>
+        </div>
+        <Button size="lg" className="mt-5 w-full rounded-2xl" onClick={() => setSession(queue)}>
           <RotateCcw className="size-5" aria-hidden />
           Start review
         </Button>
       </Card>
 
-      <section aria-labelledby="queue-title" className="space-y-3">
+      <section aria-labelledby="queue-title" className="space-y-2">
         <SectionTitle id="queue-title">Up next</SectionTitle>
-        <ul className="space-y-2">
+        <Card className="divide-y divide-border/60 overflow-hidden">
           {queue.map((item) => {
             const name = getNameById(item.nameId)
             if (!name) return null
             return (
-              <li key={item.nameId}>
-                <Link
-                  href={`/names/${name.id}/`}
-                  className="flex min-h-16 items-center gap-3 rounded-2xl border border-border bg-card px-4 py-2"
-                >
-                  <span className="w-7 text-xs font-semibold text-muted-foreground tabular-nums">{formatNumber(name.id)}</span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate font-medium">{name.transliteration}</span>
-                    <span className={cn('mt-0.5 inline-block rounded-full px-2 py-0.5 text-[0.6875rem] font-medium', reasonStyles[item.reason])}>
-                      {REVIEW_REASON_LABELS[item.reason]}
-                    </span>
+              <Link
+                key={item.nameId}
+                href={`/names/${name.id}/`}
+                className="flex min-h-16 items-center gap-3.5 px-4 py-2.5 transition-colors hover:bg-muted/50"
+              >
+                <span className="w-6 shrink-0 text-xs font-semibold text-muted-foreground tabular-nums">
+                  {formatNumber(name.id)}
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate text-[0.9375rem] font-semibold">{name.transliteration}</span>
+                  <span
+                    className={cn(
+                      'mt-0.5 inline-block rounded-full px-2 py-0.5 text-[0.6875rem] font-medium',
+                      reasonStyles[item.reason],
+                    )}
+                  >
+                    {REVIEW_REASON_LABELS[item.reason]}
                   </span>
-                  <ArabicText className="text-2xl leading-[1.6]">{name.arabic}</ArabicText>
-                </Link>
-              </li>
+                </span>
+                <ArabicText className="shrink-0 text-2xl leading-[1.6] text-primary">{name.arabic}</ArabicText>
+              </Link>
             )
           })}
-        </ul>
+        </Card>
       </section>
     </div>
   )
@@ -144,7 +155,7 @@ function ReviewSession({ items, onDone }: { items: ReviewRecommendation[]; onDon
       <section
         key={name.id}
         aria-live="polite"
-        className="animate-rise pattern-stars rounded-[2rem] border border-border bg-gradient-to-b from-primary-soft to-card px-6 py-10 text-center"
+        className="animate-rise pattern-stars rounded-[2rem] border border-border/70 bg-gradient-to-b from-primary-soft to-card px-6 py-10 text-center"
       >
         <ArabicText className="block text-[4.5rem] leading-[1.7]">{name.arabic}</ArabicText>
         {revealed ? (

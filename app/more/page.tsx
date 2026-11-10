@@ -8,18 +8,23 @@ export const metadata: Metadata = { title: 'More' }
 
 export default function MorePage() {
   return (
-    <PageShell title="More" maxWidth="medium">
+    <PageShell title="More" maxWidth="narrow">
       <MoreMenu />
-      <ConnectionStatus />
-      <figure className="mt-10 px-4 text-center">
-        <blockquote>
-          <ArabicText className="block text-2xl leading-[1.9]">وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَىٰ فَادْعُوهُ بِهَا</ArabicText>
-          <p className="mt-2 text-sm text-muted-foreground">
-            “And to Allah belong the best names, so invoke Him by them.”
-          </p>
-        </blockquote>
-        <figcaption className="mt-1 text-xs text-muted-foreground">Al-Aʿraf 7:180</figcaption>
-      </figure>
+
+      <footer className="mt-10 flex flex-col items-center gap-4 text-center">
+        <figure>
+          <blockquote>
+            <ArabicText className="block text-2xl leading-[1.9] text-primary">
+              وَلِلَّهِ الْأَسْمَاءُ الْحُسْنَىٰ فَادْعُوهُ بِهَا
+            </ArabicText>
+            <p className="mt-1 text-sm text-muted-foreground">
+              “And to Allah belong the best names, so invoke Him by them.”
+            </p>
+          </blockquote>
+          <figcaption className="mt-1 text-xs text-muted-foreground/80">Al-Aʿraf 7:180</figcaption>
+        </figure>
+        <ConnectionStatus />
+      </footer>
     </PageShell>
   )
 }

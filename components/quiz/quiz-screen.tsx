@@ -1,6 +1,6 @@
 'use client'
 
-import { ChevronRight, History, Play, X } from 'lucide-react'
+import { Check, ChevronRight, History, Play, X } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useMemo, useState } from 'react'
@@ -83,7 +83,7 @@ function QuizSetup({
 
   return (
     <div className="space-y-6">
-      <section aria-labelledby="quiz-type" className="space-y-3">
+      <section aria-labelledby="quiz-type" className="space-y-2">
         <SectionTitle id="quiz-type">Quiz type</SectionTitle>
         <div role="radiogroup" aria-labelledby="quiz-type" className="grid grid-cols-2 gap-3">
           {MODES.map((mode) => {
@@ -97,89 +97,108 @@ function QuizSetup({
                 aria-checked={selected}
                 onClick={() => onChange({ ...config, mode })}
                 className={cn(
-                  'flex min-h-24 flex-col justify-between rounded-3xl border-2 p-4 text-left transition-colors',
-                  mode === 'mixed' && 'col-span-2 min-h-20',
-                  selected ? 'border-primary bg-primary-soft' : 'border-border bg-card hover:border-primary/30',
+                  'relative flex min-h-22 flex-col justify-between gap-2 rounded-3xl border p-4 text-left shadow-xs transition-[border-color,background-color,box-shadow]',
+                  mode === 'mixed' && 'col-span-2 min-h-18',
+                  selected
+                    ? 'border-primary/50 bg-primary-soft ring-1 ring-primary/30'
+                    : 'border-border/70 bg-card hover:border-primary/30',
                 )}
               >
-                <span className="font-semibold" lang={mode === 'bangla' ? 'bn' : undefined}>
+                <span className="pr-7 font-semibold" lang={mode === 'bangla' ? 'bn' : undefined}>
                   {title}
                 </span>
-                <span className="text-xs text-muted-foreground">{description}</span>
+                <span className="text-xs leading-snug text-muted-foreground">{description}</span>
+                <span
+                  className={cn(
+                    'absolute top-3.5 right-3.5 grid size-5 place-items-center rounded-full border transition-colors',
+                    selected ? 'border-primary bg-primary text-primary-foreground' : 'border-border',
+                  )}
+                  aria-hidden
+                >
+                  {selected ? <Check className="size-3" strokeWidth={3} /> : null}
+                </span>
               </button>
             )
           })}
         </div>
       </section>
 
-      <section aria-labelledby="quiz-length" className="space-y-3">
-        <SectionTitle id="quiz-length">Questions</SectionTitle>
-        <SegmentedControl<number>
-          label="Number of questions"
-          value={config.count}
-          options={QUIZ_LENGTHS.map((value) => ({ value, label: String(value) }))}
-          onChange={(count) => onChange({ ...config, count })}
-        />
-      </section>
+      <Card className="divide-y divide-border/60">
+        <div className="space-y-2.5 p-4">
+          <p className="text-sm font-semibold" id="quiz-length">
+            Questions
+          </p>
+          <SegmentedControl<number>
+            label="Number of questions"
+            value={config.count}
+            options={QUIZ_LENGTHS.map((value) => ({ value, label: String(value) }))}
+            onChange={(count) => onChange({ ...config, count })}
+          />
+        </div>
+        <div className="space-y-2.5 p-4">
+          <p className="text-sm font-semibold" id="quiz-scope">
+            Names to include
+          </p>
+          <SegmentedControl<QuizScope>
+            label="Names to include"
+            value={studiedCount === 0 ? 'all' : config.scope}
+            options={[
+              { value: 'all', label: 'All 99' },
+              { value: 'learned', label: `My Names (${studiedCount})` },
+            ]}
+            onChange={(scope) => onChange({ ...config, scope: studiedCount === 0 ? 'all' : scope })}
+          />
+          {studiedCount === 0 ? (
+            <p className="px-1 text-xs text-muted-foreground">Start learning to quiz yourself on your own Names.</p>
+          ) : null}
+        </div>
+      </Card>
 
-      <section aria-labelledby="quiz-scope" className="space-y-3">
-        <SectionTitle id="quiz-scope">Names to include</SectionTitle>
-        <SegmentedControl<QuizScope>
-          label="Names to include"
-          value={studiedCount === 0 ? 'all' : config.scope}
-          options={[
-            { value: 'all', label: 'All 99' },
-            { value: 'learned', label: `My Names (${studiedCount})` },
-          ]}
-          onChange={(scope) => onChange({ ...config, scope: studiedCount === 0 ? 'all' : scope })}
-        />
-        {studiedCount === 0 ? (
-          <p className="px-1 text-xs text-muted-foreground">Start learning to quiz yourself on your own Names.</p>
-        ) : null}
-      </section>
-
-      <Button size="lg" className="w-full" onClick={onStart}>
+      <Button size="lg" className="w-full rounded-2xl" onClick={onStart}>
         <Play className="size-5" aria-hidden />
         Start quiz
       </Button>
 
-      <section aria-labelledby="quiz-history" className="space-y-3">
+      <section aria-labelledby="quiz-history" className="space-y-2">
         <SectionTitle id="quiz-history">Recent quizzes</SectionTitle>
         {quizResults.length === 0 ? (
-          <Card className="flex items-center gap-3 p-4 text-sm text-muted-foreground">
+          <Card className="flex items-center gap-3 px-4 py-4 text-sm text-muted-foreground">
             <History className="size-5 shrink-0" aria-hidden />
             Your quiz history will appear here.
           </Card>
         ) : (
-          <ul className="space-y-2">
+          <Card className="divide-y divide-border/60 overflow-hidden">
             {quizResults.slice(0, 5).map((result) => {
               const percentage = scoreQuiz(result.answers).percentage
               return (
-                <li key={result.id}>
-                  <Link
-                    href={`/quiz/result/?id=${result.id}`}
-                    className="flex min-h-14 items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3"
+                <Link
+                  key={result.id}
+                  href={`/quiz/result/?id=${result.id}`}
+                  className="flex min-h-15 items-center gap-3.5 px-4 py-3 transition-colors hover:bg-muted/50"
+                >
+                  <span
+                    className={cn(
+                      'grid size-10 shrink-0 place-items-center rounded-xl text-xs font-bold tabular-nums',
+                      percentage >= 80
+                        ? 'bg-success-soft text-success'
+                        : percentage >= 50
+                          ? 'bg-accent-soft text-accent'
+                          : 'bg-danger-soft text-danger',
+                    )}
                   >
-                    <span
-                      className={cn(
-                        'grid size-11 place-items-center rounded-xl text-sm font-bold tabular-nums',
-                        percentage >= 80 ? 'bg-success-soft text-success' : percentage >= 50 ? 'bg-accent-soft text-accent' : 'bg-danger-soft text-danger',
-                      )}
-                    >
-                      {percentage}%
+                    {percentage}%
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-[0.9375rem] font-semibold">{QUIZ_MODE_LABELS[result.mode].title}</span>
+                    <span className="block text-xs text-muted-foreground">
+                      {result.correct}/{result.total} correct · {formatRelativeDay(result.completedAt)}
                     </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-medium">{QUIZ_MODE_LABELS[result.mode].title}</span>
-                      <span className="block text-xs text-muted-foreground">
-                        {result.correct}/{result.total} · {formatRelativeDay(result.completedAt)}
-                      </span>
-                    </span>
-                    <ChevronRight className="size-4 text-muted-foreground" aria-hidden />
-                  </Link>
-                </li>
+                  </span>
+                  <ChevronRight className="size-4 shrink-0 text-muted-foreground/70" aria-hidden />
+                </Link>
               )
             })}
-          </ul>
+          </Card>
         )}
       </section>
     </div>
