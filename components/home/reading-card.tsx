@@ -17,7 +17,7 @@ export function ReadingCard() {
   const today = useToday()
   const summary = summarizeReading(surahReadings, readingDays, today)
   const last = Object.values(surahReadings)
-    .filter((reading) => reading.seconds > 0)
+    .filter((reading) => reading.seconds > 0 || reading.bookmarkAyah)
     .sort((a, b) => b.lastReadAt.localeCompare(a.lastReadAt))[0]
 
   const stats = [
@@ -48,7 +48,10 @@ export function ReadingCard() {
           <div className="min-w-0 flex-1">
             {last ? (
               <>
-                <p className="text-xs font-medium text-muted-foreground">Last read · Surah {last.surahId}</p>
+                <p className="text-xs font-medium text-muted-foreground">
+                  Last read · Surah {last.surahId}
+                  {last.bookmarkAyah ? ` · Bookmarked at Ayah ${last.bookmarkAyah}` : ''}
+                </p>
                 <p className="truncate text-lg font-bold tracking-tight text-foreground">{last.surahName}</p>
               </>
             ) : (
@@ -70,13 +73,19 @@ export function ReadingCard() {
         </dl>
 
         <ButtonLink
-          href={`/surahs/${last?.surahId ?? 1}/`}
+          href={last ? `/surahs/${last.surahId}/${last.bookmarkAyah ? `#ayah-${last.bookmarkAyah}` : ''}` : '/surahs/1/'}
           prefetch={false}
           variant="outline"
           size="md"
           className="group flex w-full items-center justify-between rounded-2xl px-5 font-bold shadow-xs transition-all hover:bg-muted"
         >
-          <span className="truncate">{last ? `Continue ${last.surahName}` : 'Start with Al-Fatihah'}</span>
+          <span className="truncate">
+            {last
+              ? last.bookmarkAyah
+                ? `Continue from Ayah ${last.bookmarkAyah}`
+                : `Continue ${last.surahName}`
+              : 'Start with Al-Fatihah'}
+          </span>
           <LinkPending>
             <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" aria-hidden />
           </LinkPending>

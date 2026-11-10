@@ -1,5 +1,5 @@
 import { toDateKey } from '@/lib/date'
-import { addReadingTime, applyReading, type SurahRef } from '@/lib/reading'
+import { addReadingTime, applyBookmark, applyReading, type SurahRef } from '@/lib/reading'
 import type { ReadingDay, SurahReading } from '@/lib/types'
 import { clearStores, getDB } from './db'
 
@@ -30,6 +30,20 @@ export async function recordSurahReading(
   if (day.seconds > 0) await days.put(day)
   await tx.done
   return { reading, day }
+}
+
+/** Saves (or with `null`, removes) the ayah to continue the surah from. */
+export async function setSurahBookmark(
+  surah: SurahRef,
+  ayah: number | null,
+  now: Date = new Date(),
+): Promise<SurahReading> {
+  const db = await getDB()
+  const tx = db.transaction('surahReading', 'readwrite')
+  const reading = applyBookmark(await tx.store.get(surah.surahId), surah, ayah, now.toISOString())
+  await tx.store.put(reading)
+  await tx.done
+  return reading
 }
 
 /** Clears Quran reading time. */

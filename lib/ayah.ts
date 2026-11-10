@@ -45,6 +45,37 @@ export function splitArabicAyahs(arabic: string): string[] {
   return ayahs
 }
 
+/** A run of a surah's Arabic text and the (Bangla-numbered) ayah it belongs to. */
+export interface ArabicSegment {
+  text: string
+  ayah: number
+}
+
+/**
+ * Splits a surah's Arabic into tappable ayah segments, numbered like the
+ * Bangla ayahs so a bookmark means the same ayah in both.
+ *
+ * Al-Fatihah is special: its Bismillah is ayah 1 (returned as `heading`, shown
+ * on its own line), and the IndoPak marks after it run 1–7 because they do not
+ * count the Bismillah and split the last ayah in two. Arabic mark n is
+ * therefore Bangla ayah n + 1, with marks 6 and 7 both being ayah 7.
+ */
+export function surahArabicSegments(
+  surahId: number,
+  arabic: string,
+  bismillah: string,
+): { heading: ArabicSegment | null; body: ArabicSegment[] } {
+  if (surahId === 1 && arabic.startsWith(bismillah)) {
+    const cut = arabic.indexOf('۝') + 1
+    const body = splitArabicAyahs(arabic.slice(cut).trimStart())
+    return {
+      heading: { text: arabic.slice(0, cut), ayah: 1 },
+      body: body.map((text, index) => ({ text, ayah: Math.min(index + 2, AYAH_COUNTS[0]) })),
+    }
+  }
+  return { heading: null, body: splitArabicAyahs(arabic).map((text, index) => ({ text, ayah: index + 1 })) }
+}
+
 /** A random ayah, every ayah from Al-Baqarah on equally likely. `random` returns [0, 1). */
 export function pickRandomAyah(random: Random = Math.random): { surah: number; ayah: number } {
   const counts = AYAH_COUNTS.slice(FIRST_AYAH_SURAH - 1)

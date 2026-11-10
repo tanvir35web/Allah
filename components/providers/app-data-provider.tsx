@@ -3,7 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { toDateKey } from '@/lib/date'
 import { applyReview, applyStatus, type ProgressMap } from '@/lib/progress'
-import { addReadingTime, applyReading, type SurahRef } from '@/lib/reading'
+import { addReadingTime, applyBookmark, applyReading, type SurahRef } from '@/lib/reading'
 import { applyQuizToReviewItems } from '@/lib/review'
 import { applyActivityEvent, createEmptyActivity, type ActivityEvent } from '@/lib/streak'
 import * as storage from '@/lib/storage'
@@ -40,6 +40,8 @@ interface AppDataActions {
   saveQuiz: (result: QuizResult) => Promise<void>
   recordReview: (nameId: number, remembered: boolean) => Promise<void>
   recordReading: (surah: SurahRef, seconds: number) => Promise<void>
+  /** Marks the ayah to continue a surah from; `null` removes the mark. */
+  setBookmark: (surah: SurahRef, ayah: number | null) => Promise<void>
   updateSettings: (patch: Partial<AppSettings>) => Promise<void>
   resetProgress: () => Promise<void>
   resetQuizHistory: () => Promise<void>
@@ -241,6 +243,17 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     [persist],
   )
 
+  const setBookmark = useCallback<AppDataActions['setBookmark']>(
+    async (surah, ayah) => {
+      const reading = await persist(
+        () => storage.setSurahBookmark(surah, ayah),
+        () => applyBookmark(stateRef.current.surahReadings[surah.surahId], surah, ayah, new Date().toISOString()),
+      )
+      setState((s) => ({ ...s, surahReadings: { ...s.surahReadings, [surah.surahId]: reading } }))
+    },
+    [persist],
+  )
+
   const updateSettings = useCallback<AppDataActions['updateSettings']>(
     async (patch) => {
       const settings = await persist(
@@ -282,6 +295,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       saveQuiz,
       recordReview,
       recordReading,
+      setBookmark,
       updateSettings,
       resetProgress,
       resetQuizHistory,
@@ -295,6 +309,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
       saveQuiz,
       recordReview,
       recordReading,
+      setBookmark,
       updateSettings,
       resetProgress,
       resetQuizHistory,

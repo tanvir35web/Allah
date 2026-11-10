@@ -2,12 +2,11 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { LinkPending } from '@/components/common/link-pending'
 import { BanglaText } from '@/components/common/localized-text'
-import { SectionTitle } from '@/components/ui/card'
+import { surahArabicSegments } from '@/lib/ayah'
 import { bismillah, revelationLabel, toBanglaDigits } from '@/lib/surahs'
 import type { Surah } from '@/lib/types'
 import { ReadingTimer } from './reading-timer'
-
-const BISMILLAH_BN = 'শুরু করছি আল্লাহর নামে যিনি পরম করুণাময়, অতি দয়ালু।'
+import { SurahText } from './surah-text'
 
 interface SurahReaderProps {
   surah: Surah
@@ -19,11 +18,8 @@ interface SurahReaderProps {
 export function SurahReader({ surah, previous, next }: SurahReaderProps) {
   // Al-Fatihah counts the Bismillah as its first ayah; At-Tawbah has none.
   const showBismillah = surah.id !== 1 && surah.id !== 9
-  // Al-Fatihah's Bismillah ayah (up to its first ayah-end mark) gets its own
-  // centred line, like the Bismillah heading of the other surahs.
-  const fatihaSplit = surah.id === 1 && surah.arabic.startsWith(bismillah) ? surah.arabic.indexOf('۝') + 1 : 0
-  const arabicHeading = showBismillah ? bismillah : fatihaSplit ? surah.arabic.slice(0, fatihaSplit) : null
-  const arabicBody = fatihaSplit ? surah.arabic.slice(fatihaSplit).trimStart() : surah.arabic
+  // Each ayah is its own tappable segment, so it can be bookmarked.
+  const arabic = surahArabicSegments(surah.id, surah.arabic, bismillah)
 
   return (
     <article className="space-y-5" aria-labelledby="surah-title">
@@ -45,53 +41,14 @@ export function SurahReader({ surah, previous, next }: SurahReaderProps) {
 
       <ReadingTimer surahId={surah.id} surahName={surah.transliteration} />
 
-      <section className="space-y-3" aria-labelledby="surah-arabic">
-        <SectionTitle id="surah-arabic">Arabic</SectionTitle>
-        <div>
-          {arabicHeading ? (
-            <span
-              lang="ar"
-              dir="rtl"
-              className="mb-3 block whitespace-nowrap text-center font-quran text-[clamp(1.4rem,6.5vw,2rem)] md:text-[2.5rem] leading-[2.2] md:leading-[2.35] [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-arabic"
-            >
-              {arabicHeading}
-            </span>
-          ) : null}
-          {/* IndoPak mushaf style: one continuous block, with the ayah numbers,
-              waqf signs and ruku marks drawn by the font from the text itself. */}
-          <p
-            lang="ar"
-            dir="rtl"
-            className="font-quran text-justify text-[1.9rem] md:text-[2.35rem] lg:text-[2.6rem] leading-[2.4] md:leading-[2.5] [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-arabic"
-          >
-            {arabicBody}
-          </p>
-        </div>
-      </section>
-
-      <section className="space-y-3" aria-labelledby="surah-bangla">
-        <SectionTitle id="surah-bangla" className="font-bangla tracking-normal normal-case">
-          বাংলা অর্থ
-        </SectionTitle>
-        <div lang="bn">
-          {showBismillah ? (
-            <BanglaText className="mb-4 block text-center font-medium md:text-lg">{BISMILLAH_BN}</BanglaText>
-          ) : null}
-          <ol className="space-y-4">
-            {surah.ayahs.map((ayah) => (
-              <li key={ayah.number} className="flex gap-3.5">
-                <span className="mt-0.5 grid size-7 md:size-8 shrink-0 place-items-center rounded-lg bg-primary-soft font-bangla text-xs md:text-sm font-semibold text-primary">
-                  {toBanglaDigits(ayah.number)}
-                </span>
-                <BanglaText className="block text-[1.05rem] md:text-[1.2rem] leading-relaxed md:leading-loose tracking-wide">
-                  {ayah.bangla}
-                </BanglaText>
-              </li>
-            ))}
-          </ol>
-        </div>
-        <BanglaText className="block px-1 text-xs text-muted-foreground">অনুবাদ: মুহিউদ্দীন খান</BanglaText>
-      </section>
+      <SurahText
+        surahId={surah.id}
+        surahName={surah.transliteration}
+        bismillah={showBismillah ? bismillah : null}
+        heading={arabic.heading}
+        segments={arabic.body}
+        ayahs={surah.ayahs.map(({ number, bangla }) => ({ number, bangla }))}
+      />
 
       <nav aria-label="Surah navigation" className="grid grid-cols-2 gap-3">
         {previous ? (

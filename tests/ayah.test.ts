@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
-import { AYAH_COUNTS, FIRST_AYAH_SURAH, pickRandomAyah, splitArabicAyahs } from '@/lib/ayah'
+import { AYAH_COUNTS, FIRST_AYAH_SURAH, pickRandomAyah, splitArabicAyahs, surahArabicSegments } from '@/lib/ayah'
 import { seededRandom } from '@/lib/random'
-import { surahs } from '@/lib/surahs'
+import { bismillah, surahs } from '@/lib/surahs'
 
 describe('Ayah card data', () => {
   it('has the ayah counts of the surah data', () => {
@@ -17,6 +17,27 @@ describe('Ayah card data', () => {
         expect(ayah, `${surah.id}:${index + 1}`).toMatch(new RegExp(String.raw`\S\s*\u06DD${number}\S*$`))
       })
     }
+  })
+
+  it('splits every surah into bookmarkable segments that keep all its text and cover every Bangla ayah', () => {
+    for (const surah of surahs) {
+      const { heading, body } = surahArabicSegments(surah.id, surah.arabic, bismillah)
+      const segments = heading ? [heading, ...body] : body
+      // No text dropped: the segments rebuild the surah, ignoring spacing.
+      expect(segments.map((segment) => segment.text).join('').replace(/\s/g, ''), `surah ${surah.id}`).toBe(
+        surah.arabic.replace(/\s/g, ''),
+      )
+      expect([...new Set(segments.map((segment) => segment.ayah))], `surah ${surah.id}`).toEqual(
+        surah.ayahs.map((ayah) => ayah.number),
+      )
+    }
+  })
+
+  it('maps Al-Fatihah: Bismillah is ayah 1 and the last two IndoPak marks are both ayah 7', () => {
+    const fatihah = surahs[0]!
+    const { heading, body } = surahArabicSegments(1, fatihah.arabic, bismillah)
+    expect(heading).toEqual({ text: `${bismillah} ۝`, ayah: 1 })
+    expect(body.map((segment) => segment.ayah)).toEqual([2, 3, 4, 5, 6, 7, 7])
   })
 
   it('picks from Al-Baqarah 1 to An-Nas 6, never Al-Fatihah', () => {

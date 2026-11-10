@@ -12,11 +12,25 @@ export function applyReading(
   now: string,
 ): SurahReading {
   return {
+    ...existing,
     surahId,
     surahName,
     seconds: (existing?.seconds ?? 0) + Math.max(0, Math.round(seconds)),
     lastReadAt: now,
   }
+}
+
+/** Sets the ayah to continue from (`null` removes it). Keeps the reading time. */
+export function applyBookmark(
+  existing: SurahReading | undefined,
+  { surahId, surahName }: SurahRef,
+  ayah: number | null,
+  now: string,
+): SurahReading {
+  const reading: SurahReading = { ...existing, seconds: existing?.seconds ?? 0, surahId, surahName, lastReadAt: now }
+  if (ayah) reading.bookmarkAyah = ayah
+  else delete reading.bookmarkAyah
+  return reading
 }
 
 export function addReadingTime(existing: ReadingDay | undefined, date: DateKey, seconds: number): ReadingDay {

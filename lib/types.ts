@@ -65,6 +65,8 @@ export interface SurahReading {
   /** Active reading time, in seconds. */
   seconds: number
   lastReadAt: string
+  /** The ayah the reader marked to continue from next time, if any. */
+  bookmarkAyah?: number
 }
 
 /** Quran reading time on one local calendar day (YYYY-MM-DD). */

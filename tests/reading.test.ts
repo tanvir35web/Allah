@@ -2,7 +2,7 @@ import 'fake-indexeddb/auto'
 import { openDB } from 'idb'
 import { afterEach, beforeEach, describe, expect, it } from 'vitest'
 import { toDateKey } from '@/lib/date'
-import { applyReading, formatClock, formatDuration, summarizeReading, type SurahRef } from '@/lib/reading'
+import { applyBookmark, applyReading, formatClock, formatDuration, summarizeReading, type SurahRef } from '@/lib/reading'
 import {
   clearAllData,
   closeDB,
@@ -12,6 +12,7 @@ import {
   getAllSurahReadings,
   recordSurahReading,
   resetQuranReading,
+  setSurahBookmark,
 } from '@/lib/storage'
 
 const KAHF: SurahRef = { surahId: 18, surahName: 'Al-Kahf' }
@@ -23,6 +24,20 @@ describe('reading time', () => {
     const first = applyReading(undefined, KAHF, 30, T1)
     expect(first).toEqual({ surahId: 18, surahName: 'Al-Kahf', seconds: 30, lastReadAt: T1 })
     expect(applyReading(first, KAHF, 15, T2)).toMatchObject({ seconds: 45, lastReadAt: T2 })
+  })
+
+  it('sets, moves and removes a bookmark without touching reading time', () => {
+    const read = applyReading(undefined, KAHF, 30, T1)
+    const marked = applyBookmark(read, KAHF, 10, T2)
+    expect(marked).toEqual({ ...read, lastReadAt: T2, bookmarkAyah: 10 })
+    expect(applyBookmark(marked, KAHF, 25, T2).bookmarkAyah).toBe(25)
+    expect(applyBookmark(marked, KAHF, null, T2)).toEqual({ ...read, lastReadAt: T2 })
+    expect(applyBookmark(undefined, KAHF, 3, T1)).toEqual({ ...KAHF, seconds: 0, lastReadAt: T1, bookmarkAyah: 3 })
+  })
+
+  it('keeps the bookmark when more reading time is added', () => {
+    const marked = applyBookmark(undefined, KAHF, 10, T1)
+    expect(applyReading(marked, KAHF, 15, T2)).toMatchObject({ seconds: 15, bookmarkAyah: 10 })
   })
 
   it('summarises today, the last 7 days and the total', () => {
@@ -77,6 +92,14 @@ describe('reading storage', () => {
     await recordSurahReading(KAHF, 30)
     expect(await getAllSurahReadings()).toEqual([expect.objectContaining({ surahId: 18, seconds: 120 })])
     expect(await getAllReadingDays()).toEqual([{ date: toDateKey(), seconds: 120 }])
+  })
+
+  it('saves a bookmark and keeps it while reading time is recorded', async () => {
+    await setSurahBookmark(KAHF, 12)
+    await recordSurahReading(KAHF, 40)
+    expect(await getAllSurahReadings()).toEqual([expect.objectContaining({ surahId: 18, seconds: 40, bookmarkAyah: 12 })])
+    await setSurahBookmark(KAHF, null)
+    expect((await getAllSurahReadings())[0]).not.toHaveProperty('bookmarkAyah')
   })
 
   it('resets reading time, and clearing all data includes it', async () => {
