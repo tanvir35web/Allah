@@ -14,7 +14,8 @@ import { formatNumber } from '@/lib/utils'
  * Full-screen cards, one Name each. Swiping up or down snaps to the next or
  * previous card with native CSS scroll snapping, so it feels like the
  * platform on iOS and works with the keyboard and a mouse wheel too.
- * On desktop, it is centered in a focused reel frame with arrow navigation.
+ * Each card fills the page edge to edge, inside the page padding, with arrow
+ * navigation on desktop.
  */
 export function NameReels() {
   const { settings } = useAppData()
@@ -48,9 +49,9 @@ export function NameReels() {
         <section
           key={name.id}
           aria-label={`${name.transliteration}, ${index + 1} of ${order.length}`}
-          className="flex h-dvh snap-start snap-always flex-col items-center justify-center px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-[calc(var(--nav-height)+env(safe-area-inset-bottom)+0.75rem)] lg:py-6"
+          className="flex h-dvh snap-start snap-always flex-col items-center justify-center px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-[calc(var(--nav-height)+env(safe-area-inset-bottom)+0.75rem)] md:px-8 lg:px-6 lg:pt-[calc(env(safe-area-inset-top)+1.5rem)] lg:pb-[calc(env(safe-area-inset-bottom)+1.5rem)]"
         >
-          <div className="relative flex h-full max-h-[840px] w-full max-w-lg items-center justify-center">
+          <div className="relative flex h-full w-full items-center justify-center">
             <article className="pattern-stars relative flex h-full w-full flex-col overflow-hidden rounded-[2rem] border border-border bg-gradient-to-b from-primary-soft to-card shadow-lg">
               <header className="relative z-10 flex items-center justify-between px-5 pt-4">
                 <span className="rounded-full bg-card/80 px-3 py-1 text-xs font-semibold text-primary tabular-nums">
@@ -67,15 +68,15 @@ export function NameReels() {
               </header>
 
               <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-6 text-center">
-                <ArabicText className="block text-[4.5rem] leading-[1.5]">{name.arabic}</ArabicText>
-                <h2 className="mt-2 text-3xl font-bold tracking-tight">{name.transliteration}</h2>
-                {showEn ? <p className="mt-1 text-lg text-muted-foreground">{name.englishName}</p> : null}
+                <ArabicText className="block text-[4.5rem] leading-[1.5] md:text-[6rem]">{name.arabic}</ArabicText>
+                <h2 className="mt-2 text-3xl font-bold tracking-tight md:text-4xl">{name.transliteration}</h2>
+                {showEn ? <p className="mt-1 text-lg text-muted-foreground md:text-xl">{name.englishName}</p> : null}
                 {showBn ? (
-                  <BanglaText className="mt-1 block text-lg">
+                  <BanglaText className="mt-1 block text-lg md:text-xl">
                     {name.banglaName} · {name.banglaMeaning}
                   </BanglaText>
                 ) : null}
-                <div className="mt-6 max-w-sm space-y-2 text-[0.95rem] leading-relaxed text-muted-foreground">
+                <div className="mt-6 max-w-sm space-y-2 text-[0.95rem] leading-relaxed text-muted-foreground md:max-w-xl md:text-base">
                   {showEn ? <p>{name.shortExplanationEn}</p> : null}
                   {showBn ? <BanglaText className="block">{name.shortExplanationBn}</BanglaText> : null}
                 </div>
@@ -103,8 +104,8 @@ export function NameReels() {
               </footer>
             </article>
 
-            {/* Desktop floating navigation controls */}
-            <div className="hidden lg:flex absolute -right-16 flex-col gap-3">
+            {/* Desktop navigation controls, inside the full-width card's right edge */}
+            <div className="absolute right-5 z-20 hidden flex-col gap-3 lg:flex">
               <button
                 type="button"
                 onClick={() => scrollToCard(index - 1)}

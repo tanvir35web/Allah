@@ -85,7 +85,7 @@ export function HomeScreen() {
                 <FavoritesCard />
               </div>
             </div>
-            <div className="contents lg:sticky lg:top-6 lg:flex lg:min-w-0 lg:flex-col lg:gap-6">
+            <div className="contents lg:sticky lg:top-[calc(env(safe-area-inset-top)+1.5rem)] lg:flex lg:min-w-0 lg:flex-col lg:gap-6">
               <div className="order-2">
                 <LearningHubCard />
               </div>
