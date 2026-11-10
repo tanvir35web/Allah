@@ -7,9 +7,8 @@ import {
   Clapperboard,
   House,
   Info,
+  ChevronLeft,
   Moon,
-  PanelLeftClose,
-  PanelLeftOpen,
   RotateCcw,
   Settings,
   Sparkles,
@@ -89,18 +88,34 @@ export function SidebarNav() {
   const isDark = settings.theme === 'dark'
   const themeLabel = isDark ? 'Switch to light theme' : 'Switch to dark theme'
   const toggleLabel = collapsed ? 'Expand sidebar' : 'Collapse sidebar'
-  const ToggleIcon = collapsed ? PanelLeftOpen : PanelLeftClose
 
   return (
     <aside
       aria-label="Sidebar Navigation"
-      className="safe-top safe-bottom fixed inset-y-0 left-0 z-40 hidden w-(--sidebar-width) flex-col overflow-hidden border-r border-border/70 bg-card/60 backdrop-blur-xl transition-[width] duration-200 lg:flex"
+      className="safe-top safe-bottom fixed inset-y-0 left-0 z-40 hidden w-(--sidebar-width) flex-col border-r border-border/70 bg-card/60 backdrop-blur-xl transition-[width] duration-200 lg:flex"
     >
-      {/* Brand header with the collapse toggle */}
+      {/* Collapse toggle: a small round button sitting on the sidebar's right
+          edge, level with the logo. The chevron turns to point the way it will go. */}
+      <button
+        type="button"
+        onClick={() => setSidebarCollapsed(!collapsed)}
+        aria-expanded={!collapsed}
+        aria-label={toggleLabel}
+        title={toggleLabel}
+        className="absolute top-[calc(env(safe-area-inset-top)+1.625rem)] -right-3.5 z-10 grid size-7 place-items-center rounded-full border border-border bg-card text-muted-foreground shadow-sm transition-[color,border-color,transform] hover:scale-110 hover:border-primary/40 hover:text-primary focus-visible:outline-2 focus-visible:outline-primary"
+      >
+        <ChevronLeft
+          className={cn('size-4 transition-transform duration-200', collapsed && 'rotate-180')}
+          strokeWidth={2.4}
+          aria-hidden
+        />
+      </button>
+
+      {/* Brand header */}
       <div
         className={cn(
-          'flex border-b border-border/60 py-5',
-          collapsed ? 'flex-col items-center gap-3 px-2' : 'items-center gap-2 pr-3 pl-5',
+          'flex items-center overflow-hidden border-b border-border/60 py-5',
+          collapsed ? 'justify-center px-2' : 'px-5',
         )}
       >
         <Link
@@ -127,16 +142,6 @@ export function SidebarNav() {
             </div>
           )}
         </Link>
-        <button
-          type="button"
-          onClick={() => setSidebarCollapsed(!collapsed)}
-          aria-expanded={!collapsed}
-          aria-label={toggleLabel}
-          title={toggleLabel}
-          className="grid size-8 shrink-0 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        >
-          <ToggleIcon className="size-4" aria-hidden />
-        </button>
       </div>
 
       {/* Navigation sections */}
@@ -210,7 +215,7 @@ export function SidebarNav() {
       </nav>
 
       {/* Footer: offline status and the light/dark toggle */}
-      <div className={cn('border-t border-border/60', collapsed ? 'p-2' : 'p-3')}>
+      <div className={cn('overflow-hidden border-t border-border/60', collapsed ? 'p-2' : 'p-3')}>
         <div
           className={cn('flex items-center rounded-xl bg-muted/40 p-2', collapsed ? 'justify-center' : 'justify-between')}
         >

@@ -60,7 +60,7 @@ export function SegmentedControl<T extends string | number>({
             tabIndex={selected ? 0 : -1}
             onClick={() => onChange(option.value)}
             className={cn(
-              'min-h-10 flex-1 rounded-xl px-3 text-sm font-medium transition-colors duration-150',
+              'min-h-10 flex-1 whitespace-nowrap rounded-xl px-2 text-sm font-medium transition-colors duration-150',
               selected ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
             )}
           >

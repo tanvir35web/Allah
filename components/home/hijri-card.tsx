@@ -1,6 +1,6 @@
 'use client'
 
-import { CalendarDays, Clock, MoonStar } from 'lucide-react'
+import { CalendarDays, Clock } from 'lucide-react'
 import { useSyncExternalStore } from 'react'
 import { Skeleton } from '@/components/common/loading-state'
 import { useAppData } from '@/components/providers/app-data-provider'
@@ -45,11 +45,10 @@ export function HijriCard() {
 
   return (
     <section aria-labelledby="hijri-title" className="flex flex-col">
-      <div className="mb-2 flex h-7 items-center justify-between px-1">
+      <div className="mb-2 flex h-7 items-center px-1">
         <h2 id="hijri-title" className="text-xs font-bold tracking-wider text-muted-foreground uppercase">
           Hijri Calendar
         </h2>
-        <span className="text-xs font-medium text-muted-foreground">Umm al-Qura</span>
       </div>
 
       {now ? <HijriBody now={now} showEn={showEn} showBn={showBn} /> : <Skeleton className="h-72 rounded-3xl" />}
@@ -68,24 +67,20 @@ function HijriBody({ now, showEn, showBn }: { now: Date; showEn: boolean; showBn
   return (
     <article className="pattern-stars relative overflow-hidden rounded-3xl border border-border/70 bg-gradient-to-b from-primary-soft to-card p-6 shadow-xs transition-all duration-200 hover:border-primary/30">
       {/* Two halves side by side from md: today on the left, coming up on the right. */}
-      <div className="grid gap-5 md:grid-cols-2 md:gap-8">
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 md:gap-8">
         <div>
           {/* Date and time */}
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p lang="ar" dir="rtl" className="text-left text-2xl leading-[1.6] text-primary">
-                {formatHijri(now, 'ar')}
+          {/* Umm al-Qura dates are calculated; local moon sighting can differ by a day. */}
+          <div className="min-w-0" title="Umm al-Qura calendar. Local dates may differ by a day with the moon sighting.">
+            <p lang="ar" dir="rtl" className="text-left text-2xl leading-[1.6] text-primary">
+              {formatHijri(now, 'ar')}
+            </p>
+            {showEn ? <p className="text-lg font-bold tracking-tight text-foreground">{formatHijri(now, 'en')}</p> : null}
+            {showBn ? (
+              <p lang="bn" className="text-sm font-medium text-foreground/85">
+                {formatHijri(now, 'bn')}
               </p>
-              {showEn ? <p className="text-lg font-bold tracking-tight text-foreground">{formatHijri(now, 'en')}</p> : null}
-              {showBn ? (
-                <p lang="bn" className="text-sm font-medium text-foreground/85">
-                  {formatHijri(now, 'bn')}
-                </p>
-              ) : null}
-            </div>
-            <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-              <MoonStar className="size-5" aria-hidden />
-            </span>
+            ) : null}
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2 text-xs font-medium">
@@ -150,9 +145,6 @@ function HijriBody({ now, showEn, showBn }: { now: Date; showEn: boolean; showBn
         </div>
       </div>
 
-      <p className="mt-4 text-[0.6875rem] leading-relaxed text-muted-foreground">
-        Calculated dates; your local date may differ by a day with the moon sighting.
-      </p>
     </article>
   )
 }

@@ -48,53 +48,58 @@ export const SurahCard = memo(function SurahCard({ surah, language, bookmarkAyah
       href={`/surahs/${surah.id}/${bookmarkAyah ? `#ayah-${bookmarkAyah}` : ''}`}
       prefetch={false}
       className={cn(
-        'group flex h-full items-center gap-3.5 rounded-3xl border bg-card p-4 shadow-xs transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md active:scale-[0.99]',
+        'group flex h-full flex-col gap-2.5 rounded-3xl border bg-card p-4 shadow-xs transition-[transform,box-shadow,border-color] duration-200 hover:-translate-y-0.5 hover:border-primary/30 hover:shadow-md active:scale-[0.99]',
         bookmarkAyah ? 'border-primary/40' : 'border-border/70',
       )}
     >
-      <StarNumber id={surah.id} />
+      {/* Row 1: number, names, Arabic name. */}
+      <div className="flex items-center gap-3">
+        <StarNumber id={surah.id} />
 
-      <div className="min-w-0 flex-1">
-        <p className="truncate font-bold tracking-tight text-foreground">{surah.transliteration}</p>
-        {showEn ? <p className="truncate text-sm text-muted-foreground">{surah.englishMeaning}</p> : null}
-        {showBn ? (
-          <BanglaText className="block truncate text-sm text-muted-foreground">
-            {surah.banglaName} · {surah.banglaMeaning}
-          </BanglaText>
-        ) : null}
-        <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[0.7rem] font-medium">
-          <span
-            className={cn(
-              'rounded-full px-2 py-0.5',
-              meccan ? 'bg-accent-soft text-accent' : 'bg-success-soft text-success',
-            )}
-          >
-            <BanglaText>{revelationLabel(surah)}</BanglaText>
-          </span>
-          <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
-            <BanglaText>{toBanglaDigits(surah.ayahCount)} আয়াত</BanglaText>
-          </span>
-          {bookmarkAyah ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-primary-foreground">
-              <Bookmark className="size-3 fill-current" aria-hidden />
-              Ayah {bookmarkAyah}
-            </span>
-          ) : read ? (
-            <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-primary">
-              <Check className="size-3" strokeWidth={3} aria-hidden />
-              Read
-            </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-bold tracking-tight text-foreground">{surah.transliteration}</p>
+          {showEn ? <p className="truncate text-sm text-muted-foreground">{surah.englishMeaning}</p> : null}
+          {showBn ? (
+            <BanglaText className="block truncate text-sm text-muted-foreground">
+              {surah.banglaName} · {surah.banglaMeaning}
+            </BanglaText>
           ) : null}
         </div>
+
+        <span
+          lang="ar"
+          dir="rtl"
+          className="shrink-0 font-quran text-[1.5rem] leading-[1.6] whitespace-nowrap text-arabic transition-colors group-hover:text-primary sm:text-[1.75rem]"
+        >
+          {surah.arabicName.replace(SURAH_PREFIX, '')}
+        </span>
       </div>
 
-      <span
-        lang="ar"
-        dir="rtl"
-        className="shrink-0 self-start font-quran text-[1.85rem] leading-[1.6] text-arabic transition-colors group-hover:text-primary"
-      >
-        {surah.arabicName.replace(SURAH_PREFIX, '')}
-      </span>
+      {/* Row 2: tags, full width under the names (star 3rem + gap 0.75rem). */}
+      <div className="flex flex-wrap items-center gap-1.5 pl-15 text-[0.7rem] font-medium">
+        <span
+          className={cn(
+            'rounded-full px-2 py-0.5',
+            meccan ? 'bg-accent-soft text-accent' : 'bg-success-soft text-success',
+          )}
+        >
+          <BanglaText>{revelationLabel(surah)}</BanglaText>
+        </span>
+        <span className="rounded-full bg-muted px-2 py-0.5 text-muted-foreground">
+          <BanglaText>{toBanglaDigits(surah.ayahCount)} আয়াত</BanglaText>
+        </span>
+        {bookmarkAyah ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2 py-0.5 text-primary-foreground">
+            <Bookmark className="size-3 fill-current" aria-hidden />
+            Ayah {bookmarkAyah}
+          </span>
+        ) : read ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary-soft px-2 py-0.5 text-primary">
+            <Check className="size-3" strokeWidth={3} aria-hidden />
+            Read
+          </span>
+        ) : null}
+      </div>
     </Link>
   )
 })

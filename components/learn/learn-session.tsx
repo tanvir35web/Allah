@@ -112,7 +112,10 @@ function Session({ initialIds, onRestart }: { initialIds: number[]; onRestart: (
   }
 
   return (
-    <div className="space-y-5">
+    // Exactly one screen tall (below the page header, above the bottom nav and
+    // its padding), so a Name can be studied without scrolling: the card takes
+    // the free space and scrolls inside only if a long text does not fit.
+    <div className="flex h-[calc(100dvh-3.5rem-env(safe-area-inset-top)-var(--nav-height)-env(safe-area-inset-bottom)-2rem)] min-h-120 flex-col gap-3 lg:h-[calc(100dvh-3.5rem-env(safe-area-inset-top)-3.5rem)]">
       <SessionProgress total={ids.length} outcomes={outcomes} />
       {question ? (
         <RecallCheck
@@ -140,11 +143,8 @@ function Session({ initialIds, onRestart }: { initialIds: number[]; onRestart: (
 function SessionProgress({ total, outcomes }: { total: number; outcomes: LearnOutcome[] }) {
   const current = Math.min(outcomes.length + 1, total)
   return (
-    <div>
-      <p className="px-1 text-[0.9375rem] text-muted-foreground tabular-nums" aria-live="polite">
-        Name {current} of {total}
-      </p>
-      <ol className="mt-2 flex gap-1.5" aria-hidden>
+    <div className="flex shrink-0 items-center gap-3">
+      <ol className="flex flex-1 gap-1.5" aria-hidden>
         {Array.from({ length: total }, (_, index) => {
           const outcome = outcomes[index]
           return (
@@ -166,6 +166,13 @@ function SessionProgress({ total, outcomes }: { total: number; outcomes: LearnOu
           )
         })}
       </ol>
+      <p className="shrink-0 text-xs font-medium text-muted-foreground tabular-nums" aria-live="polite">
+        <span className="sr-only">Name </span>
+        {current}
+        <span aria-hidden> / </span>
+        <span className="sr-only"> of </span>
+        {total}
+      </p>
     </div>
   )
 }
@@ -187,36 +194,46 @@ function Study({
   const showBn = language !== 'en'
 
   return (
-    <div className="animate-rise">
-      <article className="pattern-stars rounded-3xl border border-border bg-gradient-to-b from-primary-soft to-card px-6 pt-5 pb-6 text-center">
-        <div className="flex items-center justify-between">
-          <span className="text-[0.9375rem] text-muted-foreground tabular-nums">{formatNumber(name.id)} of 99</span>
+    <div className="animate-rise flex min-h-0 flex-1 flex-col gap-3">
+      {/* Two parts: the Name centred in the free space, its explanation in a
+          panel along the bottom. Scrolls inside only if both do not fit. */}
+      <article className="pattern-stars flex min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain rounded-3xl border border-border/70 bg-gradient-to-b from-primary-soft to-card p-4 text-center">
+        <div className="flex shrink-0 items-center justify-between px-1">
+          <span className="text-xs font-semibold text-primary tabular-nums">{formatNumber(name.id)} / 99</span>
           <StatusBadge status={getStatus(progress, name.id)} />
         </div>
-        <ArabicText className="mt-2 block text-[4.5rem] leading-[1.7]">{name.arabic}</ArabicText>
-        <h2 className="text-[1.75rem] leading-tight font-bold tracking-tight">{name.transliteration}</h2>
-        {showBn ? (
-          <BanglaText className="mt-0.5 block text-[1.0625rem] text-muted-foreground">{name.banglaName}</BanglaText>
-        ) : null}
 
-        <div className="mt-5 space-y-0.5">
-          {showEn ? <p className="text-[1.0625rem] font-semibold">{name.englishName}</p> : null}
-          {showEn ? <p className="text-[0.9375rem] text-muted-foreground">{name.englishMeaning}</p> : null}
-          {showBn ? <BanglaText className="block text-[1.0625rem] font-semibold">{name.banglaMeaning}</BanglaText> : null}
+        {/* `my-auto` (not justify-center) centres it yet still scrolls from the top on overflow. */}
+        <div className="my-auto flex flex-col items-center py-3">
+          <ArabicText className="block text-[clamp(3rem,8.5dvh,5.5rem)] leading-[1.5] text-primary">{name.arabic}</ArabicText>
+          <h2 className="text-2xl leading-tight font-bold tracking-tight">{name.transliteration}</h2>
+          {showBn ? <BanglaText className="mt-0.5 block text-sm text-muted-foreground">{name.banglaName}</BanglaText> : null}
+
+          <span className="my-3 flex items-center gap-2 text-primary/40" aria-hidden>
+            <span className="h-px w-8 bg-current" />
+            <span className="size-1.5 rotate-45 bg-current" />
+            <span className="h-px w-8 bg-current" />
+          </span>
+
+          {showEn ? <p className="font-semibold">{name.englishName}</p> : null}
+          {showEn ? <p className="mt-0.5 max-w-xs text-sm text-muted-foreground">{name.englishMeaning}</p> : null}
+          {showBn ? <BanglaText className="mt-0.5 block font-semibold">{name.banglaMeaning}</BanglaText> : null}
         </div>
 
-        <div className="mt-5 space-y-3 border-t border-border pt-5 text-left text-[0.9375rem] leading-relaxed">
+        <div className="shrink-0 space-y-1.5 rounded-2xl border border-border/50 bg-card/70 px-4 py-3 text-sm leading-relaxed text-foreground/85">
           {showEn ? <p>{name.shortExplanationEn}</p> : null}
           {showBn ? <BanglaText className="block">{name.shortExplanationBn}</BanglaText> : null}
         </div>
       </article>
 
-      <Button size="lg" className="mt-5 w-full rounded-xl" onClick={onCheck}>
-        Check Myself
-      </Button>
-      <Button variant="ghost" className="mt-2 w-full rounded-xl text-muted-foreground" onClick={onSkip}>
-        Skip for Now
-      </Button>
+      <div className="grid shrink-0 grid-cols-[1fr_2fr] gap-3">
+        <Button variant="outline" size="lg" className="rounded-xl text-muted-foreground" onClick={onSkip}>
+          Skip
+        </Button>
+        <Button size="lg" className="rounded-xl" onClick={onCheck}>
+          Check Myself
+        </Button>
+      </div>
     </div>
   )
 }
@@ -243,7 +260,10 @@ function RecallCheck({
 
   // Move focus to "Continue" after answering so keyboard and screen-reader users can go on.
   useEffect(() => {
-    if (answered) continueRef.current?.focus({ preventScroll: true })
+    if (!answered) return
+    // The check scrolls inside the one-screen session: bring "Continue" into view.
+    continueRef.current?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+    continueRef.current?.focus({ preventScroll: true })
   }, [answered])
 
   const stateFor = (optionId: number): OptionState => {
@@ -254,8 +274,9 @@ function RecallCheck({
   }
 
   return (
-    <div className="animate-rise space-y-5">
-      <section className="rounded-3xl border border-border bg-card px-5 py-6 text-center">
+    // Fills the session's one-screen height; scrolls inside if the feedback does not fit.
+    <div className="animate-rise min-h-0 flex-1 space-y-3 overflow-y-auto overscroll-contain">
+      <section className="rounded-3xl border border-border bg-card px-5 py-5 text-center">
         <h2 className="text-[0.9375rem] text-muted-foreground">
           <span aria-hidden>{question.instruction}</span>
           <span className="sr-only">{question.prompt}</span>

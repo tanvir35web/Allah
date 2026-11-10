@@ -54,9 +54,9 @@ export function SurahList({ surahs }: SurahListProps) {
         <Link
           href={`/surahs/${lastSurah.id}/${last.bookmarkAyah ? `#ayah-${last.bookmarkAyah}` : ''}`}
           prefetch={false}
-          className="pattern-stars group relative mb-5 flex items-center gap-4 overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-br from-primary-soft to-card p-5 shadow-xs transition-[border-color,box-shadow] hover:border-primary/45 hover:shadow-md md:p-6"
+          className="pattern-stars group relative mb-5 flex items-center gap-3 overflow-hidden rounded-3xl border border-primary/25 bg-gradient-to-br from-primary-soft to-card p-4 shadow-xs transition-[border-color,box-shadow] hover:border-primary/45 hover:shadow-md sm:gap-4 sm:p-5 md:p-6"
         >
-          <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
+          <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm sm:size-12">
             {last.bookmarkAyah ? (
               <Bookmark className="size-5 fill-current" aria-hidden />
             ) : (
@@ -65,11 +65,11 @@ export function SurahList({ surahs }: SurahListProps) {
           </span>
           <div className="relative min-w-0 flex-1">
             <p className="text-xs font-bold tracking-wider text-primary uppercase">Continue reading</p>
-            <p className="truncate text-lg font-bold tracking-tight md:text-xl">
+            <p className="truncate text-base font-bold tracking-tight sm:text-lg md:text-xl">
               {lastSurah.transliteration}
-              <span className="font-medium text-muted-foreground"> · Surah {lastSurah.id}</span>
+              <span className="hidden font-medium text-muted-foreground sm:inline"> · Surah {lastSurah.id}</span>
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="truncate text-sm text-muted-foreground">
               {last.bookmarkAyah
                 ? `Bookmarked at Ayah ${last.bookmarkAyah} of ${lastSurah.ayahCount}`
                 : `${lastSurah.ayahCount} ayahs · ${lastSurah.englishMeaning}`}
@@ -82,7 +82,7 @@ export function SurahList({ surahs }: SurahListProps) {
           >
             {lastSurah.arabicName}
           </span>
-          <span className="relative grid size-10 shrink-0 place-items-center rounded-full bg-card text-primary shadow-xs transition-transform group-hover:translate-x-0.5">
+          <span className="relative grid size-9 shrink-0 place-items-center rounded-full bg-card text-primary shadow-xs transition-transform group-hover:translate-x-0.5 sm:size-10">
             <LinkPending>
               <ArrowRight className="size-4" aria-hidden />
             </LinkPending>
@@ -178,11 +178,11 @@ export function SurahList({ surahs }: SurahListProps) {
           }
         />
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
+        <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-3">
           {visible.map((surah) => {
             const reading = surahReadings[surah.id]
             return (
-              <li key={surah.id}>
+              <li key={surah.id} className="min-w-0">
                 <SurahCard
                   surah={surah}
                   language={settings.language}
