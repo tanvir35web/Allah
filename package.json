@@ -13,6 +13,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "icons": "node scripts/generate-icons.mjs",
+    "audio": "node scripts/download-audio.mjs",
     "validate": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "engines": {

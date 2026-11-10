@@ -1,0 +1,22 @@
+{
+  "reciter": {
+    "id": "alafasy",
+    "name": "Mishary Rashid Alafasy",
+    "source": "https://everyayah.com/data/Alafasy_128kbps"
+  },
+  "surahs": [
+    { "id": 1, "ayahs": 7 },
+    { "id": 55, "ayahs": 78 },
+    { "id": 103, "ayahs": 3 },
+    { "id": 105, "ayahs": 5 },
+    { "id": 106, "ayahs": 4 },
+    { "id": 107, "ayahs": 7 },
+    { "id": 108, "ayahs": 3 },
+    { "id": 109, "ayahs": 6 },
+    { "id": 110, "ayahs": 3 },
+    { "id": 111, "ayahs": 5 },
+    { "id": 112, "ayahs": 4 },
+    { "id": 113, "ayahs": 5 },
+    { "id": 114, "ayahs": 6 }
+  ]
+}

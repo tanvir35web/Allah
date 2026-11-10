@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { LinkPending } from '@/components/common/link-pending'
 import { BanglaText } from '@/components/common/localized-text'
+import { hasAudio } from '@/lib/audio'
 import { surahArabicSegments } from '@/lib/ayah'
 import { bismillah, revelationLabel, toBanglaDigits } from '@/lib/surahs'
 import type { Surah } from '@/lib/types'
@@ -49,6 +50,7 @@ export function SurahReader({ surah, previous, next }: SurahReaderProps) {
         heading={arabic.heading}
         segments={arabic.body}
         ayahs={surah.ayahs.map(({ number, bangla }) => ({ number, bangla }))}
+        audio={hasAudio(surah.id)}
       />
 
       <nav aria-label="Surah navigation" className="grid grid-cols-2 gap-3">
