@@ -42,13 +42,13 @@ export function NameReels() {
       ref={scroller}
       tabIndex={0}
       aria-label="Names, one per screen. Scroll or swipe up for the next."
-      className="scrollbar-none fixed inset-0 md:left-64 snap-y snap-mandatory overflow-y-auto overscroll-contain focus:outline-none"
+      className="scrollbar-none fixed inset-0 lg:left-64 snap-y snap-mandatory overflow-y-auto overscroll-contain focus:outline-none"
     >
       {order.map((name, index) => (
         <section
           key={name.id}
           aria-label={`${name.transliteration}, ${index + 1} of ${order.length}`}
-          className="flex h-dvh snap-start snap-always flex-col items-center justify-center px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-[calc(var(--nav-height)+env(safe-area-inset-bottom)+0.75rem)] md:py-6"
+          className="flex h-dvh snap-start snap-always flex-col items-center justify-center px-4 pt-[calc(env(safe-area-inset-top)+0.75rem)] pb-[calc(var(--nav-height)+env(safe-area-inset-bottom)+0.75rem)] lg:py-6"
         >
           <div className="relative flex h-full max-h-[840px] w-full max-w-lg items-center justify-center">
             <article className="pattern-stars relative flex h-full w-full flex-col overflow-hidden rounded-[2rem] border border-border bg-gradient-to-b from-primary-soft to-card shadow-lg">

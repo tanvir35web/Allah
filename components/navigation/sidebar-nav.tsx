@@ -94,7 +94,7 @@ export function SidebarNav() {
   return (
     <aside
       aria-label="Sidebar Navigation"
-      className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-border/70 bg-card/60 backdrop-blur-xl md:flex"
+      className="fixed inset-y-0 left-0 z-40 hidden w-64 flex-col border-r border-border/70 bg-card/60 backdrop-blur-xl lg:flex"
     >
       {/* Brand Header */}
       <div className="flex flex-col gap-1 border-b border-border/60 px-5 py-5">
@@ -191,4 +191,3 @@ export function SidebarNav() {
     </aside>
   )
 }
-

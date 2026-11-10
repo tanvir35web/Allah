@@ -29,7 +29,7 @@ export function BottomNav() {
   return (
     <nav
       aria-label="Main"
-      className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/85 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 md:hidden"
+      className="safe-bottom fixed inset-x-0 bottom-0 z-40 border-t border-border/70 bg-background/85 backdrop-blur-xl supports-[backdrop-filter]:bg-background/70 lg:hidden"
     >
       <ul className="mx-auto grid h-[var(--nav-height)] max-w-2xl grid-cols-5 px-2">
         {NAV_ITEMS.map(({ href, label, icon: Icon, match }) => {

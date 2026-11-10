@@ -106,7 +106,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           Skip to content
         </a>
         <AppDataProvider>
-          <div className="min-h-screen md:pl-64">
+          <div className="min-h-screen lg:pl-64">
             <SidebarNav />
             <div className="min-h-screen">{children}</div>
           </div>

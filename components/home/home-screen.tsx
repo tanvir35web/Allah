@@ -60,7 +60,7 @@ export function HomeScreen() {
         </div>
       </header>
 
-      <main id="main" className="animate-rise pb-nav md:pb-12 mx-auto max-w-2xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl px-4 md:px-8 pt-4">
+      <main id="main" className="animate-rise pb-nav lg:pb-12 mx-auto max-w-2xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl px-4 md:px-8 pt-4">
         <StorageNotice />
         {ready ? (
           <div className="space-y-6">

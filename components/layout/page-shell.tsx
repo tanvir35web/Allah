@@ -69,7 +69,7 @@ export function PageShell({
           </div>
         </div>
       </header>
-      <main id="main" className={cn('animate-rise pb-nav md:pb-12 mx-auto px-4 md:px-8', widthClass, className)}>
+      <main id="main" className={cn('animate-rise pb-nav lg:pb-12 mx-auto px-4 md:px-8', widthClass, className)}>
         {variant === 'large' ? (
           <div className={cn('mb-6', barless ? 'pt-6 md:pt-8' : 'pt-2')}>
             <h1 className="text-[2rem] md:text-[2.5rem] leading-tight font-bold tracking-tight">{title}</h1>
