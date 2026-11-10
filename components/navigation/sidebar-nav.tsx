@@ -13,6 +13,7 @@ import {
   Sparkles,
   Star,
   Sun,
+  SunMoon,
   type LucideIcon,
 } from 'lucide-react'
 import Image from 'next/image'
@@ -186,7 +187,7 @@ export function SidebarNav() {
             ) : settings.theme === 'light' ? (
               <Sun className="size-4" aria-hidden />
             ) : (
-              <span className="text-xs font-semibold uppercase">Auto</span>
+              <SunMoon className="size-4" aria-hidden />
             )}
           </button>
         </div>
