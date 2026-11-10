@@ -199,6 +199,27 @@
 }
 
 @layer components {
+  /* Highlights for Arabic ayahs (inline, across lines). The colour reaches past
+     the text with box-shadow, not padding, so highlighting never reflows the
+     justified lines — padding on inline RTL text also shifted lines on iOS.
+     box-decoration-clone repeats the shadow on every line of a wrapped ayah. */
+  .ayah-highlight-pressed {
+    background-color: var(--muted);
+    box-shadow: 0 0 0 0.2em var(--muted);
+  }
+  .ayah-highlight-bookmark {
+    background-color: var(--primary-soft);
+    box-shadow:
+      0 0 0 0.2em var(--primary-soft),
+      0 0 0 calc(0.2em + 1px) color-mix(in srgb, var(--primary) 30%, transparent);
+  }
+  .ayah-highlight-playing {
+    background-color: var(--accent-soft);
+    box-shadow:
+      0 0 0 0.2em var(--accent-soft),
+      0 0 0 calc(0.2em + 1px) color-mix(in srgb, var(--accent) 25%, transparent);
+  }
+
   /* Subtle eight-point-star lattice, tinted per theme via --pattern. */
   .pattern-stars {
     position: relative;

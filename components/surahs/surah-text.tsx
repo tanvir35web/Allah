@@ -8,7 +8,7 @@ import { SectionTitle } from '@/components/ui/card'
 import type { ArabicSegment } from '@/lib/ayah'
 import { toBanglaDigits } from '@/lib/surah-search'
 import { cn } from '@/lib/utils'
-import { AyahActions, useLongPress } from './ayah-actions'
+import { AyahActions, useLongPress, type MenuPoint } from './ayah-actions'
 import { RecitationBar, useRecitation } from './recitation-player'
 
 const BISMILLAH_BN = 'শুরু করছি আল্লাহর নামে যিনি পরম করুণাময়, অতি দয়ালু।'
@@ -66,9 +66,10 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
   const recitation = useRecitation(surahId, surahName, ayahs.length, audio)
   const reciting = recitation.ayah
   // The ayah whose long-press menu is open.
-  const [menuAyah, setMenuAyah] = useState<number | null>(null)
-  const longPress = useLongPress(setMenuAyah)
-  const closeMenu = useCallback(() => setMenuAyah(null), [])
+  const [menu, setMenu] = useState<{ ayah: number; point: MenuPoint } | null>(null)
+  const menuAyah = menu?.ayah ?? null
+  const longPress = useLongPress((ayah, point) => setMenu({ ayah, point }))
+  const closeMenu = useCallback(() => setMenu(null), [])
   const showHint = useFirstTimeHint(LONG_PRESS_HINT_KEY)
 
   // Keep the ayah being recited in view.
@@ -95,7 +96,9 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
     // The keyboard's "menu" key, or Shift+F10, opens the same menu as a long press.
     if (event.key === 'ContextMenu' || (event.shiftKey && event.key === 'F10')) {
       event.preventDefault()
-      setMenuAyah(ayah)
+      // No pointer here: open beside the ayah itself.
+      const rect = (event.currentTarget as HTMLElement).getBoundingClientRect()
+      setMenu({ ayah, point: { x: rect.left + rect.width / 2, y: rect.bottom } })
       return
     }
     if (event.key !== 'Enter' && event.key !== ' ') return
@@ -140,14 +143,17 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
         onKeyDown={(event) => onKey(event, segment.ayah)}
         className={cn(
           SCROLL_MARGIN,
-          // Padding on every ayah, all the time, so highlighting one only changes
-          // colour and never reflows the justified lines. box-decoration-clone
-          // repeats it on each line of an ayah that wraps.
-          // No text selection or iOS callout, so holding an ayah opens our menu instead.
-          'cursor-pointer rounded-xl px-2 box-decoration-clone transition-colors select-none [-webkit-touch-callout:none] focus-visible:outline-2 focus-visible:outline-primary',
-          menuAyah === segment.ayah && 'bg-muted',
-          marked ? 'bg-primary-soft text-primary ring-1 ring-primary/30' : 'hover:bg-muted/60',
-          playing && 'bg-accent-soft text-foreground ring-1 ring-accent/25',
+          // No padding: highlights are drawn with box-shadow (see globals.css), so
+          // they never reflow the justified lines. No text selection or iOS
+          // callout, so holding an ayah opens our menu instead.
+          'cursor-pointer rounded-lg box-decoration-clone transition-[background-color,box-shadow] select-none [-webkit-touch-callout:none] focus-visible:outline-2 focus-visible:outline-primary',
+          playing
+            ? 'ayah-highlight-playing text-foreground'
+            : marked
+              ? 'ayah-highlight-bookmark text-primary'
+              : menuAyah === segment.ayah
+                ? 'ayah-highlight-pressed'
+                : 'hover:bg-muted/60',
         )}
       >
         {segment.text}
@@ -290,6 +296,7 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
 
       <AyahActions
         ayah={menuAyah}
+        point={menu?.point ?? null}
         bookmarked={menuAyah !== null && menuAyah === bookmark}
         canPlay={audio}
         onSave={() => menuAyah !== null && void setBookmark({ surahId, surahName }, menuAyah)}
