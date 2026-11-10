@@ -37,9 +37,10 @@ export function SurahReader({ surah, previous, next }: SurahReaderProps) {
         <BanglaText className="mt-1 block text-sm text-muted-foreground">
           {toBanglaDigits(surah.ayahs.length)} আয়াত · {revelationLabel(surah)}
         </BanglaText>
+        <div className="mt-4 flex justify-center">
+          <ReadingTimer surahId={surah.id} surahName={surah.transliteration} />
+        </div>
       </section>
-
-      <ReadingTimer surahId={surah.id} surahName={surah.transliteration} />
 
       <SurahText
         surahId={surah.id}

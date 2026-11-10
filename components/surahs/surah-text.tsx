@@ -97,11 +97,6 @@ export function SurahText({ surahId, surahName, bismillah, heading, segments, ay
             <BookmarkX className="size-4" aria-hidden />
           </button>
         </div>
-      ) : ready ? (
-        <p className="flex items-center gap-2 px-1 text-xs text-muted-foreground">
-          <Bookmark className="size-3.5 shrink-0" aria-hidden />
-          Tap any ayah to bookmark where you stop, and continue from there next time.
-        </p>
       ) : null}
 
       <section className="space-y-3" aria-labelledby="surah-arabic">

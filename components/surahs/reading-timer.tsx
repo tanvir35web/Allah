@@ -3,8 +3,8 @@
 import { Clock } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useAppData } from '@/components/providers/app-data-provider'
-import { Card } from '@/components/ui/card'
 import { formatClock, formatDuration } from '@/lib/reading'
+import { cn } from '@/lib/utils'
 
 /** Reading time stops counting after this long without a scroll, tap or key press. */
 const IDLE_MS = 120_000
@@ -76,26 +76,32 @@ export function ReadingTimer({ surahId, surahName }: { surahId: number; surahNam
     }
   }, [ready, surahId, surahName])
 
-  if (!ready) return <div className="h-[3.75rem]" aria-hidden />
+  // Same size as the pill, so the surah header does not shift when it appears.
+  if (!ready) return <span className="inline-block h-8 w-28 rounded-full bg-card/60" aria-hidden />
 
   const total = savedSeconds + unsavedSeconds
 
+  // A compact pill, shown inside the surah header.
   return (
-    <Card className="flex items-center gap-3 px-4 py-3">
-      <span className="grid size-9 shrink-0 place-items-center rounded-xl bg-primary-soft text-primary">
-        <Clock className="size-5" aria-hidden />
-      </span>
-      <p className="min-w-0 flex-1 text-[0.9375rem] text-muted-foreground">
-        Reading time
-        {paused ? <span> · Paused</span> : null}
-      </p>
+    <span
+      className={cn(
+        'inline-flex h-8 items-center gap-1.5 rounded-full bg-card/80 px-3 text-sm shadow-xs',
+        paused ? 'text-muted-foreground' : 'text-foreground',
+      )}
+      title={paused ? 'Reading time (paused)' : 'Reading time'}
+    >
+      <Clock className={cn('size-3.5', paused ? 'text-muted-foreground' : 'text-primary')} aria-hidden />
+      <span className="sr-only">Reading time{paused ? ', paused' : ''}: </span>
       {/* Ticks every second; screen readers get the rounded duration instead of a running clock. */}
-      <p className="text-[1.25rem] font-bold">
-        <span className="sr-only">{formatDuration(total)}</span>
-        <span className="tabular-nums" aria-hidden>
-          {formatClock(total)}
+      <span className="sr-only">{formatDuration(total)}</span>
+      <span className="font-semibold tabular-nums" aria-hidden>
+        {formatClock(total)}
+      </span>
+      {paused ? (
+        <span className="text-xs" aria-hidden>
+          · Paused
         </span>
-      </p>
-    </Card>
+      ) : null}
+    </span>
   )
 }
