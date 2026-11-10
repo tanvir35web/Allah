@@ -102,7 +102,7 @@ export function DailyNameCard() {
   }
 
   return (
-    <section aria-labelledby="daily-name-title" aria-roledescription="carousel" className="flex flex-col h-full">
+    <section aria-labelledby="daily-name-title" aria-roledescription="carousel" className="flex flex-col">
       {/* Clean header with fixed h-7 height for pixel-perfect vertical alignment */}
       <div className="mb-2 flex items-center justify-between px-1 h-7">
         <h2 id="daily-name-title" className="text-xs font-bold tracking-wider uppercase text-muted-foreground">

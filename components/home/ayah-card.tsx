@@ -38,7 +38,7 @@ export function AyahCard() {
   }, [])
 
   return (
-    <section aria-labelledby="ayah-title" className="flex flex-col h-full">
+    <section aria-labelledby="ayah-title" className="flex flex-col">
       {/* Clean quiet header with fixed h-7 for vertical alignment */}
       <div className="mb-2 flex items-center justify-between px-1 h-7">
         <h2 id="ayah-title" className="text-xs font-bold tracking-wider uppercase text-muted-foreground">

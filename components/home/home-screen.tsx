@@ -63,23 +63,25 @@ export function HomeScreen() {
       <main id="main" className="animate-rise pb-nav lg:pb-12 mx-auto max-w-2xl md:max-w-5xl lg:max-w-6xl xl:max-w-7xl px-4 md:px-8 pt-4">
         <StorageNotice />
         {ready ? (
-          <div className="space-y-6">
-            {/* Top Row: Daily Name Hero (7 cols) + Daily Goal (5 cols) - Equal Height & Baseline */}
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 items-stretch">
-              <div className="lg:col-span-7 flex flex-col">
+          // Two independent columns on desktop: a fluid main column and a
+          // narrower, sticky side column, so each card stacks directly under
+          // the one above it whatever their heights. Below lg the columns
+          // dissolve (`contents`) and `order` keeps the mobile sequence:
+          // Name, Goal, Ayah, Quick Access.
+          <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,1fr)_17.5rem] lg:gap-5 xl:grid-cols-[minmax(0,1fr)_21rem] 2xl:grid-cols-[minmax(0,1fr)_23rem]">
+            <div className="contents lg:flex lg:min-w-0 lg:flex-col lg:gap-6">
+              <div className="order-1">
                 <DailyNameCard />
               </div>
-              <div className="lg:col-span-5 flex flex-col">
-                <LearningHubCard />
-              </div>
-            </div>
-
-            {/* Bottom Row: Ayah of the Day (7 cols) + Quick Access (5 cols) - Equal Height & Baseline */}
-            <div className="grid grid-cols-1 gap-5 lg:grid-cols-12 items-stretch">
-              <div className="lg:col-span-7 flex flex-col">
+              <div className="order-3">
                 <AyahCard />
               </div>
-              <div className="lg:col-span-5 flex flex-col">
+            </div>
+            <div className="contents lg:sticky lg:top-6 lg:flex lg:min-w-0 lg:flex-col lg:gap-6">
+              <div className="order-2">
+                <LearningHubCard />
+              </div>
+              <div className="order-4">
                 <ExploreList />
               </div>
             </div>
@@ -127,7 +129,7 @@ function LearningHubCard() {
   const remaining = goal - learnedToday
 
   return (
-    <section aria-labelledby="learning-hub-title" className="flex flex-col h-full">
+    <section aria-labelledby="learning-hub-title" className="flex flex-col">
       {/* Header height h-7 exactly matches Name of the Day header */}
       <div className="mb-2 flex items-center justify-between px-1 h-7">
         <h2 id="learning-hub-title" className="text-xs font-bold tracking-wider uppercase text-muted-foreground">
@@ -272,7 +274,7 @@ function ExploreList() {
   ]
 
   return (
-    <section aria-labelledby="explore-title" className="flex flex-col h-full">
+    <section aria-labelledby="explore-title" className="flex flex-col">
       {/* Header matches AyahCard's header */}
       <div className="mb-2 flex items-center justify-between px-1 h-7">
         <h2 id="explore-title" className="text-xs font-bold tracking-wider uppercase text-muted-foreground">
