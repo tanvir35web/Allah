@@ -15,9 +15,9 @@ import {
   Sun,
   type LucideIcon,
 } from 'lucide-react'
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { ArabicText } from '@/components/common/localized-text'
 import { useAppData } from '@/components/providers/app-data-provider'
 import { useReviewQueue } from '@/hooks/use-derived-data'
 import type { ThemePreference } from '@/lib/types'
@@ -99,14 +99,17 @@ export function SidebarNav() {
       {/* Brand Header */}
       <div className="flex flex-col gap-1 border-b border-border/60 px-5 py-5">
         <Link href="/" className="group flex items-center gap-3">
-          <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-sm transition-transform group-hover:scale-105">
-            <BookOpen className="size-5" />
-          </span>
-          <div className="min-w-0 flex-1">
-            <span className="block text-base font-bold tracking-tight text-foreground">99 Names of Allah</span>
-            <ArabicText className="block text-xs leading-none text-muted-foreground">
-              أسماء الله الحسنى
-            </ArabicText>
+          <Image
+            src="/icons/icon-192.png"
+            alt=""
+            width={40}
+            height={40}
+            priority
+            className="size-10 shrink-0 rounded-xl shadow-sm transition-transform group-hover:scale-105"
+          />
+          <div className="min-w-0 flex-1 leading-tight">
+            <span className="block truncate text-[0.95rem] font-bold tracking-tight text-foreground">99 Names of Allah</span>
+            <span className="mt-0.5 block truncate text-xs font-medium text-primary">Asma ul Husna</span>
           </div>
         </Link>
       </div>

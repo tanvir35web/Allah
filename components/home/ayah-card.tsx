@@ -70,7 +70,7 @@ export function AyahCard() {
             <p
               lang="ar"
               dir="rtl"
-              className="font-quran text-2xl sm:text-3xl md:text-4xl lg:text-[2.65rem] leading-[2.3] md:leading-[2.7] tracking-wider [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-foreground select-none"
+              className="font-quran text-2xl sm:text-3xl md:text-4xl lg:text-[2.65rem] leading-[2.3] md:leading-[2.4] [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-foreground select-none"
             >
               {shown.ayah.arabic}
             </p>

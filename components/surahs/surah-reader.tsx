@@ -18,6 +18,11 @@ interface SurahReaderProps {
 export function SurahReader({ surah, previous, next }: SurahReaderProps) {
   // Al-Fatihah counts the Bismillah as its first ayah; At-Tawbah has none.
   const showBismillah = surah.id !== 1 && surah.id !== 9
+  // Al-Fatihah's Bismillah ayah (up to its first ayah-end mark) gets its own
+  // centred line, like the Bismillah heading of the other surahs.
+  const fatihaSplit = surah.id === 1 && surah.arabic.startsWith(bismillah) ? surah.arabic.indexOf('۝') + 1 : 0
+  const arabicHeading = showBismillah ? bismillah : fatihaSplit ? surah.arabic.slice(0, fatihaSplit) : null
+  const arabicBody = fatihaSplit ? surah.arabic.slice(fatihaSplit).trimStart() : surah.arabic
 
   return (
     <article className="space-y-5" aria-labelledby="surah-title">
@@ -42,13 +47,13 @@ export function SurahReader({ surah, previous, next }: SurahReaderProps) {
       <section className="space-y-3" aria-labelledby="surah-arabic">
         <SectionTitle id="surah-arabic">Arabic</SectionTitle>
         <div>
-          {showBismillah ? (
+          {arabicHeading ? (
             <span
               lang="ar"
               dir="rtl"
-              className="mb-3 block text-center font-quran text-[2rem] md:text-[2.5rem] leading-[2.2] md:leading-[2.6] tracking-wider [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-arabic"
+              className="mb-3 block whitespace-nowrap text-center font-quran text-[clamp(1.4rem,6.5vw,2rem)] md:text-[2.5rem] leading-[2.2] md:leading-[2.35] [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-arabic"
             >
-              {bismillah}
+              {arabicHeading}
             </span>
           ) : null}
           {/* IndoPak mushaf style: one continuous block, with the ayah numbers,
@@ -56,9 +61,9 @@ export function SurahReader({ surah, previous, next }: SurahReaderProps) {
           <p
             lang="ar"
             dir="rtl"
-            className="font-quran text-justify text-[1.9rem] md:text-[2.35rem] lg:text-[2.6rem] leading-[2.4] md:leading-[2.8] tracking-wider [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-arabic"
+            className="font-quran text-justify text-[1.9rem] md:text-[2.35rem] lg:text-[2.6rem] leading-[2.4] md:leading-[2.5] [word-spacing:0.25rem] md:[word-spacing:0.4rem] text-arabic"
           >
-            {surah.arabic}
+            {arabicBody}
           </p>
         </div>
       </section>
